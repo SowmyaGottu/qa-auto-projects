@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-workspace name="WebServicesAutomation" soapui-version="5.2.1" xmlns:con="http://eviware.com/soapui/config">
+  <con:settings/>
+  <con:project name="AmexRtnWS">D:/ChromeRiver/CR_SVN/WebServices/AmexRTM_WS-soapui-project.xml</con:project>
+  <con:project name="EntityWS">D:/ChromeRiver/CR_SVN/WebServices/EntityWS-soapui-project.xml</con:project>
+  <con:project name="LoginWS">D:/ChromeRiver/CR_SVN/WebServices/LoginWS-soapui-project.xml</con:project>
+  <con:project name="MatterWS">D:/ChromeRiver/CR_SVN/WebServices/MatterWS-soapui-project.xml</con:project>
+  <con:project name="PersonWS">D:/ChromeRiver/CR_SVN/WebServices/PersonWS-soapui-project.xml</con:project>
+  <con:project name="PaidExpenseWS">D:/ChromeRiver/CR_SVN/WebServices/PaidExpenseWS-soapui-project.xml</con:project>
+  <con:project name="VendorWS">D:/ChromeRiver/CR_SVN/WebServices/VendorWS-soapui-project.xml</con:project>
+  <con:project name="GlWS">D:/ChromeRiver/CR_SVN/WebServices/GlWS-soapui-project.xml</con:project>
+  <con:project name="MatterWS - TEMP">D:/ChromeRiver/CR_SVN/WebServices/MatterWS-soapui-project - Copy.xml</con:project>
+  <con:collectInfoForSupport>false</con:collectInfoForSupport>
+</con:soapui-workspace>

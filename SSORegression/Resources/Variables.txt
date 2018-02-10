@@ -1,0 +1,82 @@
+*** Settings ***
+Documentation  Resource file for basic settings.
+
+*** Variables ***
+${BROWSER}              ie
+${ENV}                  STAG
+
+# CFA
+${CFA_Saml_PlatinumUserEmail}        saml_qa_pt@chromewallet.com
+${CFA_Saml_PlatinumPassword}         1river101
+${CFA_Saml_PlatinumUserEmail_Bad}    saml_qa_bad@chromewallet.com
+${CFA_Saml_PlatinumPassword_Bad}     1river101_bad
+${CFA_Saml_CompanyID}                chromewallet.com
+
+${CFA_Sso_PlatinumUserEmail}         saml_qa_pt@chromewallet.com
+${CFA_Sso_PlatinumPassword}          1river101
+${CFA_Sso_PlatinumUserEmail_Bad}     saml_qa_bad@chromewallet.com
+${CFA_Sso_PlatinumPassword_Bad}      1river101_bad
+${CFA_Sso_CompanyID}                 chromewallet.com
+
+${CFA_Saml_MercuryUserEmail}         saml_qa_hg@chromewallet.com
+${CFA_Saml_MercuryPassword}          1river101
+${CFA_Saml_MercuryUserEmail_Bad}     saml_qa_hg_bad@chromewallet.com
+${CFA_Saml_MercuryPassword_Bad}      1river101_bad
+
+${CFA_Sso_MercuryUserEmail}          saml_qa_hg@chromewallet.com
+${CFA_Sso_MercuryPassword}           1river101
+${CFA_Sso_MercuryUserEmail_Bad}      saml_qa_hg_bad@chromewallet.com
+${CFA_Sso_MercuryPassword_Bad}       1river101_bad
+
+#PBJ
+${PBJ_Saml_PlatinumUserEmail}        saml_qa_pt@chromewallet.com
+${PBJ_Saml_PlatinumPassword}         1river101
+${PBJ_Saml_PlatinumUserEmail_Bad}    saml_qa_hg_bad@chromewallet.com
+${PBJ_Saml_PlatinumPassword_Bad}     1river101_bad
+
+${PBJ_Sso_PlatinumUserEmail}         SSOAccept7@chromewallet.com
+${PBJ_Sso_PlatinumUserName}          SSOAccept
+${PBJ_Sso_PlatinumPassword}          1river101_Test
+${PBJ_Sso_PlatinumUserEmail_Bad}     SSOReject7@chromewallet.com
+${PBJ_Sso_PlatinumUserName_Bad}      SSOReject
+${PBJ_Sso_PlatinumPassword_Bad}      1river101_bad
+
+${PBJ_Saml_MercuryUserEmail}         saml_qa_hg@chromewallet.com
+${PBJ_Saml_MercuryPassword}          1river101
+${PBJ_Saml_MercuryUserEmail_Bad}     saml_qa_hg_bad@chromewallet.com
+${PBJ_Saml_MercuryPassword_Bad}      1river101_bad
+${PBJ_Saml_CompanyID}                pbj.com
+
+${PBJ_Sso_MercuryUserEmail}          SSOAcceptHg7@chromewallet.com
+${PBJ_Sso_MercuryUserName}           SSOAcceptHg
+${PBJ_Sso_MercuryPassword}           1river101
+${PBJ_Sso_MercuryUserEmail_Bad}      SSORjectHg7@chromewallet.com
+${PBJ_Sso_MercuryUserName_Bad}       SSORejectHg
+${PBJ_Sso_MercuryPassword_Bad}       1river101_bad
+${PBJ_Sso_CompanyID}                 www.pbj.com
+
+#BLT
+${BLT_Saml_PlatinumUserEmail}        chrome_saml_qa@crblt.com
+${BLT_Saml_PlatinumPassword}         1river101
+${BLT_Saml_PlatinumUserEmail_Bad}    chrome_saml_qa_bad@crblt.com
+${BLT_Saml_PlatinumPassword_Bad}     1river101_bad
+
+${BLT_Saml_MercuryUserEmail}         chrome_saml_qa_hg@crblt.com
+${BLT_Saml_MercuryPassword}          1river101
+${BLT_Saml_MercuryUserEmail_Bad}     chrome_saml_qa_hg_bad@crblt.com
+${BLT_Saml_MercuryPassword_Bad}      1river101_bad
+${BLT_Saml_CompanyID}                blt.com
+
+# ASAHQ
+${ASAHQ_Pass_UserName}              pass_user
+${ASAHQ_Pass_Password}              1river101
+${ASAHQ_PassPt_UserName}            pass_user_pt
+${ASAHQ_PassPt_Password}            1river101
+${ASAHQ_Fail_UserName}              fail_user
+${ASAHQ_Fail_Password}              Password
+${ASAHQ_CompanyID}                  www.asahq.org
+
+# Files
+${STAG_SSO_File}                    CR_SSO_Staging_PHP.html
+${QA_SSO_File}                      CR_SSO_QA_PHP.html
+${PROD_SSO_File}                    CR_SSO_Prod_PHP.html

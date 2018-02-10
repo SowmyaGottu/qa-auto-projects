@@ -1,0 +1,1558 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project id="e776901d-fb16-403e-b000-e9e24c9ec53c" activeEnvironment="Default" name="EntityWS" resourceRoot="" soapui-version="5.2.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" id="976199f3-ee3f-4a31-8be0-ade37fc12f96" wsaVersion="NONE" name="EntityServiceSoapBinding" type="wsdl" bindingName="{http://entity.ws.soap.chromeriver.com/}EntityServiceSoapBinding" soapVersion="1_1" anonymous="optional" definition="https://staging-api.chromeriver.com/ws_EntityV1?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="https://staging-api.chromeriver.com/ws_EntityV1?wsdl"><con:part><con:url>https://staging-api.chromeriver.com/ws_EntityV1?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="EntityService" targetNamespace="http://entity.ws.soap.chromeriver.com/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://entity.ws.soap.chromeriver.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:documentation>The Chrome River Entity Web Service fulfills requests from our customers to create/update/delete entity records.
+
+To get started with Entity Web Service, please submit a Chrome River Help Desk ticket. Our Implementation team will work with you to get everything set up and running.
+
+To access this service, use this Web Services Description Language (WSDL) file to generate the required client proxy classes: https://api.chromeriver.com/ws_EntityV1?wsdl
+
+Please also read this documentation to understand what it does and how to properly prepare requests.
+
+Logging In
+
+Each request to access this service must be authenticated via either login credentials or a session token. The Login Web Service may be used to submit the user's login information in a request consisting of companyID, userID, and password. The user will receive a token to submit with subsequent requests to other Chrome River Web Services, eliminating the need to provide the login information again.
+
+While it is also possible to submit login information directly via the header of the Entity Web Service, it is recommended that customers use the Login Web Service first to obtain a session token, and then submit this token in each subsequent request to the Entity Service.
+
+Chrome River Entity Web Service Overview
+
+Please use the following description as a reference, but do not hesitate to contact us at support@chromeriver.com should you run into problems or have questions.
+
+There are five operations exposed via the Entity Web Service: createEntity, updateEntity, deleteEntity, createEntityType and updateEntityType. Each call either creates or updates or deletes a single entity or entityType record in the Chrome River system for the requesting customer.
+
+Each call to one of the five operations (createEntity, updateEntity, deleteEntity, createEntityType, updateEntityType) requires two input objects: the LoginCredentials object and Entity/EntityType object. The former contains either the full login information or a session token, while the latter contains input parameter values (those that are optional may be omitted) required to complete the request.
+
+The service responds to a request with the MessageEnvelope object. In the event of a successful outcome, the envelope will contain the statusCode "ReturnStatusCode.SUCCESS." In the event of a failed outcome, the envelope will contain the statusCode "ReturnStatusCode.FAIL," along with a list of ValidationError objects detailing why the request was not completed successfully.
+
+Each ValidationError contains three pieces of information: the error code, the name of the error code, and a brief message explaining the error. For example, in a createEntity request, if the incoming entityTypeCode and entityCode already point to an existing entity in our system, the response envelope will contain the ValidationError with error code "500," the name "ObjectExists," and the message "Entity already exists.
+
+It is recommended that each error message be processed, the input be corrected, and the request be retried at a later time. Also note that each request is first authenticated before further processing, so that if the token or the login credentials are not valid, only a "9000/InvalidLogin" error or a "9001/InvalidSession" error will be returned in the response. For more information about login errors, please see the WSDL documentation for the Login Web Service.
+
+For the createEntity ,updateEntity and deleteEntity operations, not all of the parameters for the input Entity object are required in all cases. If a parameter is not required, it may be omitted from the request. In such a case, it will take on the default value (null/empty value, unless otherwise specified) in our system in a createEntity and updateEntity call.
+
+Entity Web Service - Parameters and Validation Rules
+
+Here are validation rules for the createEntity ,updateEntity and deleteEntity operations that are unrelated to the fields of the input Entity object.
+
+Here are the parameters of the input Entity object for the createEntity , updateEntity and deleteEntity operations and associated validation rules. 
+
+=========
+Field: entityCode
+Description: code of the entity.
+
+Field: entityName
+Description: name of the entity.
+
+Field: entityTypeCode
+Description: code of the entity type.
+---
+Constraint: in createEntity call, must not refer to an existing entity
+Violation: input value refers to an existing entity
+Error: 500/ObjectExists
+---
+Constraint: in updateEntity call, must refer to an existing entity
+Violation: input value does not refer to an existing entity
+Error: 501/ObjectMissing
+---
+Constraint: in deleteEntity call, must refer to an existing entity
+Violation: input value does not refer to an existing entity
+Error: 501/ObjectMissing
+---
+Constraint: required
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+
+Below are the parameters of the input EntityType object for the createEntityType and updateEntityType operations.
+
+=========
+Field: EntityTypeCode
+Description: Entity type code.
+Format: 1-32 characters. 
+---
+Constraint: in createEntityType call, must not refer to an existing EntityType
+Violation: input value refers to an existing EntityType
+Error: 500/ObjectExists
+---
+Constraint: in updateEntityType call, must refer to an existing EntityType
+Violation: input value does not refer to an existing EntityType
+Error: 501/ObjectMissing
+---
+Constraint: required
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: length
+Violation: input value must be greater or equal to 1 and less than or equal to 32 characters
+Error: 1005/IncorrectLength
+=========
+Field: EntityTypeDescription
+Description: Entity type description
+Format: 1-100 characters
+---
+Constraint: required
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: length
+Violation: input value must be greater or equal to 1 and less than or equal to 100 characters
+Error: 1005/IncorrectLength
+=========
+Field: EntityTypeName
+Description: Entity type name
+Format: 1-50 characters
+---
+Constraint: required
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: length
+Violation: input value must be greater or equal to 1 and less than or equal to 50 characters
+Error: 1005/IncorrectLength
+=========
+Field: LoadOnLogin
+Description: Enables whether Entity Type should be cached.  Valid entries are:
+0: Entity Type should not be cached
+1: Entity Type should be loaded on page load(cache load)
+Defaults to 1(Entity Type should be loaded on page load).
+---
+Violation: input value must be either 0 or 1 
+Error: 2012/Invalid Entity Type LoadOnLogin input
+=========
+
+For more information about this and other Chrome River Web Services, please contact us at support@chromeriver.com.</wsdl:documentation>
+  <wsdl:types>
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://entity.ws.soap.chromeriver.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:complexType name="Payload">
+        <xs:sequence/>
+      </xs:complexType>
+      <xs:complexType name="Entity">
+        <xs:complexContent>
+          <xs:extension base="tns:Payload">
+            <xs:sequence>
+              <xs:element name="entityTypeCode" type="xs:string"/>
+              <xs:element name="entityCode" type="xs:string"/>
+              <xs:element name="entityName" type="xs:string"/>
+              <xs:element minOccurs="0" name="extraData1" type="xs:string"/>
+              <xs:element minOccurs="0" name="extraData2" type="xs:string"/>
+              <xs:element minOccurs="0" name="sortOrder" type="xs:string"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="loginCredentials">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="token" type="xs:string"/>
+          <xs:element minOccurs="0" name="user" type="tns:userLoginInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="userLoginInfo">
+        <xs:sequence>
+          <xs:element name="companyId" type="xs:string"/>
+          <xs:element name="userId" type="xs:string"/>
+          <xs:element name="password" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="MessageEnvelope">
+        <xs:sequence>
+          <xs:element name="statusCode" type="tns:returnStatusCode"/>
+          <xs:element minOccurs="0" name="sessionId" type="xs:string"/>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="validationError" type="tns:ValidationError"/>
+          <xs:element minOccurs="0" name="webServicePayload" type="tns:Payload"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ValidationError">
+        <xs:sequence>
+          <xs:element name="code" type="xs:string"/>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element minOccurs="0" name="message" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="EntityType">
+        <xs:complexContent>
+          <xs:extension base="tns:Payload">
+            <xs:sequence>
+              <xs:element name="EntityTypeCode" type="xs:string"/>
+              <xs:element name="EntityTypeName" type="xs:string"/>
+              <xs:element name="EntityTypeDescription" type="xs:string"/>
+              <xs:element minOccurs="0" name="LoadOnLogin" type="xs:string"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:simpleType name="returnStatusCode">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="FAIL"/>
+          <xs:enumeration value="SUCCESS"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:element name="credentials" nillable="true" type="tns:loginCredentials"/>
+      <xs:element name="inEntityCreate" nillable="true" type="tns:Entity"/>
+      <xs:element name="createEntityResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inEntityUpdate" nillable="true" type="tns:Entity"/>
+      <xs:element name="updateEntityResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inEntityDelete" nillable="true" type="tns:Entity"/>
+      <xs:element name="deleteEntityResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inEntityTypeCreate" nillable="true" type="tns:EntityType"/>
+      <xs:element name="createEntityTypeResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inEntityTypeUpdate" nillable="true" type="tns:EntityType"/>
+      <xs:element name="updateEntityTypeResponse" nillable="true" type="tns:MessageEnvelope"/>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="createEntityType">
+    <wsdl:part element="tns:inEntityTypeCreate" name="inEntityTypeCreate"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="deleteEntity">
+    <wsdl:part element="tns:inEntityDelete" name="inEntityDelete"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateEntity">
+    <wsdl:part element="tns:inEntityUpdate" name="inEntityUpdate"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createEntityResponse">
+    <wsdl:part element="tns:createEntityResponse" name="createEntityResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="deleteEntityResponse">
+    <wsdl:part element="tns:deleteEntityResponse" name="deleteEntityResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createEntityTypeResponse">
+    <wsdl:part element="tns:createEntityTypeResponse" name="createEntityTypeResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateEntityResponse">
+    <wsdl:part element="tns:updateEntityResponse" name="updateEntityResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createEntity">
+    <wsdl:part element="tns:inEntityCreate" name="inEntityCreate"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateEntityTypeResponse">
+    <wsdl:part element="tns:updateEntityTypeResponse" name="updateEntityTypeResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateEntityType">
+    <wsdl:part element="tns:inEntityTypeUpdate" name="inEntityTypeUpdate"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="EntityService">
+    <wsdl:operation name="createEntity">
+      <wsdl:input message="tns:createEntity" name="createEntity"></wsdl:input>
+      <wsdl:output message="tns:createEntityResponse" name="createEntityResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateEntity">
+      <wsdl:input message="tns:updateEntity" name="updateEntity"></wsdl:input>
+      <wsdl:output message="tns:updateEntityResponse" name="updateEntityResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="deleteEntity">
+      <wsdl:input message="tns:deleteEntity" name="deleteEntity"></wsdl:input>
+      <wsdl:output message="tns:deleteEntityResponse" name="deleteEntityResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createEntityType">
+      <wsdl:input message="tns:createEntityType" name="createEntityType"></wsdl:input>
+      <wsdl:output message="tns:createEntityTypeResponse" name="createEntityTypeResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateEntityType">
+      <wsdl:input message="tns:updateEntityType" name="updateEntityType"></wsdl:input>
+      <wsdl:output message="tns:updateEntityTypeResponse" name="updateEntityTypeResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="EntityServiceSoapBinding" type="tns:EntityService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="createEntity">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createEntity">
+        <soap:header message="tns:createEntity" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inEntityCreate" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createEntityResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateEntity">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="updateEntity">
+        <soap:header message="tns:updateEntity" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inEntityUpdate" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="updateEntityResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="deleteEntity">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="deleteEntity">
+        <soap:header message="tns:deleteEntity" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inEntityDelete" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="deleteEntityResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createEntityType">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createEntityType">
+        <soap:header message="tns:createEntityType" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inEntityTypeCreate" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createEntityTypeResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateEntityType">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="updateEntityType">
+        <soap:header message="tns:updateEntityType" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inEntityTypeUpdate" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="updateEntityTypeResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="EntityService">
+    <wsdl:port binding="tns:EntityServiceSoapBinding" name="EntityServicePort">
+      <soap:address location="https://staging-api.chromeriver.com/ws_EntityV1"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>https://staging-api.chromeriver.com/ws_EntityV1</con:endpoint></con:endpoints><con:operation id="8fbbbd9c-93b5-4f08-bb40-4c9ba9cfc721" isOneWay="false" action="" name="createEntity" bindingOperationName="createEntity" type="Request-Response" outputName="createEntityResponse" inputName="createEntity" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="863fc4d3-903b-4b31-b156-fe42fda38871" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityCreate>
+         <entityTypeCode>?</entityTypeCode>
+         <entityCode>?</entityCode>
+         <entityName>?</entityName>
+         <!--Optional:-->
+         <extraData1>?</extraData1>
+         <!--Optional:-->
+         <extraData2>?</extraData2>
+         <!--Optional:-->
+         <sortOrder>?</sortOrder>
+      </ent:inEntityCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://entity.ws.soap.chromeriver.com/EntityService/createEntity"/></con:call></con:operation><con:operation id="e62af4d7-1b13-4f80-bce7-9938020267dc" isOneWay="false" action="" name="createEntityType" bindingOperationName="createEntityType" type="Request-Response" outputName="createEntityTypeResponse" inputName="createEntityType" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="b766437a-0656-4b33-8bae-2179cd917a8c" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeCreate>
+         <EntityTypeCode>?</EntityTypeCode>
+         <EntityTypeName>?</EntityTypeName>
+         <EntityTypeDescription>?</EntityTypeDescription>
+         <!--Optional:-->
+         <LoadOnLogin>?</LoadOnLogin>
+      </ent:inEntityTypeCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://entity.ws.soap.chromeriver.com/EntityService/createEntityType"/></con:call></con:operation><con:operation id="77d7e672-21f7-473f-b219-9f123038c4c3" isOneWay="false" action="" name="deleteEntity" bindingOperationName="deleteEntity" type="Request-Response" outputName="deleteEntityResponse" inputName="deleteEntity" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="3616f13d-9296-4563-a9d2-541efbdf73dc" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityDelete>
+         <entityTypeCode>?</entityTypeCode>
+         <entityCode>?</entityCode>
+         <entityName>?</entityName>
+         <!--Optional:-->
+         <extraData1>?</extraData1>
+         <!--Optional:-->
+         <extraData2>?</extraData2>
+         <!--Optional:-->
+         <sortOrder>?</sortOrder>
+      </ent:inEntityDelete>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://entity.ws.soap.chromeriver.com/EntityService/deleteEntity"/></con:call></con:operation><con:operation id="2d839e26-9f39-4f59-bc8c-b9afa1e2a76b" isOneWay="false" action="" name="updateEntity" bindingOperationName="updateEntity" type="Request-Response" outputName="updateEntityResponse" inputName="updateEntity" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="549b7c88-83da-4b46-8760-3b9fee73db4a" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityUpdate>
+         <entityTypeCode>?</entityTypeCode>
+         <entityCode>?</entityCode>
+         <entityName>?</entityName>
+         <!--Optional:-->
+         <extraData1>?</extraData1>
+         <!--Optional:-->
+         <extraData2>?</extraData2>
+         <!--Optional:-->
+         <sortOrder>?</sortOrder>
+      </ent:inEntityUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntity"/></con:call></con:operation><con:operation id="a66a17fd-9d32-4741-aae6-98e217a0b25d" isOneWay="false" action="" name="updateEntityType" bindingOperationName="updateEntityType" type="Request-Response" outputName="updateEntityTypeResponse" inputName="updateEntityType" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="9fb724ae-d612-4d73-8d4e-76df90cc74ff" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeUpdate>
+         <EntityTypeCode>?</EntityTypeCode>
+         <EntityTypeName>?</EntityTypeName>
+         <EntityTypeDescription>?</EntityTypeDescription>
+         <!--Optional:-->
+         <LoadOnLogin>?</LoadOnLogin>
+      </ent:inEntityTypeUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntityType"/></con:call></con:operation></con:interface><con:interface xsi:type="con:WsdlInterface" id="824c0c13-21b2-4750-aa36-93a8a8f86aa9" wsaVersion="NONE" name="LoginServiceSoapBinding" type="wsdl" bindingName="{http://login.ws.chromeriver.com/}LoginServiceSoapBinding" soapVersion="1_1" anonymous="optional" definition="https://staging-api.chromeriver.com/ws_LoginV1?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="https://staging-api.chromeriver.com/ws_LoginV1?wsdl"><con:part><con:url>https://staging-api.chromeriver.com/ws_LoginV1?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="LoginService" targetNamespace="http://login.ws.chromeriver.com/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://login.ws.chromeriver.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:documentation>The Chrome River Login Web Service fulfills requests from our customers to log in to our Web Services platform.
+
+To get started with Chrome River Web Services, please submit a Chrome River Help Desk ticket. Our Implementation team will work with you to get everything set up and running.
+
+To access this service, use this Web Services Description Language (WSDL) file to generate the required client proxy classes: https://api.chromeriver.com/ws_LoginV1?wsdl
+
+Please also read this documentation to understand what it does and how to properly prepare requests.
+
+Logging In
+
+Each request to access a Chrome River Web Service must be authenticated via either login credentials or a session token. The Login Web Service may be used to submit the user's login information in a request consisting of companyID, userID, and password. The user will receive a token to submit with subsequent requests to other Chrome River Web Services, eliminating the need to provide the login information again. 
+
+While it is also possible to submit login information directly via the header of every Chrome River Web Service, it is recommended that customers use the Login Web Service first to obtain a session token, and then submit this token in each subsequent request to the other services.
+
+Chrome River Login Web Service Overview
+
+Only one operation is exposed via the Login Web Service: createSession. The purpose of this operation is to submit login credentials and get in response a session token used to access other Chrome River Web Services. The token will renew each time it is used in a request. It will expire after 30 minutes of inactivity, at which point a new token must be acquired by resubmitting the login credentials to this service.
+
+Each call to the createSession operation requires the LoginCredentials input object, which contains two parameters: token and user. This object is actually a shared input across all Chrome River Web Services. In services other than the Login Service, the token parameter is used to submit the session ID along with the rest of the request. In the Login Service, use the user parameter to set the required login credentials: companyID, userID, and password. 
+
+The service responds to a request with the MessageEnvelope object. In the event of a successful outcome, the envelope will contain the statusCode "ReturnStatusCode.SUCCESS," along with a session token in the sessionID field. In the event of a failed outcome, the envelope will contain the statusCode "ReturnStatusCode.FAIL," along with a list of ValidationError objects detailing why the request was not successful. Each ValidationError contains three pieces of information: the error code, the name of the error code, and a brief message explaining the error.
+
+In the Login Service there are two possible error scenarios: 
+
+1. Invalid Login
+=====================
+Description: The credentials provided do not match a valid record in our system.
+Error Code: 9000
+Error Name: InvalidLogin
+Error Message: Invalid login information
+Resolution: Double-check that the companyID, userID, and password match those provided to you previously by Chrome River.
+
+2. Invalid Session
+=====================
+Description: The token provided is not valid or has expired.
+Error Code: 9001
+Error Name: InvalidSession
+Error Message: No session, or session no longer valid.
+Resolution: Log in again with full credentials to obtain a new and valid session token.
+
+For more information about this and other Chrome River Web Services, please contact us at support@chromeriver.com.</wsdl:documentation>
+  <wsdl:types>
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://login.ws.chromeriver.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:complexType name="loginCredentials">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="token" type="xs:string"/>
+          <xs:element minOccurs="0" name="user" type="tns:userLoginInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="userLoginInfo">
+        <xs:sequence>
+          <xs:element name="companyId" type="xs:string"/>
+          <xs:element name="userId" type="xs:string"/>
+          <xs:element name="password" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="MessageEnvelope">
+        <xs:sequence>
+          <xs:element name="statusCode" type="tns:returnStatusCode"/>
+          <xs:element minOccurs="0" name="sessionId" type="xs:string"/>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="validationError" type="tns:ValidationError"/>
+          <xs:element minOccurs="0" name="webServicePayload" type="tns:Payload"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ValidationError">
+        <xs:sequence>
+          <xs:element name="code" type="xs:string"/>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element minOccurs="0" name="message" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Payload">
+        <xs:sequence/>
+      </xs:complexType>
+      <xs:simpleType name="returnStatusCode">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="FAIL"/>
+          <xs:enumeration value="SUCCESS"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:element name="loginCredentials" nillable="true" type="tns:loginCredentials"/>
+      <xs:element name="createSessionResponse" nillable="true" type="tns:MessageEnvelope"/>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="createSessionResponse">
+    <wsdl:part element="tns:createSessionResponse" name="createSessionResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createSession">
+    <wsdl:part element="tns:loginCredentials" name="loginCredentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="Login">
+    <wsdl:operation name="createSession">
+      <wsdl:input message="tns:createSession" name="createSession"></wsdl:input>
+      <wsdl:output message="tns:createSessionResponse" name="createSessionResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="LoginServiceSoapBinding" type="tns:Login">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="createSession">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createSession">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createSessionResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="LoginService">
+    <wsdl:port binding="tns:LoginServiceSoapBinding" name="LoginPort">
+      <soap:address location="https://staging-api.chromeriver.com/ws_LoginV1"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>https://staging-api.chromeriver.com/ws_LoginV1</con:endpoint></con:endpoints><con:operation id="780d9956-2353-499b-842a-dfb307cb81a7" isOneWay="false" action="" name="createSession" bindingOperationName="createSession" type="Request-Response" outputName="createSessionResponse" inputName="createSession" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="408bcda0-2a13-400e-866b-86fac96cd4f9" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_LoginV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:log="http://login.ws.chromeriver.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <log:loginCredentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </log:loginCredentials>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://login.ws.chromeriver.com/Login/createSession"/></con:call></con:operation></con:interface><con:testSuite name="EntityWS_Suite" id="6a16eecb-e699-4df1-b8f1-96b50fc0c4f0"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="3f8e11d5-e6c2-42e1-be58-f87a241d4436" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Login_Case" searchProperties="true"><con:settings/><con:testStep type="groovy" name="setLoginVariables" id="49fe0084-dfc2-4cd8-93ca-f74bed51ab82"><con:settings/><con:config><script>import soapUI.*
+
+def baseHost = com.eviware.soapui.SoapUI.globalProperties.getPropertyValue("basehost");
+
+if ( baseHost == 'api.chromeriver.com' ){
+	testRunner.testCase.testSuite.project.setPropertyValue("Environment","Production");
+	
+} else if ( baseHost == 'qa-api.chromeriver.com' ){
+	testRunner.testCase.testSuite.project.setPropertyValue("Environment","QA");
+	
+} else {
+	// baseHost == staging-api.chromeriver.com
+	testRunner.testCase.testSuite.project.setPropertyValue("Environment","Staging");
+}
+
+def env = testRunner.testCase.testSuite.project.getPropertyValue("Environment");
+def password = testRunner.testCase.testSuite.project.getPropertyValue("Password");
+
+
+if(env == "Staging"){
+	def stagingPassword = new java.util.Properties();
+	stagingPassword = testRunner.testCase.testSuite.project.getPropertyValue("StagingPassword");
+	testRunner.testCase.testSuite.project.setPropertyValue( "Password", stagingPassword);
+	
+} else if(env == "QA"){
+	def QAPassword = new java.util.Properties();
+	QAPassword = testRunner.testCase.testSuite.project.getPropertyValue("QAPassword");
+	testRunner.testCase.testSuite.project.setPropertyValue( "Password", QAPassword);
+} else if(env == "Production"){
+	def ProductionPassword = new java.util.Properties();
+	ProductionPassword = testRunner.testCase.testSuite.project.getPropertyValue("ProductionPassword");
+	testRunner.testCase.testSuite.project.setPropertyValue( "Password", ProductionPassword);
+} else {
+	testRunner.cancel( "Invalid Environment : " + env ) 
+}</script></con:config></con:testStep><con:testStep type="request" name="LoginRequest" id="2843203e-e42f-4ae1-88d1-2ccbf449d663"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>LoginServiceSoapBinding</con:interface><con:operation>createSession</con:operation><con:request name="LoginRequest" id="51ee5cab-add4-48bd-867c-dc337e88efc9"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;entry key="SOAPAction" value="TM_CR_LOGIN" xmlns="http://eviware.com/soapui/config"/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_LoginV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:log="http://login.ws.chromeriver.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <log:loginCredentials>
+         <user>
+            <companyId>${#Project#CompanyID}</companyId>
+            <userId>${#Project#LoginUserName}</userId>
+            <password>${#Project#Password}</password>
+         </user>
+      </log:loginCredentials>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="9aae2222-6db8-4f92-b4c1-641f6e1e0222"/><con:assertion type="XPath Match" id="17bd612a-8ecf-442d-922f-73bd281d93ff" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="transfer" name="Property Transfer" id="64335c06-309f-45f1-adfa-52239e1d0b5f"><con:settings/><con:config xsi:type="con:PropertyTransfersStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:transfers setNullOnMissingSource="true" transferTextContent="true" failOnError="true" ignoreEmpty="false" transferToAll="false" entitize="false" transferChildNodes="false"><con:name>SessionID</con:name><con:sourceType>Response</con:sourceType><con:sourceStep>LoginRequest</con:sourceStep><con:sourcePath>//sessionId</con:sourcePath><con:targetType>SessionID</con:targetType><con:targetStep>#Project#</con:targetStep><con:upgraded>true</con:upgraded></con:transfers></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="CreateEntityType_Case" searchProperties="true" id="281274d4-80a0-4451-8ce4-10ffa2a8beae"><con:settings/><con:testStep type="groovy" name="TestData-Entity" id="42bfb530-8f92-410e-9480-81bf7870fad3"><con:settings/><con:config><script>import soapUI.*
+import java.text.SimpleDateFormat
+
+//get new EntityTypeID 
+def today = new Date()
+newEntityNumber = new SimpleDateFormat("MMddHHmmss")
+
+//set the entity type Properties with the new info returned from SoapUITestData
+testRunner.testCase.testSuite.project.setPropertyValue( "entityTypeCode", newEntityNumber.format(today));
+</script></con:config></con:testStep><con:testStep type="request" name="createEntityType" id="d33f69ec-2d74-429c-b910-41c478cb6d7c"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>createEntityType</con:operation><con:request name="createEntityType" id="eed55169-84f2-48af-9546-24169bb12c7f"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;entry key="SOAPAction" value="TM_CR_LOGIN" xmlns="http://eviware.com/soapui/config"/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeCreate>
+         <EntityTypeCode>${#Project#entityTypeCode}</EntityTypeCode>
+         <EntityTypeDescription>${#Project#entityTypeCode}-${#Project#entityTypeDescription}</EntityTypeDescription>
+         <EntityTypeName>${#Project#entityTypeCode}-${#Project#entityTypeName}</EntityTypeName>
+      </ent:inEntityTypeCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="7ab2a736-3f15-45c7-beea-3e208975b5fe"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - sessionId" id="891aa3ed-4108-4603-aa72-51351a988d0c"><con:configuration><path>//sessionId</path><content>${#Project#SessionID}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/createEntityType" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="createEntityType - Duplicate" id="7e507100-aa86-4fbc-826c-395b7a5f3d21"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>createEntityType</con:operation><con:request name="createEntityType - Duplicate" id="3d23d837-ac07-44fa-af6b-47d099062806"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeCreate>
+         <EntityTypeCode>${#Project#entityTypeCode}</EntityTypeCode>
+         <EntityTypeDescription>${#Project#entityTypeCode}-${#Project#entityTypeDescription}</EntityTypeDescription>
+         <EntityTypeName>${#Project#entityTypeCode}-${#Project#entityTypeName}</EntityTypeName>
+      </ent:inEntityTypeCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="e02b95ed-0c3f-4a55-8ca4-991ce36e7f0d"><con:configuration><path>//code</path><content>500</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match" id="9f3ddcc2-5799-4ea9-913f-840c34e5a898"><con:configuration><path>//name</path><content>ObjectExists</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/createEntityType" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="createEntityType - Missing Code" id="7d7edf13-46f9-4766-94aa-bc8cce673525"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>createEntityType</con:operation><con:request name="createEntityType - Missing Code" id="fabb88d6-e654-4549-8ba0-540e0fd9ca3e"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeCreate>
+         <EntityTypeCode></EntityTypeCode>
+         <EntityTypeDescription>${#Project#entityTypeCode}-${#Project#entityTypeDescription}</EntityTypeDescription>
+         <EntityTypeName>${#Project#entityTypeCode}-${#Project#entityTypeName}</EntityTypeName>
+      </ent:inEntityTypeCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="ed022823-72b6-4838-8d29-7b6f0f3d213b"><con:configuration><path>//code</path><content>1004</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match message" id="acdbd670-62bf-4b68-8f7e-7f6e87c082be"><con:configuration><path>//message</path><content>code may not be empty.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/createEntityType" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="createEntityType - Missing Desc" id="55210eaa-c6ae-44d3-9fdf-8aa8b984fd55"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>createEntityType</con:operation><con:request name="createEntityType - Missing Desc" id="a2af412e-ab91-4953-afe8-e316f9f8ce10"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeCreate>
+         <EntityTypeCode>${#Project#entityTypeCode}-${#Project#entityTypeCode}</EntityTypeCode>
+         <EntityTypeDescription></EntityTypeDescription>
+         <EntityTypeName>${#Project#entityTypeCode}-${#Project#entityTypeName}</EntityTypeName>
+      </ent:inEntityTypeCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="fe27bc0d-63b9-4cad-a11e-79c1aed87e4f"><con:configuration><path>//code</path><content>1004</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match message" id="f6a8e611-88d7-4db0-bf56-59c8e25b7190"><con:configuration><path>//message</path><content>description may not be empty.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/createEntityType" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="createEntityType - Missing Name" id="0cf2b338-d0fd-40f0-a73e-842b239fdb5d"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>createEntityType</con:operation><con:request name="createEntityType - Missing Name" id="f6d052db-2cf0-4bca-8422-19a92cd38187"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeCreate>
+         <EntityTypeCode>${#Project#entityTypeCode}-${#Project#entityTypeCode}</EntityTypeCode>
+         <EntityTypeDescription>${#Project#entityTypeCode}-${#Project#entityTypeDescription}</EntityTypeDescription>
+         <EntityTypeName></EntityTypeName>
+      </ent:inEntityTypeCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="c8c79df9-f5f8-4863-9a4c-5b24bd2c1988"><con:configuration><path>//code</path><content>1004</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match message" id="d793f894-1283-4852-902e-534158f05b42"><con:configuration><path>//message</path><content>name may not be empty.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/createEntityType" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="createEntityType - Type Size" id="3f9913e9-4036-4605-a861-295fa4c91e39"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>createEntityType</con:operation><con:request name="createEntityType - Type Size" id="bccbebe6-9725-4195-9f14-97c15d0e4de7"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeCreate>
+         <EntityTypeCode>AAAAABBBBBCCCCCDDDDDEEEEEFFFFFGGGGG</EntityTypeCode>
+         <EntityTypeDescription>${#Project#entityTypeCode}-${#Project#entityTypeDescription}</EntityTypeDescription>
+         <EntityTypeName>${#Project#entityTypeCode}-${#Project#entityTypeName}</EntityTypeName>
+      </ent:inEntityTypeCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="8a42e64b-a257-4617-b97b-943ebf4d87ba"><con:configuration><path>//code</path><content>1005</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="9a1b817b-df9e-4118-a47d-ad70833afd2f"><con:configuration><path>//message</path><content>code must not be over 32 characters in length.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/createEntityType" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="createEntityType - Desc Size" id="3aa1f96c-d0ba-4db0-80de-d3a3389699d9"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>createEntityType</con:operation><con:request name="createEntityType - Desc Size" id="40188b3c-135a-4e5e-8e01-03a849eb10d4"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeCreate>
+         <EntityTypeCode>${#Project#entityTypeCode}-DescSize</EntityTypeCode>
+         <EntityTypeDescription>12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890</EntityTypeDescription>
+         <EntityTypeName>${#Project#entityTypeCode}-${#Project#entityTypeName}</EntityTypeName>
+      </ent:inEntityTypeCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="53e7ef74-ab43-431a-8db6-b6360f87fb9e"><con:configuration><path>//code</path><content>1005</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="5167119f-0089-4c7f-a548-c8978e2f7817"><con:configuration><path>//message</path><content>description must not be over 100 characters in length.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/createEntityType" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="createEntityType - Name Size" id="553edead-9d9e-4460-b9ac-3c310950dbe9"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>createEntityType</con:operation><con:request name="createEntityType - Name Size" id="02fc916e-bde4-4b99-bf42-0a70a47f55dd"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeCreate>
+         <EntityTypeCode>${#Project#entityTypeCode}-NameSize</EntityTypeCode>
+         <EntityTypeDescription>${#Project#entityTypeCode}-${#Project#entityTypeDescription}</EntityTypeDescription>
+         <EntityTypeName>123456789012345678901234567890123456789012345678901234567890</EntityTypeName>
+      </ent:inEntityTypeCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="3a7e00a7-6fca-4a48-a75b-164e3129512f"><con:configuration><path>//code</path><content>1005</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="1045a9cd-c5dd-4297-acc0-0701a3aba697"><con:configuration><path>//message</path><content>name must not be over 50 characters in length.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/createEntityType" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="groovy" name="TestData-Entity loadOnLogin" id="eaf7584a-c279-44d7-babc-fcfe317280ee"><con:settings/><con:config><script>import soapUI.*
+import java.text.SimpleDateFormat
+
+//get new EntityTypeID 
+def today = new Date()
+newEntityNumber = new SimpleDateFormat("MMddHHmmss")
+
+//set the entity type Properties with the new info returned from SoapUITestData
+testRunner.testCase.testSuite.project.setPropertyValue( "entityTypeCode", newEntityNumber.format(today));
+</script></con:config></con:testStep><con:testStep type="request" name="createEntityType - Optional LoadOnLogin" id="7ef4ccab-766a-4894-9b8f-faf381078029"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>createEntityType</con:operation><con:request name="createEntityType - Optional LoadOnLogin" id="3c756116-ad1c-4b2f-991b-a71aa17edc13"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeCreate>
+         <EntityTypeCode>${#Project#entityTypeCode}</EntityTypeCode>
+         <EntityTypeDescription>${#Project#entityTypeCode}-${#Project#entityTypeDescription}</EntityTypeDescription>
+         <EntityTypeName>${#Project#entityTypeCode}-${#Project#entityTypeName}</EntityTypeName>
+         <LoadOnLogin>0</LoadOnLogin>
+      </ent:inEntityTypeCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="abea5f95-456a-472b-857c-35695b1df65e"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - sessionId" id="197c8dd7-a97e-4be6-b09f-37acce0017ff"><con:configuration><path>//sessionId</path><content>${#Project#SessionID}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/createEntityType" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="CreateEntity_Case" searchProperties="true" id="7849b270-eb43-4d29-9197-9e2b9ca1dd00"><con:settings/><con:testStep type="groovy" name="TestData-CreateEntity" id="6f735676-d56a-4b4e-afcc-318d0582dae2"><con:settings/><con:config><script>import soapUI.*
+import java.text.SimpleDateFormat
+
+def today = new Date()
+//get new EntityID 
+newEntityNumber = new SimpleDateFormat("MMddHHmm")
+
+//set the entity  Properties with the new info returned from SoapUITestData
+testRunner.testCase.testSuite.project.setPropertyValue( "entityCode", newEntityNumber.format(today));</script></con:config></con:testStep><con:testStep type="request" name="createEntity - Missing entityTypeCode" id="f09e7501-d181-47b0-b00d-ea62444ad11a"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>createEntity</con:operation><con:request name="createEntity - Missing entityTypeCode" id="9ec465df-ca14-4391-8828-8a57adf5c7b7"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityCreate>
+         <entityTypeCode></entityTypeCode>
+         <entityCode>${#Project#entityCode}</entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode}</entityName>
+         <!--Optional:-->
+         <extraData1></extraData1>
+         <!--Optional:-->
+         <extraData2></extraData2>
+         <!--Optional:-->
+         <sortOrder></sortOrder>
+      </ent:inEntityCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="48d6aaf8-3e38-40ba-92a3-1775c9c2a808"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="7c1f2823-a643-47ae-9130-f70a05c26136"><con:configuration><path>//message</path><content>Invalid Entity Type Code</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - code" id="5efd3d06-c1e9-4893-aad8-6fa2b1e1da78"><con:configuration><path>//code</path><content>501</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="8a24259a-816a-4c53-b63a-b4cef2caf3e9"><con:configuration><path>//name</path><content>ObjectMissing</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/createEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="createEntity - Missing entityCode" id="60374707-a8d6-4bc9-8596-2f2db81017a6"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>createEntity</con:operation><con:request name="createEntity - Missing entityCode" id="63077ea8-0747-4cc5-8b74-fea4bd767e7a"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityCreate>
+         <entityTypeCode>${#Project#EntityTypeCode}</entityTypeCode>
+         <entityCode></entityCode>
+         <entityName>${#Project#EntityName} ${#Project#EntityCode}</entityName>
+         <!--Optional:-->
+         <extraData1></extraData1>
+         <!--Optional:-->
+         <extraData2></extraData2>
+         <!--Optional:-->
+         <sortOrder></sortOrder>
+      </ent:inEntityCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="b6138510-51dc-4ace-93b1-e62903b47002"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="17e8c9c2-4000-48ba-bc06-4d2683e6cb07"><con:configuration><path>//message</path><content>Invalid Entity Code</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - code" id="8f7390a8-7c23-416b-82c0-7bac3bf53b73"><con:configuration><path>//code</path><content>1004</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="6e8a0862-1b54-477f-b116-b0ea1be93268"><con:configuration><path>//name</path><content>EmptyField</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/createEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="createEntity - Missing entityName" id="c2f60042-3717-4f1a-9e8d-8a2d64ca80a6"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>createEntity</con:operation><con:request name="createEntity - Missing entityName" id="223413c7-3305-4a48-8327-857c19641c25"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityCreate>
+         <entityTypeCode>${#Project#EntityTypeCode}</entityTypeCode>
+         <entityCode>${#Project#EntityCode}</entityCode>
+         <entityName></entityName>
+         <!--Optional:-->
+         <extraData1></extraData1>
+         <!--Optional:-->
+         <extraData2></extraData2>
+         <!--Optional:-->
+         <sortOrder></sortOrder>
+      </ent:inEntityCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="5c821718-8e91-41e6-8b60-71760a57ce8f"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="7096a4f3-0a32-4de6-9a8e-218700d5e5fc"><con:configuration><path>//message</path><content>Invalid Entity Name</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - code" id="82456bc4-7439-4b45-98a3-5d714312ba67"><con:configuration><path>//code</path><content>1004</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="c11d4695-e0b4-4db2-a741-36400da27f63"><con:configuration><path>//name</path><content>EmptyField</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/createEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="createEntity - Invalid entityTypeCode Value" id="1d711e47-189e-42a4-bcbc-c7950423e590"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>createEntity</con:operation><con:request name="createEntity - Invalid entityTypeCode Value" id="6534c7fb-b2a4-4131-868c-6313577564ef"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityCreate>
+         <entityTypeCode>WXYZ</entityTypeCode>
+         <entityCode>${#Project#entityCode}</entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode}</entityName>
+         <!--Optional:-->
+         <extraData1></extraData1>
+         <!--Optional:-->
+         <extraData2></extraData2>
+         <!--Optional:-->
+         <sortOrder></sortOrder>
+      </ent:inEntityCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="99ec1899-1181-42f0-80ce-0b22edede560"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="ebb195fc-224e-4b67-b0e6-67123c3b193e"><con:configuration><path>//message</path><content>Invalid Entity Type Code</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - code" id="ad687c29-a06e-4c71-b062-fcc015d63c35"><con:configuration><path>//code</path><content>501</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="f0614be6-2696-4cce-bc05-b808f774126b"><con:configuration><path>//name</path><content>ObjectMissing</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/createEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="createEntity - Minimal" id="025a804f-ff8b-44fa-9ed0-6339d3be95c8"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>createEntity</con:operation><con:request name="createEntity - Minimal" id="d7fa9a31-06a3-4b9b-a219-3e4d46895a16"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityCreate>
+         <entityTypeCode>${#Project#entityTypeCode}</entityTypeCode>
+         <entityCode>${#Project#entityCode}</entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode}</entityName>
+         <!--Optional:-->
+         <extraData1></extraData1>
+         <!--Optional:-->
+         <extraData2></extraData2>
+         <!--Optional:-->
+         <sortOrder></sortOrder>
+      </ent:inEntityCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="69931028-de92-4269-ab1a-cc1e79ea107e"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - sessionId" id="541907da-7e7e-47a7-be39-aaa8526b2979"><con:configuration><path>//sessionId</path><content>${#Project#SessionID}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/createEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="createEntity - Too Large entityCode" id="b528a629-7f59-4100-b569-35ff1561b970"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>createEntity</con:operation><con:request name="createEntity - Too Large entityCode" id="e147c3f9-5928-42d9-8db6-3a46c9721710"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityCreate>
+         <entityTypeCode>${#Project#entityTypeCode}</entityTypeCode>
+         <entityCode>ABCDERGHIJKLMNOPQRSTUVWXYZABCDERGHIJKLMNOPQRSTUVWXYZ</entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode}</entityName>
+         <!--Optional:-->
+         <extraData1></extraData1>
+         <!--Optional:-->
+         <extraData2></extraData2>
+         <!--Optional:-->
+         <sortOrder></sortOrder>
+      </ent:inEntityCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="3dd7779b-43b2-4bec-9a14-a38f3871e0ef"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="9b62a6e4-9b4c-4375-9c36-14bf0150619f"><con:configuration><path>//message</path><content>Entity Code must be 1-50 characters long</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - code" id="0722ea3e-9ec1-47a4-9894-4e037f2bbda0"><con:configuration><path>//code</path><content>1005</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="db188ad3-8a3a-40ec-aad1-36a4e104be97"><con:configuration><path>//name</path><content>IncorrectLength</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/createEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="createEntity - Too Large Sort" id="99db47c2-f358-4549-94d6-860477c3f5e8"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>createEntity</con:operation><con:request name="createEntity - Too Large Sort" id="bf8fcc1f-1cb4-49ea-938b-d3d878280325"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityCreate>
+         <entityTypeCode>${#Project#entityTypeCode}</entityTypeCode>
+         <entityCode>${#Project#entityCode}SORT</entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode}</entityName>
+         <!--Optional:-->
+         <extraData1></extraData1>
+         <!--Optional:-->
+         <extraData2></extraData2>
+         <!--Optional:-->
+         <sortOrder>ABCDEFGHIJKL</sortOrder>
+      </ent:inEntityCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="35e79302-9b83-44f9-94fb-b2b9c4ab217d"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="fda37e3f-e3be-4345-bde5-09f70b7b2e27"><con:configuration><path>//message</path><content>Sort Order must be 1-10 characters long</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - code" id="ad182412-a4ca-4660-b23b-0af04e11a404"><con:configuration><path>//code</path><content>1005</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match" id="ba43bb10-6741-427a-9ec1-3ba22926ff0d"><con:configuration><path>//name</path><content>IncorrectLength</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/createEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="createEntity - Duplicate" id="cfc0cf73-0c5a-40d8-aec2-e408546ba362"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>createEntity</con:operation><con:request name="createEntity - Duplicate" id="8c2e04c9-38fd-43ae-b75c-894964821cd3"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityCreate>
+         <entityTypeCode>${#Project#entityTypeCode}</entityTypeCode>
+         <entityCode>${#Project#entityCode}</entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode}</entityName>
+         <!--Optional:-->
+         <extraData1></extraData1>
+         <!--Optional:-->
+         <extraData2></extraData2>
+         <!--Optional:-->
+         <sortOrder></sortOrder>
+      </ent:inEntityCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="3f9ff1d8-2c81-4cc6-8d08-e86fa30d342a"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="e5cebff9-9a3a-442c-a0bd-07cc2ab45fd1"><con:configuration><path>//message</path><content>Entity Already Exists</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - 500" id="b1845a79-292e-43eb-96ec-71587519970b"><con:configuration><path>//code</path><content>500</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/createEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="createEntity - Full" id="c08340e9-7bc5-4741-9059-5dbee7754796"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>createEntity</con:operation><con:request name="createEntity - Full" id="26d2c62f-640f-43ac-8863-9f9b4f62f0d8"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityCreate>
+         <entityTypeCode>${#Project#entityTypeCode}</entityTypeCode>
+         <entityCode>${#Project#entityCode}B</entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode}B</entityName>
+         <!--Optional:-->
+         <extraData1>${#Project#extraData1}</extraData1>
+         <!--Optional:-->
+         <extraData2>${#Project#extraData2}</extraData2>
+         <!--Optional:-->
+         <sortOrder>${#Project#sortOrder}</sortOrder>
+      </ent:inEntityCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="48e0d7c4-cbd4-4c35-b4b9-747cfd87f7ff"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - sessionId" id="8e769ea0-4dda-4e47-92ea-10c8593545b3"><con:configuration><path>//sessionId</path><content>${#Project#SessionID}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/createEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="UpdateEntity_Case" searchProperties="true" id="fb1ed9fb-9d30-4b13-8107-bd1a6ec4b9ea"><con:settings/><con:testStep type="groovy" name="TestData-UpdateEntity" id="63b3022e-2143-434e-99ba-3c97f65e2807"><con:settings/><con:config><script>import soapUI.*
+import java.text.SimpleDateFormat
+
+//String newEntityNameGUID = newtest.getNewEntityData("mmssSS");
+def today = new Date()
+newEntityNameGUID = new SimpleDateFormat("mmssSS")
+
+//set the Entity Properties with the new info returned from SoapUITestData
+testRunner.testCase.testSuite.project.setPropertyValue( "entityName", "API Add Test " + newEntityNameGUID.format(today));</script></con:config></con:testStep><con:testStep type="request" name="updateEntity - Name" id="d5469981-5458-4232-89b0-fbc0bc8a9ba4"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntity</con:operation><con:request name="updateEntity - Name" id="75270b50-f6c5-4d11-935d-1b53c18ce312"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityUpdate>
+         <entityTypeCode>${#Project#entityTypeCode}</entityTypeCode>
+         <entityCode>${#Project#entityCode}</entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode} - Updated</entityName>
+         <!--Optional:-->
+         <extraData1></extraData1>
+         <!--Optional:-->
+         <extraData2></extraData2>
+         <!--Optional:-->
+         <sortOrder></sortOrder>
+      </ent:inEntityUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="0d2ece08-39b2-4631-8c77-de4d3084d369"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - sessionId" id="27b09105-bb66-4c7a-8ee0-6062b913df06"><con:configuration><path>//sessionId</path><content>${#Project#SessionID}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateEntity - ExtraData1" id="e4cd50ba-f4f1-4f37-9b18-0d9ea9cbc5c7"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntity</con:operation><con:request name="updateEntity - ExtraData1" id="72ef3465-ba55-49b8-973d-2688476a7467"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityUpdate>
+         <entityTypeCode>${#Project#entityTypeCode}</entityTypeCode>
+         <entityCode>${#Project#entityCode}</entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode}</entityName>
+         <!--Optional:-->
+         <extraData1>${#Project#extraData1}</extraData1>
+         <!--Optional:-->
+         <extraData2></extraData2>
+         <!--Optional:-->
+         <sortOrder></sortOrder>
+      </ent:inEntityUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="1273d4e3-d518-44ca-bcf1-ef31223ee27c"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - sessionId" id="41b0f344-8a03-468d-ae9f-f9c7086c223d"><con:configuration><path>//sessionId</path><content>${#Project#SessionID}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateEntity - ExtraData2" id="a4d8e64c-9cd7-44d2-86b3-3a60e1e9eb26"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntity</con:operation><con:request name="updateEntity - ExtraData2" id="9213d291-0dcc-418e-bd6e-17602f0bdba2"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityUpdate>
+         <entityTypeCode>${#Project#entityTypeCode}</entityTypeCode>
+         <entityCode>${#Project#entityCode}</entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode}</entityName>
+         <!--Optional:-->
+         <extraData1></extraData1>
+         <!--Optional:-->
+         <extraData2>${#Project#extraData2}</extraData2>
+         <!--Optional:-->
+         <sortOrder></sortOrder>
+      </ent:inEntityUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="937e7f26-3b55-49cd-ab4c-7bf89cb8cbd3"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - sessionId" id="1f4d0c36-d468-45ec-98e2-76ace55b1dcf"><con:configuration><path>//sessionId</path><content>${#Project#SessionID}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateEntity - sortOrder" id="54cb00a8-30f9-479d-87bc-bb1591df2847"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntity</con:operation><con:request name="updateEntity - sortOrder" id="39f24e89-30d6-4495-b420-7b696d06248a"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityUpdate>
+         <entityTypeCode>${#Project#entityTypeCode}</entityTypeCode>
+         <entityCode>${#Project#entityCode}</entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode}</entityName>
+         <!--Optional:-->
+         <extraData1></extraData1>
+         <!--Optional:-->
+         <extraData2></extraData2>
+         <!--Optional:-->
+         <sortOrder>${#Project#sortOrder}</sortOrder>
+      </ent:inEntityUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="6b2fe3b6-a25a-4ad9-84b6-2c47470c06f3"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - sessionId" id="7ad04654-1b2b-4ebb-90cd-8c9b7e056f44"><con:configuration><path>//sessionId</path><content>${#Project#SessionID}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateEntity - Missing entityTypeCode" id="cefbe55b-064d-4d7a-a9d0-a44b336ee2b0"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntity</con:operation><con:request name="updateEntity - Missing entityTypeCode" id="23cf7db1-52b5-41a6-8368-3ee647e408f4"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityUpdate>
+         <entityTypeCode></entityTypeCode>
+         <entityCode>${#Project#entityCode}</entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode} - Updated</entityName>
+         <!--Optional:-->
+         <extraData1></extraData1>
+         <!--Optional:-->
+         <extraData2></extraData2>
+         <!--Optional:-->
+         <sortOrder></sortOrder>
+      </ent:inEntityUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="e116fc29-0b39-4820-9806-c9b7a63b50f7"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - code" id="cd9a1435-87e8-4082-b3c1-92d74e88baf3"><con:configuration><path>//code</path><content>1004</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match" id="8cc5ebc4-c855-4332-bd42-11fceeea0c07"><con:configuration><path>//name</path><content>EmptyField</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="4b9d6b57-b39b-4db9-9aa2-725221f7bc08"><con:configuration><path>//message</path><content>Invalid Entity Type Code</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateEntity - Missing entityCode" id="715de0cb-d1c6-4f42-8e16-9aa883ad9ffb"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntity</con:operation><con:request name="updateEntity - Missing entityCode" id="89c14e4f-0ead-4d25-98f4-aa3c1141674e"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityUpdate>
+         <entityTypeCode>${#Project#entityTypeCode}</entityTypeCode>
+         <entityCode></entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode} - Updated</entityName>
+         <!--Optional:-->
+         <extraData1></extraData1>
+         <!--Optional:-->
+         <extraData2></extraData2>
+         <!--Optional:-->
+         <sortOrder></sortOrder>
+      </ent:inEntityUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="47faa83e-bb0b-48e7-8837-316e1f14946a"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - code" id="022875ad-a0b9-403a-8473-be22161f7eb0"><con:configuration><path>//code</path><content>1004</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match" id="d028be1b-128c-4f74-bf68-16390229da74"><con:configuration><path>//name</path><content>EmptyField</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="86750c6d-743e-4b48-b50b-38c61a334447"><con:configuration><path>//message</path><content>Invalid Entity Code</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateEntity - Missing entityName" id="24c391dc-e844-463c-97c3-15a4b52aac80"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntity</con:operation><con:request name="updateEntity - Missing entityName" id="0eb27b8a-aae8-42bd-bc80-2aa2258cc05e"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityUpdate>
+         <entityTypeCode>${#Project#entityTypeCode}</entityTypeCode>
+         <entityCode>${#Project#entityCode}</entityCode>
+         <entityName></entityName>
+         <!--Optional:-->
+         <extraData1></extraData1>
+         <!--Optional:-->
+         <extraData2></extraData2>
+         <!--Optional:-->
+         <sortOrder></sortOrder>
+      </ent:inEntityUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="d7b99768-5e25-4f66-9d67-821047963e9d"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - code" id="802dfbd1-8fbf-464d-8f71-d3378ee7cda0"><con:configuration><path>//code</path><content>1004</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match" id="82313497-1dae-4765-a6f9-323074e5970c"><con:configuration><path>//name</path><content>EmptyField</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="d3586eac-2386-4165-8201-b60520564944"><con:configuration><path>//message</path><content>Invalid Entity Name</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateEntity - Too Large Sort" id="3de745d1-1a8c-49ca-b0e7-8912ab2b8ef2"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntity</con:operation><con:request name="updateEntity - Too Large Sort" id="bea0d1c0-38c0-4781-9bd1-ada8ccf1e762"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityUpdate>
+         <entityTypeCode>${#Project#entityTypeCode}</entityTypeCode>
+         <entityCode>${#Project#entityCode}</entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode} - Updated</entityName>
+         <!--Optional:-->
+         <extraData1></extraData1>
+         <!--Optional:-->
+         <extraData2></extraData2>
+         <!--Optional:-->
+         <sortOrder>ABCDEFGHIJKL</sortOrder>
+      </ent:inEntityUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="f1f3972f-b822-4ca9-949f-65afc0721af9"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - code" id="bb92ce5a-cc67-4555-b690-0a172bc0dbd1"><con:configuration><path>//code</path><content>1005</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match" id="8273b0a5-7ca8-4c4f-9fdd-89beb64d5735"><con:configuration><path>//name</path><content>IncorrectLength</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="56a2b5ab-7635-47b3-a1fd-415908dcceb9"><con:configuration><path>//message</path><content>Sort Order must be 1-10 characters long</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateEntity - Too Large entityCode" id="5907c5cf-af52-42dc-9087-54854773eb88"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntity</con:operation><con:request name="updateEntity - Too Large entityCode" id="6caeae30-b52b-4101-a96b-44ff1d92f877"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityUpdate>
+         <entityTypeCode>${#Project#entityTypeCode}</entityTypeCode>
+         <entityCode>ABCDERGHIJKLMNOPQRSTUVWXYZABCDERGHIJKLMNOPQRSTUVWXYZ</entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode} - Updated</entityName>
+         <!--Optional:-->
+         <extraData1></extraData1>
+         <!--Optional:-->
+         <extraData2></extraData2>
+         <!--Optional:-->
+         <sortOrder></sortOrder>
+      </ent:inEntityUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="6faeee36-3295-4fec-8867-e70b514a1178"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - code" id="02272599-f879-4ce3-a344-f8eb0fcfd658"><con:configuration><path>//code</path><content>501</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="f2b8ec0d-faa3-4cc5-a413-783954388445"><con:configuration><path>//name</path><content>ObjectMissing</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="079a7234-0c32-4b12-8bd5-b57e0baba265"><con:configuration><path>//message</path><content>Entity Does Not Exist</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateEntity - Invalid entityTypeCode" id="e1c30e69-c793-4dec-83ed-32a305b79ca0"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntity</con:operation><con:request name="updateEntity - Invalid entityTypeCode" id="430f8e82-8b8f-499d-8a82-1209b4efedd2"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityUpdate>
+         <entityTypeCode>NOPE</entityTypeCode>
+         <entityCode>${#Project#entityCode}</entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode} - Updated</entityName>
+         <!--Optional:-->
+         <extraData1></extraData1>
+         <!--Optional:-->
+         <extraData2></extraData2>
+         <!--Optional:-->
+         <sortOrder></sortOrder>
+      </ent:inEntityUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="95ec0605-218c-4e81-877b-409f7625035f"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - code" id="bf480dec-7ebc-41fc-b00b-0ce77b6c521b"><con:configuration><path>//code</path><content>501</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="74e68fb1-4a4c-46e1-ac66-e0a39c99fcd4"><con:configuration><path>//name</path><content>ObjectMissing</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="c5104682-9e53-4927-9cd3-7247c6780fed"><con:configuration><path>//message</path><content>Entity Does Not Exist</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateEntity - Invalid entityCode" id="5005f13a-c0ed-4439-9e94-2dc81f12d79e"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntity</con:operation><con:request name="updateEntity - Invalid entityCode" id="fb16de78-715c-47f8-a4f7-62149fc73adc"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityUpdate>
+         <entityTypeCode>${#Project#entityTypeCode}</entityTypeCode>
+         <entityCode>NOPE</entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode} - Updated</entityName>
+         <!--Optional:-->
+         <extraData1></extraData1>
+         <!--Optional:-->
+         <extraData2></extraData2>
+         <!--Optional:-->
+         <sortOrder></sortOrder>
+      </ent:inEntityUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="acf25e29-a97c-4dd6-bc8e-0b35526c4983"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - code" id="cb4f16f7-9568-4bb5-819e-f447d35080ce"><con:configuration><path>//code</path><content>501</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="45cc95ee-2280-4bb0-bcf8-40092340b447"><con:configuration><path>//name</path><content>ObjectMissing</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="1f83b69f-6251-4a4d-9b04-12066bb3a482"><con:configuration><path>//message</path><content>Entity Does Not Exist</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntity" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="UpdateEntityType_Case" searchProperties="true" id="d04bed70-416f-4826-b6bf-769e2e50fce0"><con:settings/><con:testStep type="groovy" name="TestData-UpdateEntityType" id="ef86a42a-eba5-4252-85d5-40d0d256a7b2"><con:settings/><con:config><script>import soapUI.*
+import java.text.SimpleDateFormat
+
+//get new MatterID 
+def today = new Date()
+newEntityNameGUID = new SimpleDateFormat("mmssSS")
+
+//set the Update Entity Type Properties with the new info returned from SoapUITestData
+testRunner.testCase.testSuite.project.setPropertyValue( "entityTypeDescription", "API Change Description " + newEntityNameGUID.format(today));
+
+
+</script></con:config></con:testStep><con:testStep type="request" name="updateEntityType" id="bc47ebe7-4ae5-4561-aa37-5042233deb63"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntityType</con:operation><con:request name="updateEntityType" id="ae4307b1-7935-442b-8822-c6a8c96c6390"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeUpdate>
+         <EntityTypeCode>${#Project#entityTypeCode}</EntityTypeCode>
+         <EntityTypeDescription>${#Project#entityTypeCode}-${#Project#entityTypeDescription}</EntityTypeDescription>
+         <EntityTypeName>${#Project#entityTypeCode}-${#Project#entityTypeName}</EntityTypeName>
+      </ent:inEntityTypeUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="93dae7a7-865a-4d6d-8fa2-2621318ab6c1"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - sessionId" id="9018797b-9270-4ec7-b3b1-d35fed042463"><con:configuration><path>//sessionId</path><content>${#Project#SessionID}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntityType" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateEntityType - Invalid Type" id="4f294b90-e220-4401-94b4-f61b6b9f107d"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntityType</con:operation><con:request name="updateEntityType - Invalid Type" id="de2f8c8e-f275-4a23-be45-b2114cb0956e"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeUpdate>
+         <EntityTypeCode>${#Project#entityTypeCode}-BAD</EntityTypeCode>
+         <EntityTypeDescription>${#Project#entityTypeCode}-${#Project#entityTypeDescription}</EntityTypeDescription>
+         <EntityTypeName>${#Project#entityTypeCode}-${#Project#entityTypeName}</EntityTypeName>
+      </ent:inEntityTypeUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - code" id="e58bf29d-6993-4fdb-936f-ee907126e900"><con:configuration><path>//code</path><content>501</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="c72e1aa9-d3a5-433d-b282-6c3587105d54"><con:configuration><path>//message</path><content>EntityType does not exist.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntityType" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateEntityType - missing Code" id="9ff3a91c-f638-452c-a60c-481a098b0f8f"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntityType</con:operation><con:request name="updateEntityType - missing Code" id="8de74d38-4644-4623-8d7e-19993b2646ed"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeUpdate>
+         <EntityTypeCode></EntityTypeCode>
+         <EntityTypeDescription>${#Project#entityTypeCode}-${#Project#entityTypeDescription}</EntityTypeDescription>
+         <EntityTypeName>${#Project#entityTypeCode}-${#Project#entityTypeName}</EntityTypeName>
+      </ent:inEntityTypeUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - code" id="b97a0239-26a0-41eb-857d-985ff3c94cad"><con:configuration><path>//code</path><content>501</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="0c81cf64-8faa-4391-9f19-86f6f4029bed"><con:configuration><path>//message</path><content>EntityType does not exist.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntityType" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateEntityType - missing Desc" id="bd03cfd8-8e10-430f-a796-dc652c54e491"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntityType</con:operation><con:request name="updateEntityType - missing Desc" id="34e29aa6-4223-4d39-b33e-3bc33f23c3cf"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeUpdate>
+         <EntityTypeCode>${#Project#entityTypeCode}</EntityTypeCode>
+         <EntityTypeDescription></EntityTypeDescription>
+         <EntityTypeName>${#Project#entityTypeCode}-${#Project#entityTypeName}</EntityTypeName>
+      </ent:inEntityTypeUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - code" id="9e97f078-1bf4-4a78-bfbb-537156b8b26a"><con:configuration><path>//code</path><content>1004</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="f820219e-dac6-4777-b39c-93b5c2557324"><con:configuration><path>//message</path><content>description may not be empty.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntityType" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateEntityType - missing Name" id="8b609cb0-0758-4f29-997e-11866d98f4fc"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntityType</con:operation><con:request name="updateEntityType - missing Name" id="5386a808-a5b4-47b3-b3b8-fead078dd310"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeUpdate>
+         <EntityTypeCode>${#Project#entityTypeCode}</EntityTypeCode>
+         <EntityTypeDescription>${#Project#entityTypeCode}-${#Project#entityTypeDescription}</EntityTypeDescription>
+         <EntityTypeName></EntityTypeName>
+      </ent:inEntityTypeUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - code" id="8df6df4d-7fdd-41dc-8af7-f7d05aaa4758"><con:configuration><path>//code</path><content>1004</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="bd23f70c-1a95-4455-b728-deaa4a7dc18f"><con:configuration><path>//message</path><content>name may not be empty.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntityType" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateEntityType - Desc Size" id="3a626c88-80d9-4d8b-8b02-cbcbb9f92fcc"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntityType</con:operation><con:request name="updateEntityType - Desc Size" id="bf13f118-3152-4881-95b0-d04ef1a7c76e"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeUpdate>
+         <EntityTypeCode>${#Project#entityTypeCode}</EntityTypeCode>
+         <EntityTypeDescription>12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890</EntityTypeDescription>
+         <EntityTypeName>${#Project#entityTypeCode}-${#Project#entityTypeName}</EntityTypeName>
+      </ent:inEntityTypeUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="6f06af17-760f-45ad-8ae0-9f6e3167ae54"><con:configuration><path>//code</path><content>1005</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - sessionId" id="bd8aecc6-cc67-4517-9c55-909375c8ee49"><con:configuration><path>//message</path><content>description must not be over 100 characters in length.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntityType" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateEntityType - Name Size" id="a6104d93-1190-4a61-922b-c05f14cdc4d0"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntityType</con:operation><con:request name="updateEntityType - Name Size" id="2c10ab71-cbcc-41b7-af63-da59b599eaf4"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeUpdate>
+         <EntityTypeCode>${#Project#entityTypeCode}</EntityTypeCode>
+         <EntityTypeDescription>${#Project#entityTypeCode}-${#Project#entityTypeDescription}</EntityTypeDescription>
+         <EntityTypeName>123456789012345678901234567890123456789012345678901234567890</EntityTypeName>
+      </ent:inEntityTypeUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="617dcfc4-9c17-43dc-87e9-05584bdedce4"><con:configuration><path>//code</path><content>1005</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - sessionId" id="080357f6-d9c6-4be3-b23a-24fa0871ae57"><con:configuration><path>//message</path><content>name must not be over 50 characters in length.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntityType" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateEntityType - Optional Change LoadOnLogin" id="e9aa9d5d-0ab2-4a06-8221-5057ae3a5f23"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>updateEntityType</con:operation><con:request name="updateEntityType - Optional Change LoadOnLogin" id="b475af4e-b157-45cd-b372-caff141f1e54"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityTypeUpdate>
+         <EntityTypeCode>${#Project#entityTypeCode}</EntityTypeCode>
+         <EntityTypeDescription>${#Project#entityTypeCode}-${#Project#entityTypeDescription}</EntityTypeDescription>
+         <EntityTypeName>${#Project#entityTypeCode}-${#Project#entityTypeName}</EntityTypeName>
+         <LoadOnLogin>0</LoadOnLogin>
+      </ent:inEntityTypeUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="ad6167ff-f3b5-40f3-afda-37ad7eeb7b6e"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - sessionId" id="c084b8a0-1dc6-46d1-8bb3-e371ec431f7b"><con:configuration><path>//sessionId</path><content>${#Project#SessionID}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://entity.ws.soap.chromeriver.com/EntityService/updateEntityType" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DeleteEntity_Case" searchProperties="true" id="2e8c9b21-aee5-4ef6-bfe7-2f1fa4512653"><con:settings/><con:testStep type="request" name="deleteEntity - missing Invalid Entity Type Code" id="efbd6f91-0adb-4a97-bde0-497f6b46b504"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>deleteEntity</con:operation><con:request name="deleteEntity - missing Invalid Entity Type Code" id="4d605675-a789-4c2b-adeb-19929bd3516e"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+      	<token>${#Project#SessionID}</token>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityDelete>
+         <entityTypeCode></entityTypeCode>
+         <entityCode>${#Project#entityCode}</entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode}</entityName>
+      </ent:inEntityDelete>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" id="85f34533-f867-4cf6-a00b-c06935e2fbb7" name="XPath Match - statusCode"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="8656af56-793e-4d06-a2c0-1d860d6099b8" name="XPath Match - sessionId"><con:configuration><path>//message</path><content>Invalid Entity Type Code</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="deleteEntity - missing entityCode" id="a8a9ae7a-0905-4261-91b0-49d118736c04"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>deleteEntity</con:operation><con:request name="deleteEntity - missing entityCode" id="4d605675-a789-4c2b-adeb-19929bd3516e"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+      	<token>${#Project#SessionID}</token>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityDelete>
+         <entityTypeCode>${#Project#entityTypeCode}</entityTypeCode>
+         <entityCode></entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode}</entityName>
+      </ent:inEntityDelete>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" id="85f34533-f867-4cf6-a00b-c06935e2fbb7" name="XPath Match - statusCode"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="8656af56-793e-4d06-a2c0-1d860d6099b8" name="XPath Match - sessionId"><con:configuration><path>//message</path><content>Invalid Entity Code</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="deleteEntity" id="641c8b41-6bca-491d-93c8-bb059a92d30d"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>EntityServiceSoapBinding</con:interface><con:operation>deleteEntity</con:operation><con:request name="deleteEntity" id="4d605675-a789-4c2b-adeb-19929bd3516e"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_EntityV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ent="http://entity.ws.soap.chromeriver.com/">
+   <soapenv:Header>
+      <ent:credentials>
+      	<token>${#Project#SessionID}</token>
+      </ent:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ent:inEntityDelete>
+         <entityTypeCode>${#Project#entityTypeCode}</entityTypeCode>
+         <entityCode>${#Project#entityCode}</entityCode>
+         <entityName>${#Project#entityName} ${#Project#entityCode}</entityName>
+      </ent:inEntityDelete>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" id="85f34533-f867-4cf6-a00b-c06935e2fbb7" name="XPath Match - statusCode"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="8656af56-793e-4d06-a2c0-1d860d6099b8" name="XPath Match - sessionId"><con:configuration><path>//sessionId</path><content>${#Project#SessionID}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:properties/></con:testSuite><con:properties><con:property><con:name>LoginUserName</con:name><con:value>pbjtest</con:value></con:property><con:property><con:name>Password</con:name><con:value>1river1</con:value></con:property><con:property><con:name>CompanyID</con:name><con:value>www.pbj.com</con:value></con:property><con:property><con:name>StagingPassword</con:name><con:value>1river1</con:value></con:property><con:property><con:name>QAPassword</con:name><con:value>DTFVOg46xWOcyYG</con:value></con:property><con:property><con:name>ProductionPassword</con:name><con:value>1river1</con:value></con:property><con:property><con:name>SessionID</con:name><con:value>dd6ffc3d-6be8-4f5d-897a-013cea4fdfe5</con:value></con:property><con:property><con:name>EntityTypeCode</con:name><con:value>1017194633</con:value></con:property><con:property><con:name>EntityCode</con:name><con:value>10171946</con:value></con:property><con:property><con:name>ExtraData1</con:name><con:value>Extra1</con:value></con:property><con:property><con:name>EntityName</con:name><con:value>API Add Test 4636977</con:value></con:property><con:property><con:name>ExtraData2</con:name><con:value>Extra2</con:value></con:property><con:property><con:name>SortOrder</con:name><con:value>5</con:value></con:property><con:property><con:name>EntityTypeName</con:name><con:value>Add Test</con:value></con:property><con:property><con:name>EntityTypeDescription</con:name><con:value>API Change Description 4640373</con:value></con:property><con:property><con:name>Environment</con:name><con:value>Staging</con:value></con:property></con:properties><con:wssContainer/><con:oAuth2ProfileContainer/><con:sensitiveInformation/></con:soapui-project>

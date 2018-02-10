@@ -1,0 +1,15 @@
+*** Settings ***
+Documentation  Resource file for basic settings.
+
+Library  Selenium2Library
+Library  String
+Library  Screenshot
+#Library  CustomCode.py
+#Library  ConnectionUtilities.py
+Library  ../Library/StringUtilities.py
+Library  ../Library/ImageRecognition.py
+Library  ../Library/SingleSignOn.py
+
+Resource  Assertions.txt
+Resource  Common.txt
+Resource  Variables.txt

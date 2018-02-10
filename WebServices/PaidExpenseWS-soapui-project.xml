@@ -1,0 +1,970 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project id="a271be3a-5899-406c-8451-ab5a06d23cc1" activeEnvironment="Default" name="PaidExpenseWS" resourceRoot="" soapui-version="5.2.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" id="d9281894-2adb-4b60-9f70-ee9a0d9f27ca" wsaVersion="NONE" name="PaidExpenseServiceSoapBinding" type="wsdl" bindingName="{http://paidExpense.ws.chromeriver.com/}PaidExpenseServiceSoapBinding" soapVersion="1_1" anonymous="optional" definition="https://staging-api.chromeriver.com/ws_PaidExpenseV1?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="https://staging-api.chromeriver.com/ws_PaidExpenseV1?wsdl"><con:part><con:url>https://staging-api.chromeriver.com/ws_PaidExpenseV1?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="PaidExpenseService" targetNamespace="http://paidExpense.ws.chromeriver.com/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://paidExpense.ws.chromeriver.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:documentation>The Chrome River Paid Expense Web Service fulfills requests from our customers to import information about paid expenses of their expense reports in the Chrome River system.
+
+To get started with Paid Expense Web Service, please submit a Chrome River Help Desk ticket. Our Implementation team will work with you to get everything set up and running.
+
+To access this service, use this Web Services Description Language (WSDL) file to generate the required client proxy classes: https://api.chromeriver.com/ws_PaidExpenseV1?wsdl
+
+Please also read this documentation to understand what it does and how to properly prepare requests.
+
+Logging In
+
+Each request to access this service must be authenticated via either login credentials or a session token. The Login Web Service may be used to submit the user's login information in a request consisting of companyID, userID, and password. The user will receive a token to submit with subsequent requests to other Chrome River Web Services, eliminating the need to provide the login information again.
+
+While it is also possible to submit login information directly via the header of the Paid Expense Web Service, it is recommended that customers use the Login Web Service first to obtain a session token, and then submit this token in each subsequent request to the Paid Expense Service.
+
+Chrome River Paid Expense Web Service Overview
+
+Please use the following description as a reference, but do not hesitate to contact us at support@chromeriver.com should you run into problems or have questions.
+
+There is one operation exposed via the Paid Expense Web Service: addPaidExpense. Paid Expenses from the firm's financial management system may be imported into the Chrome River service for the purpose of providing users an updated status on the payment of their expense reports with the Status of 'Paid' along with the details of the Paid Date, Check Number and Bank ID.
+
+Each call to an operation requires two input objects: the LoginCredentials object and the PaidExpense object. The former contains either the full login information or a session token, while the latter contains input parameter values (those that are optional may be omitted) required to complete the 'add' request. 
+
+The service responds to a request with the MessageEnvelope object. In the event of a successful outcome, the envelope will contain the statusCode "ReturnStatusCode.SUCCESS." In the event of a failed outcome, the envelope will contain the statusCode "ReturnStatusCode.FAIL," along with a list of ValidationError objects detailing why the request was not successful. 
+
+Each ValidationError contains three pieces of information: the error code, the name of the error code, and a brief message explaining the error.
+
+It is recommended that each error message be processed, the input be corrected, and the request be retried at a later time. Also note that each request is first authenticated before further processing, so that if the token or the login credentials are not valid, only a "9000/InvalidLogin" error or a "9001/InvalidSession" error will be returned in the response. For more information about login errors, please see the WSDL documentation for the Login Web Service.
+
+Not all of the parameters for the input PaidExpense object are required. If a parameter is not required, it may be omitted from the request. In such a case, it will take on the default value (null/empty value, unless otherwise specified) in our system in a addPaidExpense call.
+
+Note, that duplicate check functionality is not implemented in this service yet.
+
+Below are the parameters of the input PaidExpense object for the addPaidExpense operation.
+
+=========
+Field: VoucherInvoice
+Description: Voucher Invoice identifier of the expense that Chrome River sends in the export files. (Voucher Invoice number) 
+---
+Constraint: required
+Violation: missing from input
+Error: 1004/EmptyField
+---
+Constraint: must refer to an existing expense report
+Violation: input values do not refer to an existing expense report
+Error: 501/ObjectMissing
+=========
+Field: amount
+Description: Voucher amount value. Format: Whole number, no commas or decimals unless AmountDecimals = -1 
+---
+Constraint: required
+Violation: missing from input
+Error: 1004/EmptyField
+---
+Constraint: must be valid number
+Violation: Cannot convert amount/amountDecimals to the number value
+Error: 1013/InvalidNumber
+=========
+Field: amountDecimals 
+Description: Number of decimal places required for the Amount Spent value (use -1 if Amount has a decimal already)  Format: Whole number, no commas. 
+---
+Constraint: required
+Violation: missing from input
+Error: 1004/EmptyField
+---
+Constraint: must be valid number (no commas or decimals)
+Violation: Cannot convert amount/amountDecimals to the number value
+Error: 1013/InvalidNumber
+=========
+Field: currencyCode 
+Description: Currency code of the Amount Spent value. Format: ISO 4217 code (alpha) 
+---
+Constraint: required
+Violation: missing from input
+Error: 1004/EmptyField
+---
+Constraint: must match the Currency code of the Amount Spent value  
+Violation: Currency code does not match the Currency code of the Amount Spent value
+Error: 2001/InvalidCurrencyCode
+=========
+Field: paidDate 
+Description: Date of Voucher Payment.  Format: PaidDateMask. Defaults to the date the record was loaded into Chrome River if empty. 
+---
+Constraint: required
+Violation: missing from input
+Error: 1004/EmptyField
+---
+Constraint: must be a valid date according to the paidDateMask 
+Violation: payDate has wrong date format
+Error: 1003/InvalidDate
+=========
+Field: paidDateMask 
+Description: Date format of PaidDate. Format: Java SimpleDateFormat 
+---
+Constraint: required
+Violation: missing from input
+Error: 1004/EmptyField
+---
+Constraint: must be a valid Java SimpleDateFormat
+Violation: payDateFormat has wrong date format
+Error: 1003/InvalidDate
+=========
+Field: checkNumber 
+Description: Voucher paid check number.
+---
+Constraint: max length is 36
+Violation: input value is over 36 characters
+Error: 1005/IncorrectLength
+=========
+Field: bankID 
+Description: Voucher paid bank account.
+---
+Constraint: max length is 36
+Violation: input value is over 36 characters
+Error: 1005/IncorrectLength
+=========
+Field: lastCreateDateCustomerRecord 
+Description: If the field is used, we store the most recent lastCreateDateCustomerRecord from the previous call. When we process the next call with a date equal to or prior to the date we stored will not be processed. This allows you to send the same record multiple times without having Chrome River process it multiple times. 
+Format: 24 hour date format YYYY-MM-DD HH:MM:SS
+---
+Constraint: must be a valid date format
+Violation: lastCreateDateCustomerRecord has wrong date format
+Error: 1003/InvalidDate
+=========
+There are two additional cases where a FAIL status may be returned:
+(1) When the value sent in the amount field is equal to zero, AND greater than the expense's reported total;
+(2) When the value sent in the amount field is equal to zero, AND less than the expense's reported total.
+
+In each of the above scenarios, a validationError object will be returned which contains:
+- code: 1000
+- name: InvalidInput
+- message: Payment amount is greater than report total, and equal to zero. Payment ignored. (or similar for the opposite scenario)
+=========
+For more information about this and other Chrome River Web Services, please contact us at support@chromeriver.com.</wsdl:documentation>
+  <wsdl:types>
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://paidExpense.ws.chromeriver.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:complexType name="Payload">
+        <xs:sequence/>
+      </xs:complexType>
+      <xs:complexType name="PaidExpense">
+        <xs:complexContent>
+          <xs:extension base="tns:Payload">
+            <xs:sequence>
+              <xs:element name="voucherInvoice" type="xs:string"/>
+              <xs:element name="amount" type="xs:string"/>
+              <xs:element name="amountDecimals" type="xs:string"/>
+              <xs:element name="currencyCode" type="xs:string"/>
+              <xs:element name="paidDate" type="xs:string"/>
+              <xs:element name="paidDateMask" type="xs:string"/>
+              <xs:element minOccurs="0" name="checkNumber" type="xs:string"/>
+              <xs:element minOccurs="0" name="bankID" type="xs:string"/>
+              <xs:element minOccurs="0" name="lastCreateDateCustomerRecord" type="xs:string"/>
+              <xs:element minOccurs="0" name="isAuthorized" type="xs:int"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="loginCredentials">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="token" type="xs:string"/>
+          <xs:element minOccurs="0" name="user" type="tns:userLoginInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="userLoginInfo">
+        <xs:sequence>
+          <xs:element name="companyId" type="xs:string"/>
+          <xs:element name="userId" type="xs:string"/>
+          <xs:element name="password" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="MessageEnvelope">
+        <xs:sequence>
+          <xs:element name="statusCode" type="tns:returnStatusCode"/>
+          <xs:element minOccurs="0" name="sessionId" type="xs:string"/>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="validationError" type="tns:ValidationError"/>
+          <xs:element minOccurs="0" name="webServicePayload" type="tns:Payload"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ValidationError">
+        <xs:sequence>
+          <xs:element name="code" type="xs:string"/>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element minOccurs="0" name="message" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:simpleType name="returnStatusCode">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="FAIL"/>
+          <xs:enumeration value="SUCCESS"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:element name="credentials" nillable="true" type="tns:loginCredentials"/>
+      <xs:element name="inPaidExpenseAdd" nillable="true" type="tns:PaidExpense"/>
+      <xs:element name="addPaidExpenseResponse" nillable="true" type="tns:MessageEnvelope"/>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="addPaidExpense">
+    <wsdl:part element="tns:inPaidExpenseAdd" name="inPaidExpenseAdd"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="addPaidExpenseResponse">
+    <wsdl:part element="tns:addPaidExpenseResponse" name="addPaidExpenseResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="PaidExpenseService">
+    <wsdl:operation name="addPaidExpense">
+      <wsdl:input message="tns:addPaidExpense" name="addPaidExpense"></wsdl:input>
+      <wsdl:output message="tns:addPaidExpenseResponse" name="addPaidExpenseResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="PaidExpenseServiceSoapBinding" type="tns:PaidExpenseService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="addPaidExpense">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="addPaidExpense">
+        <soap:header message="tns:addPaidExpense" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inPaidExpenseAdd" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="addPaidExpenseResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="PaidExpenseService">
+    <wsdl:port binding="tns:PaidExpenseServiceSoapBinding" name="PaidExpenseServicePort">
+      <soap:address location="https://staging-api.chromeriver.com/ws_PaidExpenseV1"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>https://staging-api.chromeriver.com/ws_PaidExpenseV1</con:endpoint></con:endpoints><con:operation id="eb90dca5-b8fe-4be4-8e8b-ff3b8c331310" isOneWay="false" action="" name="addPaidExpense" bindingOperationName="addPaidExpense" type="Request-Response" outputName="addPaidExpenseResponse" inputName="addPaidExpense" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="cffe4528-036e-48c3-8925-049a0f8311b6" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_PaidExpenseV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:paid="http://paidExpense.ws.chromeriver.com/">
+   <soapenv:Header>
+      <paid:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </paid:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <paid:inPaidExpenseAdd>
+         <voucherInvoice>?</voucherInvoice>
+         <amount>?</amount>
+         <amountDecimals>?</amountDecimals>
+         <currencyCode>?</currencyCode>
+         <paidDate>?</paidDate>
+         <paidDateMask>?</paidDateMask>
+         <!--Optional:-->
+         <checkNumber>?</checkNumber>
+         <!--Optional:-->
+         <bankID>?</bankID>
+         <!--Optional:-->
+         <lastCreateDateCustomerRecord>?</lastCreateDateCustomerRecord>
+         <!--Optional:-->
+         <isAuthorized>?</isAuthorized>
+      </paid:inPaidExpenseAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://paidExpense.ws.chromeriver.com/PaidExpenseService/addPaidExpense"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:interface xsi:type="con:WsdlInterface" id="d346be3b-2f67-427d-9a36-3c43b6001e6b" wsaVersion="NONE" name="LoginServiceSoapBinding" type="wsdl" bindingName="{http://login.ws.chromeriver.com/}LoginServiceSoapBinding" soapVersion="1_1" anonymous="optional" definition="https://staging-api.chromeriver.com/ws_LoginV1?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="https://staging-api.chromeriver.com/ws_LoginV1?wsdl"><con:part><con:url>https://staging-api.chromeriver.com/ws_LoginV1?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="LoginService" targetNamespace="http://login.ws.chromeriver.com/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://login.ws.chromeriver.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:documentation>The Chrome River Login Web Service fulfills requests from our customers to log in to our Web Services platform.
+
+To get started with Chrome River Web Services, please submit a Chrome River Help Desk ticket. Our Implementation team will work with you to get everything set up and running.
+
+To access this service, use this Web Services Description Language (WSDL) file to generate the required client proxy classes: https://api.chromeriver.com/ws_LoginV1?wsdl
+
+Please also read this documentation to understand what it does and how to properly prepare requests.
+
+Logging In
+
+Each request to access a Chrome River Web Service must be authenticated via either login credentials or a session token. The Login Web Service may be used to submit the user's login information in a request consisting of companyID, userID, and password. The user will receive a token to submit with subsequent requests to other Chrome River Web Services, eliminating the need to provide the login information again. 
+
+While it is also possible to submit login information directly via the header of every Chrome River Web Service, it is recommended that customers use the Login Web Service first to obtain a session token, and then submit this token in each subsequent request to the other services.
+
+Chrome River Login Web Service Overview
+
+Only one operation is exposed via the Login Web Service: createSession. The purpose of this operation is to submit login credentials and get in response a session token used to access other Chrome River Web Services. The token will renew each time it is used in a request. It will expire after 30 minutes of inactivity, at which point a new token must be acquired by resubmitting the login credentials to this service.
+
+Each call to the createSession operation requires the LoginCredentials input object, which contains two parameters: token and user. This object is actually a shared input across all Chrome River Web Services. In services other than the Login Service, the token parameter is used to submit the session ID along with the rest of the request. In the Login Service, use the user parameter to set the required login credentials: companyID, userID, and password. 
+
+The service responds to a request with the MessageEnvelope object. In the event of a successful outcome, the envelope will contain the statusCode "ReturnStatusCode.SUCCESS," along with a session token in the sessionID field. In the event of a failed outcome, the envelope will contain the statusCode "ReturnStatusCode.FAIL," along with a list of ValidationError objects detailing why the request was not successful. Each ValidationError contains three pieces of information: the error code, the name of the error code, and a brief message explaining the error.
+
+In the Login Service there are two possible error scenarios: 
+
+1. Invalid Login
+=====================
+Description: The credentials provided do not match a valid record in our system.
+Error Code: 9000
+Error Name: InvalidLogin
+Error Message: Invalid login information
+Resolution: Double-check that the companyID, userID, and password match those provided to you previously by Chrome River.
+
+2. Invalid Session
+=====================
+Description: The token provided is not valid or has expired.
+Error Code: 9001
+Error Name: InvalidSession
+Error Message: No session, or session no longer valid.
+Resolution: Log in again with full credentials to obtain a new and valid session token.
+
+For more information about this and other Chrome River Web Services, please contact us at support@chromeriver.com.</wsdl:documentation>
+  <wsdl:types>
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://login.ws.chromeriver.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:complexType name="loginCredentials">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="token" type="xs:string"/>
+          <xs:element minOccurs="0" name="user" type="tns:userLoginInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="userLoginInfo">
+        <xs:sequence>
+          <xs:element name="companyId" type="xs:string"/>
+          <xs:element name="userId" type="xs:string"/>
+          <xs:element name="password" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="MessageEnvelope">
+        <xs:sequence>
+          <xs:element name="statusCode" type="tns:returnStatusCode"/>
+          <xs:element minOccurs="0" name="sessionId" type="xs:string"/>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="validationError" type="tns:ValidationError"/>
+          <xs:element minOccurs="0" name="webServicePayload" type="tns:Payload"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ValidationError">
+        <xs:sequence>
+          <xs:element name="code" type="xs:string"/>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element minOccurs="0" name="message" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Payload">
+        <xs:sequence/>
+      </xs:complexType>
+      <xs:simpleType name="returnStatusCode">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="FAIL"/>
+          <xs:enumeration value="SUCCESS"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:element name="loginCredentials" nillable="true" type="tns:loginCredentials"/>
+      <xs:element name="createSessionResponse" nillable="true" type="tns:MessageEnvelope"/>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="createSessionResponse">
+    <wsdl:part element="tns:createSessionResponse" name="createSessionResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createSession">
+    <wsdl:part element="tns:loginCredentials" name="loginCredentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="Login">
+    <wsdl:operation name="createSession">
+      <wsdl:input message="tns:createSession" name="createSession"></wsdl:input>
+      <wsdl:output message="tns:createSessionResponse" name="createSessionResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="LoginServiceSoapBinding" type="tns:Login">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="createSession">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createSession">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createSessionResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="LoginService">
+    <wsdl:port binding="tns:LoginServiceSoapBinding" name="LoginPort">
+      <soap:address location="https://staging-api.chromeriver.com/ws_LoginV1"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>https://staging-api.chromeriver.com/ws_LoginV1</con:endpoint></con:endpoints><con:operation id="9adc398e-daef-4389-8859-e8a44ad4b5fe" isOneWay="false" action="" name="createSession" bindingOperationName="createSession" type="Request-Response" outputName="createSessionResponse" inputName="createSession" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="ff770f02-658b-4d5a-8c36-be30685dc355" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_LoginV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:log="http://login.ws.chromeriver.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <log:loginCredentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </log:loginCredentials>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://login.ws.chromeriver.com/Login/createSession"/></con:call></con:operation></con:interface><con:testSuite id="90d6d319-e9b3-4185-81a4-89eaae9ede26" name="PaidExpense_Suite"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="4d235fa7-29df-4f93-a860-c053efa4ddd3" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Login_Case" searchProperties="true"><con:settings/><con:testStep type="groovy" name="setLoginVariables" id="970a511f-0e33-4025-b625-a6a891094ec5"><con:settings/><con:config><script>import soapUI.*
+
+def baseHost = com.eviware.soapui.SoapUI.globalProperties.getPropertyValue("basehost");
+
+if ( baseHost == 'api.chromeriver.com' ){
+	testRunner.testCase.testSuite.project.setPropertyValue("Environment","Production");
+	
+} else if ( baseHost == 'qa-api.chromeriver.com' ){
+	testRunner.testCase.testSuite.project.setPropertyValue("Environment","QA");
+	
+} else {
+	// baseHost == staging-api.chromeriver.com
+	testRunner.testCase.testSuite.project.setPropertyValue("Environment","Staging");
+}
+
+def env = testRunner.testCase.testSuite.project.getPropertyValue("Environment");
+def password = testRunner.testCase.testSuite.project.getPropertyValue("Password");
+
+
+if(env == "Staging"){
+	def stagingPassword = new java.util.Properties();
+	stagingPassword = testRunner.testCase.testSuite.project.getPropertyValue("StagingPassword");
+	testRunner.testCase.testSuite.project.setPropertyValue( "Password", stagingPassword);
+	
+} else if(env == "QA"){
+	def QAPassword = new java.util.Properties();
+	QAPassword = testRunner.testCase.testSuite.project.getPropertyValue("QAPassword");
+	testRunner.testCase.testSuite.project.setPropertyValue( "Password", QAPassword);
+} else if(env == "Production"){
+	def ProductionPassword = new java.util.Properties();
+	ProductionPassword = testRunner.testCase.testSuite.project.getPropertyValue("ProductionPassword");
+	testRunner.testCase.testSuite.project.setPropertyValue( "Password", ProductionPassword);
+} else {
+	testRunner.cancel( "Invalid Environment : " + env ) 
+}</script></con:config></con:testStep><con:testStep type="request" name="LoginRequest" id="a2cb2ea7-562b-453f-88de-98be7d4b43f8"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>LoginServiceSoapBinding</con:interface><con:operation>createSession</con:operation><con:request name="LoginRequest" id="51ee5cab-add4-48bd-867c-dc337e88efc9"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_LoginV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:log="http://login.ws.chromeriver.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <log:loginCredentials>
+         <user>
+            <companyId>${#Project#CompanyID}</companyId>
+            <userId>${#Project#LoginUserName}</userId>
+            <password>${#Project#Password}</password>
+         </user>
+      </log:loginCredentials>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="9aae2222-6db8-4f92-b4c1-641f6e1e0222"/><con:assertion type="XPath Match" id="17bd612a-8ecf-442d-922f-73bd281d93ff" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="transfer" name="Property Transfer" id="b59e3ec4-4440-4b15-9aff-5f31eb30459a"><con:settings/><con:config xsi:type="con:PropertyTransfersStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:transfers setNullOnMissingSource="true" transferTextContent="true" failOnError="true" ignoreEmpty="false" transferToAll="false" entitize="false" transferChildNodes="false"><con:name>SessionID</con:name><con:sourceType>Response</con:sourceType><con:sourceStep>LoginRequest</con:sourceStep><con:sourcePath>//sessionId</con:sourcePath><con:targetType>SessionID</con:targetType><con:targetStep>#Project#</con:targetStep><con:upgraded>true</con:upgraded></con:transfers></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="AddPaidExpense_Case" searchProperties="true" id="873e2418-b9f1-49ca-b573-06709657d9f7"><con:settings/><con:testStep type="groovy" name="TestData-Paid Expense Add" id="07e2eae7-45fb-4353-9e10-2498c507606b"><con:settings/><con:config><script>import soapUI.*
+import java.text.SimpleDateFormat
+
+def today = new Date()
+newDate = new SimpleDateFormat("MM/dd/YYYY");
+newBankID = new SimpleDateFormat("MMddHHmmssSS");
+newLastCreateDate = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
+
+testRunner.testCase.testSuite.project.setPropertyValue( "paidDate", newDate.format(today));
+testRunner.testCase.testSuite.project.setPropertyValue( "checkNumber", newBankID.format(today));
+testRunner.testCase.testSuite.project.setPropertyValue( "lastCreateDate", newLastCreateDate.format(today));</script></con:config></con:testStep><con:testStep type="request" name="addPaidExpense" id="39cb99e4-2599-41d3-a488-7c4a215e112b"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PaidExpenseServiceSoapBinding</con:interface><con:operation>addPaidExpense</con:operation><con:request name="addPaidExpense" id="f2adce1b-a75e-4608-8dc2-36dc4952a1c3"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;entry key="SOAPAction" value="TM_CR_LOGIN" xmlns="http://eviware.com/soapui/config"/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PaidExpenseV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:paid="http://paidExpense.ws.chromeriver.com/">
+   <soapenv:Header>
+      <paid:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </paid:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <paid:inPaidExpenseAdd>
+         <voucherInvoice>${#Project#voucherInvoice}</voucherInvoice>
+         <amount>${#Project#amount}</amount>
+         <amountDecimals>-1</amountDecimals>
+         <currencyCode>${#Project#currencyCode}</currencyCode>
+         <paidDate>${#Project#paidDate}</paidDate>
+         <paidDateMask>MM/dd/yyyy</paidDateMask>
+         <!--Optional:-->
+         <checkNumber>${#Project#checkNumber}</checkNumber>
+         <!--Optional:-->
+         <bankID>JD001</bankID>
+         <!--Optional:-->
+         <lastCreateDateCustomerRecord/>
+         <!--Optional:-->
+         <isAuthorized>${#Project#isAuthorized}</isAuthorized>
+      </paid:inPaidExpenseAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="93d99f18-0497-4683-b731-ac35a95e2b14"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - sessionid" id="ba088d43-7fb8-4722-a66c-9bb9b0ded010"><con:configuration><path>//sessionId</path><content>${#Project#SessionID}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://paidExpense.ws.chromeriver.com/PaidExpenseService/addPaidExpense" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPaidExpense - Invalid Voucher" id="9bb8264a-421c-4a02-8553-301ea646cefe"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PaidExpenseServiceSoapBinding</con:interface><con:operation>addPaidExpense</con:operation><con:request name="addPaidExpense - Invalid Voucher" id="0a45631b-b435-4327-8e02-0be2afcd4db2"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PaidExpenseV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:paid="http://paidExpense.ws.chromeriver.com/">
+   <soapenv:Header>
+      <paid:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </paid:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <paid:inPaidExpenseAdd>
+         <voucherInvoice>${#Project#voucherInvoice}BAD</voucherInvoice>
+         <amount>${#Project#amount}</amount>
+         <amountDecimals>-1</amountDecimals>
+         <currencyCode>${#Project#currencyCode}</currencyCode>
+         <paidDate>${#Project#paidDate}</paidDate>
+         <paidDateMask>MM/dd/yyyy</paidDateMask>
+         <!--Optional:-->
+         <checkNumber>${#Project#checkNumber}</checkNumber>
+         <!--Optional:-->
+         <bankID>JD001</bankID>
+         <!--Optional:-->
+         <lastCreateDateCustomerRecord/>
+         <!--Optional:-->
+         <isAuthorized>${#Project#isAuthorized}</isAuthorized>
+      </paid:inPaidExpenseAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="aa9628d8-189d-47cc-8b03-49afdfa3d83f"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - Code" id="e0adeb91-c0e3-4974-b612-0bb6167057aa"><con:configuration><path>//code</path><content>501</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="43bbf0d1-ea53-4472-95df-fba56d81b5f6"><con:configuration><path>//message</path><content>Could not find matching expense report from VoucherInvoice:*</content><allowWildcards>true</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://paidExpense.ws.chromeriver.com/PaidExpenseService/addPaidExpense" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPaidExpense - Wrong Client Voucher#" id="c536c3d7-7be3-4628-a58d-dd839d03dd1f"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PaidExpenseServiceSoapBinding</con:interface><con:operation>addPaidExpense</con:operation><con:request name="addPaidExpense - Wrong Client Voucher#" id="678ac98c-5de3-4148-9d33-e54fd5d990bd"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PaidExpenseV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:paid="http://paidExpense.ws.chromeriver.com/">
+   <soapenv:Header>
+      <paid:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </paid:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <paid:inPaidExpenseAdd>
+         <voucherInvoice>${#Project#otherClientVoucherNumber}</voucherInvoice>
+         <amount>${#Project#amount}</amount>
+         <amountDecimals>-1</amountDecimals>
+         <currencyCode>${#Project#currencyCode}</currencyCode>
+         <paidDate>${#Project#paidDate}</paidDate>
+         <paidDateMask>MM/dd/yyyy</paidDateMask>
+         <!--Optional:-->
+         <checkNumber>${#Project#checkNumber}</checkNumber>
+         <!--Optional:-->
+         <bankID>JD001</bankID>
+         <!--Optional:-->
+         <lastCreateDateCustomerRecord/>
+         <!--Optional:-->
+         <isAuthorized>${#Project#isAuthorized}</isAuthorized>
+      </paid:inPaidExpenseAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="cbbe59cb-d298-4a5d-a8f4-ee87167add93"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - Code" id="1bcf4733-7cbd-41c9-a071-6ea851165440"><con:configuration><path>//code</path><content>501</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="9e3f5aea-7ddb-4e03-97e6-2f784706e68a"><con:configuration><path>//message</path><content>Could not find matching expense report from VoucherInvoice:*</content><allowWildcards>true</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://paidExpense.ws.chromeriver.com/PaidExpenseService/addPaidExpense" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPaidExpense - Missing Voucher" id="571663c3-d8af-40f6-b630-3c7568a2e75d"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PaidExpenseServiceSoapBinding</con:interface><con:operation>addPaidExpense</con:operation><con:request name="addPaidExpense - Missing Voucher" id="ec806298-2b94-48cd-b77d-3baf333febe3"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PaidExpenseV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:paid="http://paidExpense.ws.chromeriver.com/">
+   <soapenv:Header>
+      <paid:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </paid:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <paid:inPaidExpenseAdd>
+         <voucherInvoice/>
+         <amount>${#Project#amount}</amount>
+         <amountDecimals>-1</amountDecimals>
+         <currencyCode>${#Project#currencyCode}</currencyCode>
+         <paidDate>${#Project#paidDate}</paidDate>
+         <paidDateMask>MM/dd/yyyy</paidDateMask>
+         <!--Optional:-->
+         <checkNumber>${#Project#checkNumber}</checkNumber>
+         <!--Optional:-->
+         <bankID>JD001</bankID>
+         <!--Optional:-->
+         <lastCreateDateCustomerRecord/>
+         <!--Optional:-->
+         <isAuthorized>${#Project#isAuthorized}</isAuthorized>
+      </paid:inPaidExpenseAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="70b7219f-1220-491e-873f-f8591e5ab126"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - Code" id="b56e4245-eaf9-4232-83a6-e949622747be"><con:configuration><path>//code</path><content>1004</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="70393477-0579-470e-b070-f2cf27edc547"><con:configuration><path>//name</path><content>EmptyField</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://paidExpense.ws.chromeriver.com/PaidExpenseService/addPaidExpense" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPaidExpense - Empty Amount" id="4dfd246f-b09e-4f7d-baca-8a89da78882a"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PaidExpenseServiceSoapBinding</con:interface><con:operation>addPaidExpense</con:operation><con:request name="addPaidExpense - Empty Amount" id="df9d4bbe-c543-45d5-b8dd-f1bfd123cdfd"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PaidExpenseV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:paid="http://paidExpense.ws.chromeriver.com/">
+   <soapenv:Header>
+      <paid:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </paid:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <paid:inPaidExpenseAdd>
+         <voucherInvoice>${#Project#voucherInvoice}</voucherInvoice>
+         <amount/>
+         <amountDecimals>-1</amountDecimals>
+         <currencyCode>${#Project#currencyCode}</currencyCode>
+         <paidDate>${#Project#paidDate}</paidDate>
+         <paidDateMask>MM/dd/yyyy</paidDateMask>
+         <!--Optional:-->
+         <checkNumber>${#Project#checkNumber}</checkNumber>
+         <!--Optional:-->
+         <bankID>JD001</bankID>
+         <!--Optional:-->
+         <lastCreateDateCustomerRecord/>
+         <!--Optional:-->
+         <isAuthorized>${#Project#isAuthorized}</isAuthorized>
+      </paid:inPaidExpenseAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="a3313ac5-bb5c-474e-b9dd-60da536b5e7c"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - Code" id="22f7652a-e65a-466d-91bb-b8c5bcf09cc4"><con:configuration><path>//code</path><content>1004</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="8717644e-3b62-4879-82f4-6244eb36b180"><con:configuration><path>//name</path><content>EmptyField</content><allowWildcards>true</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://paidExpense.ws.chromeriver.com/PaidExpenseService/addPaidExpense" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPaidExpense - Invalid Amount" id="b85f788f-10bf-4ab4-9253-99f79ee1665b"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PaidExpenseServiceSoapBinding</con:interface><con:operation>addPaidExpense</con:operation><con:request name="addPaidExpense - Invalid Amount" id="c369b258-0215-4488-8d45-9bbae7727a25"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PaidExpenseV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:paid="http://paidExpense.ws.chromeriver.com/">
+   <soapenv:Header>
+      <paid:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </paid:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <paid:inPaidExpenseAdd>
+         <voucherInvoice>${#Project#voucherInvoice}</voucherInvoice>
+         <amount>BAD.AMOUNT</amount>
+         <amountDecimals>-1</amountDecimals>
+         <currencyCode>${#Project#currencyCode}</currencyCode>
+         <paidDate>${#Project#paidDate}</paidDate>
+         <paidDateMask>MM/dd/yyyy</paidDateMask>
+         <!--Optional:-->
+         <checkNumber>${#Project#checkNumber}</checkNumber>
+         <!--Optional:-->
+         <bankID>JD001</bankID>
+         <!--Optional:-->
+         <lastCreateDateCustomerRecord/>
+         <!--Optional:-->
+         <isAuthorized>${#Project#isAuthorized}</isAuthorized>
+      </paid:inPaidExpenseAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="1c911f6a-90c0-4e48-8e87-eb979e3ba9cb"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - Code" id="8d1e8977-1d46-4629-8587-8e954048513c"><con:configuration><path>//code</path><content>1013</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="a53e44de-7d16-4ec6-b84e-355a1b71fb0f"><con:configuration><path>//name</path><content>InvalidNumber</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://paidExpense.ws.chromeriver.com/PaidExpenseService/addPaidExpense" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPaidExpense - missing decimal" id="b6368811-75a6-47fa-ad5a-b65f3f9c7344"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PaidExpenseServiceSoapBinding</con:interface><con:operation>addPaidExpense</con:operation><con:request name="addPaidExpense - missing decimal" id="db7506b5-b614-472b-a3ca-efe609a285af"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PaidExpenseV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:paid="http://paidExpense.ws.chromeriver.com/">
+   <soapenv:Header>
+      <paid:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </paid:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <paid:inPaidExpenseAdd>
+         <voucherInvoice>${#Project#voucherInvoice}</voucherInvoice>
+         <amount>${#Project#amount}</amount>
+         <amountDecimals/>
+         <currencyCode>${#Project#currencyCode}</currencyCode>
+         <paidDate>${#Project#paidDate}</paidDate>
+         <paidDateMask>MM/dd/yyyy</paidDateMask>
+         <!--Optional:-->
+         <checkNumber>${#Project#checkNumber}</checkNumber>
+         <!--Optional:-->
+         <bankID>JD001</bankID>
+         <!--Optional:-->
+         <lastCreateDateCustomerRecord/>
+         <!--Optional:-->
+         <isAuthorized>${#Project#isAuthorized}</isAuthorized>
+      </paid:inPaidExpenseAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="d3ab156d-791a-43b1-b2c8-863ac64eb60f"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - code" id="d786d8ef-d5a6-4c02-89c6-e7ceb57918ab"><con:configuration><path>//code</path><content>1004</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="87826020-6b29-4fe6-a08b-b9699a21e35b"><con:configuration><path>//name</path><content>EmptyField</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://paidExpense.ws.chromeriver.com/PaidExpenseService/addPaidExpense" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPaidExpense - invalid decimal" id="f11fe009-995d-4c40-af5c-a3cf92d6aa22"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PaidExpenseServiceSoapBinding</con:interface><con:operation>addPaidExpense</con:operation><con:request name="addPaidExpense - invalid decimal" id="5f99b130-682f-431b-8e6c-44131715d409"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PaidExpenseV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:paid="http://paidExpense.ws.chromeriver.com/">
+   <soapenv:Header>
+      <paid:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </paid:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <paid:inPaidExpenseAdd>
+         <voucherInvoice>${#Project#voucherInvoice}</voucherInvoice>
+         <amount>${#Project#amount}</amount>
+         <amountDecimals>BAD</amountDecimals>
+         <currencyCode>${#Project#currencyCode}</currencyCode>
+         <paidDate>${#Project#paidDate}</paidDate>
+         <paidDateMask>MM/dd/yyyy</paidDateMask>
+         <!--Optional:-->
+         <checkNumber>${#Project#checkNumber}</checkNumber>
+         <!--Optional:-->
+         <bankID>JD001</bankID>
+         <!--Optional:-->
+         <lastCreateDateCustomerRecord/>
+         <!--Optional:-->
+         <isAuthorized>${#Project#isAuthorized}</isAuthorized>
+      </paid:inPaidExpenseAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="3c8fc4da-2132-485e-b80a-9eac9ef2bb9d"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - code" id="1dfea811-b464-42fe-b58e-4e1dcedf2da0"><con:configuration><path>//code</path><content>1013</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="7789650f-a516-4709-a17d-3638e9db8ac4"><con:configuration><path>//name</path><content>InvalidNumber</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://paidExpense.ws.chromeriver.com/PaidExpenseService/addPaidExpense" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPaidExpense - Missing Currency Code" id="deda41c8-abda-42a3-9c53-89bc9fd2429c"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PaidExpenseServiceSoapBinding</con:interface><con:operation>addPaidExpense</con:operation><con:request name="addPaidExpense - Missing Currency Code" id="23e3d6bf-7dae-4b8b-8b03-3eb1c4d99bc1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PaidExpenseV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:paid="http://paidExpense.ws.chromeriver.com/">
+   <soapenv:Header>
+      <paid:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </paid:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <paid:inPaidExpenseAdd>
+         <voucherInvoice>${#Project#voucherInvoice}</voucherInvoice>
+         <amount>${#Project#amount}</amount>
+         <amountDecimals>-1</amountDecimals>
+         <currencyCode/>
+         <paidDate>${#Project#paidDate}</paidDate>
+         <paidDateMask>MM/dd/yyyy</paidDateMask>
+         <!--Optional:-->
+         <checkNumber>${#Project#checkNumber}</checkNumber>
+         <!--Optional:-->
+         <bankID>JD001</bankID>
+         <!--Optional:-->
+         <lastCreateDateCustomerRecord/>
+         <!--Optional:-->
+         <isAuthorized>${#Project#isAuthorized}</isAuthorized>
+      </paid:inPaidExpenseAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="86625112-c4c7-4f36-9b84-c0c660e8e861"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - Code" id="747b68d7-61cf-4c8d-917b-7fd258974ff8"><con:configuration><path>//code</path><content>1004</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="829caa58-3655-4995-b0ab-f8533e9c504b"><con:configuration><path>//name</path><content>EmptyField</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://paidExpense.ws.chromeriver.com/PaidExpenseService/addPaidExpense" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPaidExpense - Invalid Currency Code" id="f8057635-177d-4181-b86b-82915095c666"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PaidExpenseServiceSoapBinding</con:interface><con:operation>addPaidExpense</con:operation><con:request name="addPaidExpense - Invalid Currency Code" id="a2d90bba-072d-4092-80fa-3e276f12d309"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PaidExpenseV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:paid="http://paidExpense.ws.chromeriver.com/">
+   <soapenv:Header>
+      <paid:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </paid:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <paid:inPaidExpenseAdd>
+         <voucherInvoice>${#Project#voucherInvoice}</voucherInvoice>
+         <amount>${#Project#amount}</amount>
+         <amountDecimals>-1</amountDecimals>
+         <currencyCode>BAD.CUR</currencyCode>
+         <paidDate>${#Project#paidDate}</paidDate>
+         <paidDateMask>MM/dd/yyyy</paidDateMask>
+         <!--Optional:-->
+         <checkNumber>${#Project#checkNumber}</checkNumber>
+         <!--Optional:-->
+         <bankID>JD001</bankID>
+         <!--Optional:-->
+         <lastCreateDateCustomerRecord/>
+         <!--Optional:-->
+         <isAuthorized>${#Project#isAuthorized}</isAuthorized>
+      </paid:inPaidExpenseAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="156579a5-328b-4cd3-b062-195da46b7c68"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - Code" id="ea348ce0-451d-41b5-97e8-944fb455642f"><con:configuration><path>//code</path><content>2001</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="21865e25-6706-4186-af3c-90bed90db2ad"><con:configuration><path>//name</path><content>InvalidCurrencyCode</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://paidExpense.ws.chromeriver.com/PaidExpenseService/addPaidExpense" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPaidExpense - Missing Paid Date" id="0a830a2a-cc95-4606-9f1a-2e50af34f744"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PaidExpenseServiceSoapBinding</con:interface><con:operation>addPaidExpense</con:operation><con:request name="addPaidExpense - Missing Paid Date" id="8bcbeac6-05f5-4852-aefe-09dedd1b4f98"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PaidExpenseV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:paid="http://paidExpense.ws.chromeriver.com/">
+   <soapenv:Header>
+      <paid:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </paid:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <paid:inPaidExpenseAdd>
+         <voucherInvoice>${#Project#voucherInvoice}</voucherInvoice>
+         <amount>${#Project#amount}</amount>
+         <amountDecimals>-1</amountDecimals>
+         <currencyCode>${#Project#currencyCode}</currencyCode>
+         <paidDate/>
+         <paidDateMask>MM/dd/yyyy</paidDateMask>
+         <!--Optional:-->
+         <checkNumber>${#Project#checkNumber}</checkNumber>
+         <!--Optional:-->
+         <bankID>JD001</bankID>
+         <!--Optional:-->
+         <lastCreateDateCustomerRecord/>
+         <!--Optional:-->
+         <isAuthorized>${#Project#isAuthorized}</isAuthorized>
+      </paid:inPaidExpenseAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="01d52f37-146e-4ce0-9803-4ce919ef4007"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - Code" id="54cf6cb7-a290-49a2-8c48-bd03aa1443fe"><con:configuration><path>//code</path><content>1004</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="8e3ad709-1304-4794-9e69-8f1ac065bff0"><con:configuration><path>//name</path><content>EmptyField</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://paidExpense.ws.chromeriver.com/PaidExpenseService/addPaidExpense" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPaidExpense - Invalid Paid Date" id="ce03fe73-53d1-448f-98e9-b9148689c2f1"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PaidExpenseServiceSoapBinding</con:interface><con:operation>addPaidExpense</con:operation><con:request name="addPaidExpense - Invalid Paid Date" id="66411311-2b71-4cd7-b70c-40c3c2158ec8"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PaidExpenseV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:paid="http://paidExpense.ws.chromeriver.com/">
+   <soapenv:Header>
+      <paid:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </paid:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <paid:inPaidExpenseAdd>
+         <voucherInvoice>${#Project#voucherInvoice}</voucherInvoice>
+         <amount>${#Project#amount}</amount>
+         <amountDecimals>-1</amountDecimals>
+         <currencyCode>${#Project#currencyCode}</currencyCode>
+         <paidDate>BAD.DATE</paidDate>
+         <paidDateMask>MM/dd/yyyy</paidDateMask>
+         <!--Optional:-->
+         <checkNumber>${#Project#checkNumber}</checkNumber>
+         <!--Optional:-->
+         <bankID>JD001</bankID>
+         <!--Optional:-->
+         <lastCreateDateCustomerRecord/>
+         <!--Optional:-->
+         <isAuthorized>${#Project#isAuthorized}</isAuthorized>
+      </paid:inPaidExpenseAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="217be02b-69f7-47bc-bd2f-c16201b1786f"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - Code" id="6026398b-d716-4384-937e-6b4363917638"><con:configuration><path>//code</path><content>1003</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="cf83c458-fdf4-41e7-8c95-aa52bfba03f1"><con:configuration><path>//name</path><content>InvalidDate</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://paidExpense.ws.chromeriver.com/PaidExpenseService/addPaidExpense" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPaidExpense - Missing Date Mask" id="075d6c63-ec9f-44f3-979a-1e2bc857fdbc"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PaidExpenseServiceSoapBinding</con:interface><con:operation>addPaidExpense</con:operation><con:request name="addPaidExpense - Missing Date Mask" id="f4f0c0da-1013-4741-8a45-79ea6425c969"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PaidExpenseV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:paid="http://paidExpense.ws.chromeriver.com/">
+   <soapenv:Header>
+      <paid:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </paid:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <paid:inPaidExpenseAdd>
+         <voucherInvoice>${#Project#voucherInvoice}</voucherInvoice>
+         <amount>${#Project#amount}</amount>
+         <amountDecimals>-1</amountDecimals>
+         <currencyCode>${#Project#currencyCode}</currencyCode>
+         <paidDate>${#Project#paidDate}</paidDate>
+         <paidDateMask/>
+         <!--Optional:-->
+         <checkNumber>${#Project#checkNumber}</checkNumber>
+         <!--Optional:-->
+         <bankID>JD001</bankID>
+         <!--Optional:-->
+         <lastCreateDateCustomerRecord/>
+         <!--Optional:-->
+         <isAuthorized>${#Project#isAuthorized}</isAuthorized>
+      </paid:inPaidExpenseAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="d8823510-3aa2-4ac4-b1a6-8c2932ef9dc1"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - Code" id="14fa1eca-8bd0-40fe-a508-7d6bdcd2d330"><con:configuration><path>//code</path><content>1004</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="62bab614-fe1e-444a-ad91-9e8a33192aa1"><con:configuration><path>//name</path><content>EmptyField</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://paidExpense.ws.chromeriver.com/PaidExpenseService/addPaidExpense" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPaidExpense - Invalid Date Mask" id="a3223f93-b966-498b-87d3-31c4463c27f1"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PaidExpenseServiceSoapBinding</con:interface><con:operation>addPaidExpense</con:operation><con:request name="addPaidExpense - Invalid Date Mask" id="2152acee-8b26-4228-b749-90d1c1e03312"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PaidExpenseV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:paid="http://paidExpense.ws.chromeriver.com/">
+   <soapenv:Header>
+      <paid:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </paid:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <paid:inPaidExpenseAdd>
+         <voucherInvoice>${#Project#voucherInvoice}</voucherInvoice>
+         <amount>${#Project#amount}</amount>
+         <amountDecimals>-1</amountDecimals>
+         <currencyCode>${#Project#currencyCode}</currencyCode>
+         <paidDate>${#Project#paidDate}</paidDate>
+         <paidDateMask>BAD.MASK</paidDateMask>
+         <!--Optional:-->
+         <checkNumber>${#Project#checkNumber}</checkNumber>
+         <!--Optional:-->
+         <bankID>JD001</bankID>
+         <!--Optional:-->
+         <lastCreateDateCustomerRecord/>
+         <!--Optional:-->
+         <isAuthorized>${#Project#isAuthorized}</isAuthorized>
+      </paid:inPaidExpenseAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="f228f3fc-1bac-415d-a1c9-767f21cc79b6"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - Code" id="1f3a12b9-f6c5-4534-a358-fffc18ce151e"><con:configuration><path>//code</path><content>1003</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="a658c17f-dfe0-4d23-a68b-791b281df59b"><con:configuration><path>//name</path><content>InvalidDate</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://paidExpense.ws.chromeriver.com/PaidExpenseService/addPaidExpense" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPaidExpense - Long Check Number" id="ddc79db7-b674-48e6-b3b5-c2e805e38c54"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PaidExpenseServiceSoapBinding</con:interface><con:operation>addPaidExpense</con:operation><con:request name="addPaidExpense - Long Check Number" id="60c7da54-3c38-4ef9-a025-5013d7070696"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PaidExpenseV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:paid="http://paidExpense.ws.chromeriver.com/">
+   <soapenv:Header>
+      <paid:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </paid:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <paid:inPaidExpenseAdd>
+         <voucherInvoice>${#Project#voucherInvoice}</voucherInvoice>
+         <amount>${#Project#amount}</amount>
+         <amountDecimals>-1</amountDecimals>
+         <currencyCode>${#Project#currencyCode}</currencyCode>
+         <paidDate>${#Project#paidDate}</paidDate>
+         <paidDateMask>MM/dd/yyyy</paidDateMask>
+         <!--Optional:-->
+         <checkNumber>1234567890123456789012345678901234567890</checkNumber>
+         <!--Optional:-->
+         <bankID>JD001</bankID>
+         <!--Optional:-->
+         <lastCreateDateCustomerRecord/>
+         <!--Optional:-->
+         <isAuthorized>${#Project#isAuthorized}</isAuthorized>
+      </paid:inPaidExpenseAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="8b9b2516-6a7c-4e3d-907c-a66a9462eb04"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - Code" id="9ffcabdc-390e-4545-828f-0ae81a38ec7c"><con:configuration><path>//code</path><content>1005</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="d84ecf96-1a44-4c0d-956b-9e778d1d2209"><con:configuration><path>//name</path><content>IncorrectLength</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://paidExpense.ws.chromeriver.com/PaidExpenseService/addPaidExpense" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPaidExpense - Long Bank Number" id="eca2eeaf-e2e7-4c17-8e98-2bfe94a99242"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PaidExpenseServiceSoapBinding</con:interface><con:operation>addPaidExpense</con:operation><con:request name="addPaidExpense - Long Bank Number" id="3313b831-9f9a-43ab-8016-fa8e64fd2e2c"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PaidExpenseV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:paid="http://paidExpense.ws.chromeriver.com/">
+   <soapenv:Header>
+      <paid:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </paid:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <paid:inPaidExpenseAdd>
+         <voucherInvoice>${#Project#voucherInvoice}</voucherInvoice>
+         <amount>${#Project#amount}</amount>
+         <amountDecimals>-1</amountDecimals>
+         <currencyCode>${#Project#currencyCode}</currencyCode>
+         <paidDate>${#Project#paidDate}</paidDate>
+         <paidDateMask>MM/dd/yyyy</paidDateMask>
+         <!--Optional:-->
+         <checkNumber>${#Project#checkNumber}</checkNumber>
+         <!--Optional:-->
+         <bankID>1234567890123456789012345678901234567890</bankID>
+         <!--Optional:-->
+         <lastCreateDateCustomerRecord/>
+         <!--Optional:-->
+         <isAuthorized>${#Project#isAuthorized}</isAuthorized>
+      </paid:inPaidExpenseAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="29b60964-0172-4aea-8dea-4a7853960c37"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - Code" id="210a45ff-e4eb-46e5-a372-0286f531e744"><con:configuration><path>//code</path><content>1005</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="22ed12f4-44db-4e96-b0bc-e980d2bc9ded"><con:configuration><path>//name</path><content>IncorrectLength</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://paidExpense.ws.chromeriver.com/PaidExpenseService/addPaidExpense" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPaidExpense - Invalid Last Create Date" id="4e3b50aa-fced-47b4-8eca-71b91f9e5222"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PaidExpenseServiceSoapBinding</con:interface><con:operation>addPaidExpense</con:operation><con:request name="addPaidExpense - Invalid Last Create Date" id="1b7a574c-0e7e-44a1-b8b8-c9e1225c2a93"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PaidExpenseV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:paid="http://paidExpense.ws.chromeriver.com/">
+   <soapenv:Header>
+      <paid:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </paid:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <paid:inPaidExpenseAdd>
+         <voucherInvoice>${#Project#voucherInvoice}</voucherInvoice>
+         <amount>${#Project#amount}</amount>
+         <amountDecimals>-1</amountDecimals>
+         <currencyCode>${#Project#currencyCode}</currencyCode>
+         <paidDate>${#Project#paidDate}</paidDate>
+         <paidDateMask>MM/dd/yyyy</paidDateMask>
+         <!--Optional:-->
+         <checkNumber>${#Project#checkNumber}</checkNumber>
+         <!--Optional:-->
+         <bankID>JD001</bankID>
+         <!--Optional:-->
+         <lastCreateDateCustomerRecord>BAD.DATE</lastCreateDateCustomerRecord>
+         <!--Optional:-->
+         <isAuthorized>${#Project#isAuthorized}</isAuthorized>
+      </paid:inPaidExpenseAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="014d0bac-5972-4d2a-85fc-cbb48302f4d6"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - Code" id="c55c4490-5e2b-4a8e-9a61-82ce235c4d77"><con:configuration><path>//code</path><content>1003</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - name" id="0330b060-7e70-4f0b-9b3c-f9637d86304e"><con:configuration><path>//name</path><content>InvalidDate</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://paidExpense.ws.chromeriver.com/PaidExpenseService/addPaidExpense" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:properties/></con:testSuite><con:properties><con:property><con:name>LoginUserName</con:name><con:value>pbjtest</con:value></con:property><con:property><con:name>Password</con:name><con:value>1river1</con:value></con:property><con:property><con:name>CompanyID</con:name><con:value>www.pbj.com</con:value></con:property><con:property><con:name>StagingPassword</con:name><con:value>1river1</con:value></con:property><con:property><con:name>QAPassword</con:name><con:value>DTFVOg46xWOcyYG</con:value></con:property><con:property><con:name>ProductionPassword</con:name><con:value>1river1</con:value></con:property><con:property><con:name>SessionID</con:name><con:value>bd22e48e-358f-44b2-aa90-6f71619bfeb5</con:value></con:property><con:property><con:name>voucherInvoice</con:name><con:value>1044790412022318</con:value></con:property><con:property><con:name>amount</con:name><con:value>0.00</con:value></con:property><con:property><con:name>currencyCode</con:name><con:value>USD</con:value></con:property><con:property><con:name>paidDate</con:name><con:value>10/04/2016</con:value></con:property><con:property><con:name>checkNumber</con:name><con:value>1004133752344</con:value></con:property><con:property><con:name>lastCreateDate</con:name><con:value>2016-10-04 13:37:52</con:value></con:property><con:property><con:name>otherClientVoucherNumber</con:name><con:value>0725721102172027</con:value></con:property><con:property><con:name>Environment</con:name><con:value>Staging</con:value></con:property><con:property><con:name>isAuthorized</con:name><con:value>-1</con:value></con:property></con:properties><con:wssContainer/><con:oAuth2ProfileContainer/><con:sensitiveInformation/></con:soapui-project>

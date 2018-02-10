@@ -1,0 +1,92 @@
+<soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+   <soap-env:Header>
+      <eb:MessageHeader eb:version="1.0" soap-env:mustUnderstand="1" xmlns:eb="http://www.ebxml.org/namespaces/messageHeader">
+         <eb:From>
+            <eb:PartyId eb:type="URI">org.ebxml.www.namespaces.messageHeader.PartyId@1</eb:PartyId>
+         </eb:From>
+         <eb:To>
+            <eb:PartyId eb:type="URI">org.ebxml.www.namespaces.messageHeader.PartyId@1</eb:PartyId>
+         </eb:To>
+         <eb:ConversationId>SampleSession1</eb:ConversationId>
+         <eb:Service>org.ebxml.www.namespaces.messageHeader.Service@1</eb:Service>
+         <eb:Action>GT_ERP_TravelItineraryReadRS</eb:Action>
+         <eb:MessageData>
+            <eb:MessageId>ec5ac348-9568-423b-9850-b56c47918599@86</eb:MessageId>
+            <eb:Timestamp>2015-07-14T09:10:55</eb:Timestamp>
+            <eb:RefToMessageId>mid:20001209-133003-2333@clientofsabre.com1</eb:RefToMessageId>
+         </eb:MessageData>
+      </eb:MessageHeader>
+      <wsse:Security xmlns:wsse="http://schemas.xmlsoap.org/ws/2002/12/secext">
+         <wsse:BinarySecurityToken valueType="String" EncodingType="wsse:Base64Binary">Shared/IDL:IceSess\/SessMgr:1\.0.IDL/Common/!ICESMS\/RESA!ICESMSLB\/RES.LB!-3513329298251182041!453400!0</wsse:BinarySecurityToken>
+      </wsse:Security>
+   </soap-env:Header>
+   <soap-env:Body>
+      <GT_ERP_TravelItineraryReadRS EchoToken="String" TimeStamp="2015-07-14T09:10:55Z" Target="Production" Version="1.0.0" SequenceNmbr="1" PrimaryLangID="en-us" AltLangID="en-us" xmlns="http://services.sabre.com/ns/getthere">
+         <TravelItineraryInfo>
+            <TravelItinerary>
+               <ItineraryRef ID="WQQFIQ">
+                  <TPA_Extensions>
+                     <Site/>
+                     <GetthereTripID TripID="1431080219.96938"/>
+                  </TPA_Extensions>
+               </ItineraryRef>
+               <CustomerInfos>
+                  <CustomerInfo>
+                     <Customer>
+                        <PersonName>
+                           <GivenName>Vernon</GivenName>
+                           <Surname>Bear</Surname>
+                        </PersonName>
+                        <TPA_Extensions>
+                           <CustomerIdentifier/>
+                           <EmployeeInfo EmployeeNumber="ccg00135"/>
+                        </TPA_Extensions>
+                     </Customer>
+                  </CustomerInfo>
+               </CustomerInfos>
+               <ItineraryInfo>
+                  <ReservationItems/>
+                  <ItineraryPricing>
+                     <PriceQuote>
+                        <PricedItinerary>
+                           <AirItineraryPricingInfo>
+                              <ItinTotalFare/>
+                           </AirItineraryPricingInfo>
+                           <TPA_Extensions>
+                              <RailItineraryPricingInfo>
+                                 <ItinTotalFare>
+                                    <BaseFare/>
+                                    <SeatFare/>
+                                    <Taxes>
+                                       <Tax/>
+                                    </Taxes>
+                                    <TotalFare/>
+                                    <LowerFare/>
+                                 </ItinTotalFare>
+                              </RailItineraryPricingInfo>
+                           </TPA_Extensions>
+                        </PricedItinerary>
+                     </PriceQuote>
+                  </ItineraryPricing>
+                  <TPA_Extensions>
+                     <TravelPolicy>
+                        <Air/>
+                        <Vehicle/>
+                        <Hotel/>
+                        <Rail/>
+                     </TravelPolicy>
+                  </TPA_Extensions>
+               </ItineraryInfo>
+               <UpdatedBy CreateDateTime="2015-05-08T17:24:37Z">
+                  <TPA_Extensions>
+                     <ItineraryStatus Status="Past Date"/>
+                  </TPA_Extensions>
+               </UpdatedBy>
+            </TravelItinerary>
+            <Errors>
+               <Error/>
+            </Errors>
+         </TravelItineraryInfo>
+      </GT_ERP_TravelItineraryReadRS>
+   </soap-env:Body>
+</soap-env:Envelope>

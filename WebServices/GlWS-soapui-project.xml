@@ -1,0 +1,577 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project id="39625094-61a2-4c51-8a98-66a60d42bbde" activeEnvironment="Default" name="GlWS" resourceRoot="" soapui-version="5.2.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" id="afe9766a-6459-4cc1-8707-691015a08b42" wsaVersion="NONE" name="GLServiceSoapBinding" type="wsdl" bindingName="{http://gl.ws.chromeriver.com/}GLServiceSoapBinding" soapVersion="1_1" anonymous="optional" definition="https://staging-api.chromeriver.com/ws_GLV1?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="https://staging-api.chromeriver.com/ws_GLV1?wsdl"><con:part><con:url>https://staging-api.chromeriver.com/ws_GLV1?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="GLService" targetNamespace="http://gl.ws.chromeriver.com/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://gl.ws.chromeriver.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http">
+  <wsdl:documentation>The Chrome River GL Web Service fulfills requests from our customers to create or update GL records in the Chrome River system.
+
+To get started with GL Web Service, please submit a Chrome River Help Desk ticket. Our Implementation team will work with you to get everything set up and running.
+
+To access this service, use this Web Services Description Language (WSDL) file to generate the required client proxy classes: https://api.chromeriver.com/ws_GLV1?wsdl
+
+Please also read this documentation to understand what it does and how to properly prepare requests.
+
+Logging In
+
+Each request to access this service must be authenticated via either login credentials or a session token. The Login Web Service may be used to submit the user's login information in a request consisting of companyID, userID, and password. The user will receive a token to submit with subsequent requests to other Chrome River Web Services, eliminating the need to provide the login information again. 
+
+While it is also possible to submit login information directly via the header of the GL Web Service, it is recommended that customers use the Login Web Service first to obtain a session token, and then submit this token in each subsequent request to the GL Service.
+
+Chrome River GL Web Service Overview
+
+Please use the following description as a reference, but do not hesitate to contact us at support@chromeriver.com should you run into problems or have questions.
+
+There are two operations exposed via the GL Web Service: createGl and updateGl. Each call either creates or updates a single invoice GL in the Chrome River system for the requesting customer.
+
+Each call to an operation requires two input objects: the LoginCredentials object and the GL object. The former contains either the full login information or a session token, while the latter contains input parameter values (those that are optional may be omitted) required to complete the create or update request. 
+
+The service responds to a request with the MessageEnvelope object. In the event of a successful outcome, the envelope will contain the statusCode "ReturnStatusCode.SUCCESS." In the event of a failed outcome, the envelope will contain the statusCode "ReturnStatusCode.FAIL," along with a list of ValidationError objects detailing why the request was not successful. 
+
+Each ValidationError contains three pieces of information: the error code, the name of the error code, and a brief message explaining the error. For example, in a createGl request, if the incoming GLNumber already points to an existing GL in our system, the response envelope will contain the ValidationError with error code "500," the name "ObjectExists," and the message "GLNumber ABC already exists." (In this case, "ABC" is the GLNumber submitted in the request.)
+
+It is recommended that each error message be processed, the input be corrected, and the request be retried at a later time. Also note that each request is first authenticated before further processing, so that if the token or the login credentials are not valid, only a "9000/InvalidLogin" error or a "9001/InvalidSession" error will be returned in the response. For more information about login errors, please see the WSDL documentation for the Login Web Service.
+
+Not all of the parameters for the input GL are required in all cases. If a parameter is not required, it may be omitted from the request. In such a case, it will take on the empty value in our system in a createGl call. In an updateGl call, the corresponding value will not be updated in our system.
+
+It is important to note that even when a parameter is required and when it is not. Use the validation rules below to ensure no wrong assumptions are made in these cases (if a field is not documented as being required, then it is optional).
+
+Below are the parameters of the input GL object for the createGl and updateGl operations.
+
+=========
+Field: GLNumber
+Description: Unique identifier. If your account is set up for fixed-length segments, do not include segment separators in this field. If your account is set up for variable length segments, you must include separators.
+Format: 1-64 characters. 
+Fixed-length segments example: 652110101 
+Variable-length segments example: 23-001-4567-03
+---
+Constraint: in createGl call, must not refer to an existing GL
+Violation: input value refers to an existing GL
+Error: 500/ObjectExists
+---
+Constraint: in updateGl call, must refer to an existing GL
+Violation: input value does not refer to an existing GL
+Error: 501/ObjectMissing
+---
+Constraint: required
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: length
+Violation: input value must be greater or equal to 1 and less than or equal to 64 characters
+Error: 1005/IncorrectLength
+=========
+Field: GLDescription
+Description: GL description Includes description of all segments (which may be in the same order that segments are presented or in any other order)
+Format: 1-255 characters
+Example: Office Supplies-London-Litigation Support
+---
+Constraint: required
+Violation: missing from input
+Error: 1004/EmptyField
+---
+Constraint: length
+Violation: input value must be greater or equal to 1 and less than or equal to 255 characters
+Error: 1005/IncorrectLength
+=========
+Field: GLStatusFlag
+Description: Status of the GL (Active or Inactive)
+Format: Legal values are ACT or INAC
+---
+Constraint: required
+Violation: must be 'INAC' or 'ACT'
+Error: 1000/InvalidInput
+=========
+Field: Type
+Description: GL account type text identifier that may be used in business rules. BS = Balance Sheet/Capital account. PL = Profit Loss/Expense account
+Format: Maximum 50 characters
+---
+Constraint: length
+Violation: input value must be between 0 and 50 characters, inclusive.
+Error: 1005/IncorrectLength
+=========
+Field: UDF1/UDF2/UDF3/UDF4/UDF5
+Description: Used for additional customer-defined fields.
+Format: Maximum 100 characters
+---
+Constraint: length
+Violation: input value must be between 0 and 100 characters, inclusive.
+Error: 1005/IncorrectLength
+=========
+
+For more information about this and other Chrome River Web Services, please contact us at support@chromeriver.com.</wsdl:documentation>
+  <wsdl:types>
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://gl.ws.chromeriver.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:complexType name="GL">
+        <xs:complexContent>
+          <xs:extension base="tns:Payload">
+            <xs:sequence>
+              <xs:element name="GLDescription" type="xs:string"/>
+              <xs:element name="GLNumber" type="xs:string"/>
+              <xs:element name="GLStatusFlag" type="tns:Status"/>
+              <xs:element minOccurs="0" name="Type" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF1" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF2" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF3" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF4" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF5" type="xs:string"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="Payload">
+        <xs:sequence/>
+      </xs:complexType>
+      <xs:complexType name="loginCredentials">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="token" type="xs:string"/>
+          <xs:element minOccurs="0" name="user" type="tns:userLoginInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="userLoginInfo">
+        <xs:sequence>
+          <xs:element name="companyId" type="xs:string"/>
+          <xs:element name="userId" type="xs:string"/>
+          <xs:element name="password" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="MessageEnvelope">
+        <xs:sequence>
+          <xs:element name="statusCode" type="tns:returnStatusCode"/>
+          <xs:element minOccurs="0" name="sessionId" type="xs:string"/>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="validationError" type="tns:ValidationError"/>
+          <xs:element minOccurs="0" name="webServicePayload" type="tns:Payload"/>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="webServicePayloadList" nillable="true" type="tns:Payload"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ValidationError">
+        <xs:sequence>
+          <xs:element name="code" type="xs:string"/>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element minOccurs="0" name="message" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:simpleType name="Status">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="ACT"/>
+          <xs:enumeration value="INAC"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="returnStatusCode">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="FAIL"/>
+          <xs:enumeration value="SUCCESS"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:element name="credentials" nillable="true" type="tns:loginCredentials"/>
+      <xs:element name="inGLCreate" nillable="true" type="tns:GL"/>
+      <xs:element name="createGlResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inGLUpdate" nillable="true" type="tns:GL"/>
+      <xs:element name="updateGlResponse" nillable="true" type="tns:MessageEnvelope"/>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="updateGlResponse">
+    <wsdl:part element="tns:updateGlResponse" name="updateGlResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createGl">
+    <wsdl:part element="tns:inGLCreate" name="inGLCreate"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createGlResponse">
+    <wsdl:part element="tns:createGlResponse" name="createGlResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateGl">
+    <wsdl:part element="tns:inGLUpdate" name="inGLUpdate"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="GLService">
+    <wsdl:operation name="createGl">
+      <wsdl:input message="tns:createGl" name="createGl"></wsdl:input>
+      <wsdl:output message="tns:createGlResponse" name="createGlResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateGl">
+      <wsdl:input message="tns:updateGl" name="updateGl"></wsdl:input>
+      <wsdl:output message="tns:updateGlResponse" name="updateGlResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="GLServiceSoapBinding" type="tns:GLService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="createGl">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createGl">
+        <soap:header message="tns:createGl" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inGLCreate" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createGlResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateGl">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="updateGl">
+        <soap:header message="tns:updateGl" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inGLUpdate" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="updateGlResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="GLService">
+    <wsdl:port binding="tns:GLServiceSoapBinding" name="GLServicePort">
+      <soap:address location="https://staging-api.chromeriver.com/ws_GLV1"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>https://staging-api.chromeriver.com/ws_GLV1</con:endpoint></con:endpoints><con:operation id="44b0496f-cb36-43a8-ab93-a6869d2f0bc1" isOneWay="false" action="" name="createGl" bindingOperationName="createGl" type="Request-Response" outputName="createGlResponse" inputName="createGl" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="a378afbd-40d7-418e-98ec-543e1ca76ca2" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_GLV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:gl="http://gl.ws.chromeriver.com/">\r
+   <soapenv:Header>\r
+      <gl:credentials>\r
+         <!--Optional:-->\r
+         <token>?</token>\r
+         <!--Optional:-->\r
+         <user>\r
+            <companyId>?</companyId>\r
+            <userId>?</userId>\r
+            <password>?</password>\r
+         </user>\r
+      </gl:credentials>\r
+   </soapenv:Header>\r
+   <soapenv:Body>\r
+      <gl:inGLCreate>\r
+         <GLDescription>?</GLDescription>\r
+         <GLNumber>?</GLNumber>\r
+         <GLStatusFlag>?</GLStatusFlag>\r
+         <!--Optional:-->\r
+         <Type>?</Type>\r
+         <!--Optional:-->\r
+         <UDF1>?</UDF1>\r
+         <!--Optional:-->\r
+         <UDF2>?</UDF2>\r
+         <!--Optional:-->\r
+         <UDF3>?</UDF3>\r
+         <!--Optional:-->\r
+         <UDF4>?</UDF4>\r
+         <!--Optional:-->\r
+         <UDF5>?</UDF5>\r
+      </gl:inGLCreate>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://gl.ws.chromeriver.com/GLService/createGl"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation id="7516e726-280b-4c5c-b4e8-cc1a3f90190f" isOneWay="false" action="" name="updateGl" bindingOperationName="updateGl" type="Request-Response" outputName="updateGlResponse" inputName="updateGl" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="d785382f-4113-4f25-b346-004fd2f0949c" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_GLV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:gl="http://gl.ws.chromeriver.com/">\r
+   <soapenv:Header>\r
+      <gl:credentials>\r
+         <!--Optional:-->\r
+         <token>?</token>\r
+         <!--Optional:-->\r
+         <user>\r
+            <companyId>?</companyId>\r
+            <userId>?</userId>\r
+            <password>?</password>\r
+         </user>\r
+      </gl:credentials>\r
+   </soapenv:Header>\r
+   <soapenv:Body>\r
+      <gl:inGLUpdate>\r
+         <GLDescription>?</GLDescription>\r
+         <GLNumber>?</GLNumber>\r
+         <GLStatusFlag>?</GLStatusFlag>\r
+         <!--Optional:-->\r
+         <Type>?</Type>\r
+         <!--Optional:-->\r
+         <UDF1>?</UDF1>\r
+         <!--Optional:-->\r
+         <UDF2>?</UDF2>\r
+         <!--Optional:-->\r
+         <UDF3>?</UDF3>\r
+         <!--Optional:-->\r
+         <UDF4>?</UDF4>\r
+         <!--Optional:-->\r
+         <UDF5>?</UDF5>\r
+      </gl:inGLUpdate>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://gl.ws.chromeriver.com/GLService/updateGl"/></con:call></con:operation></con:interface><con:testSuite id="8a411b18-e3a0-41ce-adba-c5861037ec63" name="GL TestSuite"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="e4fbf934-597a-4b9d-a2ec-406bb2605c37" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="GL Create" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Create GL" id="5767ae12-3673-4fb7-8a27-fd20ea7c79c6"><con:settings/><con:config><script>import soapUI.*
+import java.text.SimpleDateFormat
+
+def baseHost = com.eviware.soapui.SoapUI.globalProperties.getPropertyValue("basehost");
+
+if(baseHost == "staging-api.chromeriver.com"){
+	stagingPassword = testRunner.testCase.testSuite.project.getPropertyValue("StagingPassword");
+	testRunner.testCase.testSuite.project.setPropertyValue( "baseHost", "staging-api.chromeriver.com");
+	testRunner.testCase.testSuite.project.setPropertyValue( "Password", stagingPassword);
+} else if(baseHost == "qa-api.chromeriver.com"){
+	QAPassword = testRunner.testCase.testSuite.project.getPropertyValue("QAPassword");
+	testRunner.testCase.testSuite.project.setPropertyValue( "baseHost", "qa-api.chromeriver.com");
+	testRunner.testCase.testSuite.project.setPropertyValue( "Password", QAPassword);
+} else if(baseHost == "api.chromeriver.com"){
+	ProductionPassword = testRunner.testCase.testSuite.project.getPropertyValue("ProductionPassword");
+	testRunner.testCase.testSuite.project.setPropertyValue( "baseHost", "api.chromeriver.com");
+	testRunner.testCase.testSuite.project.setPropertyValue( "Password", ProductionPassword);
+} else {
+	testRunner.cancel( "Invalid Host : " + baseHost ) 
+}
+
+
+def today = new Date()
+newGLNumber = new SimpleDateFormat("MMddHHmmssSS");
+
+testRunner.testCase.testSuite.project.setPropertyValue( "GLNumber", "WS_" + newGLNumber.format(today));
+testRunner.testCase.testSuite.project.setPropertyValue( "GLDescription", "WS_" + newGLNumber.format(today));
+testRunner.testCase.testSuite.project.setPropertyValue( "GLStatusFlag", "ACT");
+testRunner.testCase.testSuite.project.setPropertyValue( "Type", "WS_" + newGLNumber.format(today) );
+testRunner.testCase.testSuite.project.setPropertyValue( "UDF1", "WS_" + newGLNumber.format(today) );
+testRunner.testCase.testSuite.project.setPropertyValue( "UDF2", "WS_" + newGLNumber.format(today) );
+testRunner.testCase.testSuite.project.setPropertyValue( "UDF3", "WS_" + newGLNumber.format(today) );
+testRunner.testCase.testSuite.project.setPropertyValue( "UDF4", "WS_" + newGLNumber.format(today) );
+testRunner.testCase.testSuite.project.setPropertyValue( "UDF5", "WS_" + newGLNumber.format(today) );
+
+
+</script></con:config></con:testStep><con:testStep type="request" id="ece7978a-228e-4686-af78-b437ae908cde" name="CreateGL"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>GLServiceSoapBinding</con:interface><con:operation>createGl</con:operation><con:request name="CreateGL" id="5a807d1e-584c-4d42-b1fb-f43cceea8fd6"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;entry key="SOAPAction" value="TM_CR_LOGIN" xmlns="http://eviware.com/soapui/config"/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_GLV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:gl="http://gl.ws.chromeriver.com/">
+   <soapenv:Header>
+      <gl:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>${#Project#CompanyID}</companyId>
+            <userId>${#Project#LoginUserName}</userId>
+            <password>${#Project#Password}</password>
+         </user>
+      </gl:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <gl:inGLCreate>
+         <GLDescription>${#Project#GLDescription}</GLDescription>
+         <GLNumber>${#Project#GLNumber}</GLNumber>
+         <GLStatusFlag>${#Project#GLStatusFlag}</GLStatusFlag>
+         <!--Optional:-->
+         <Type>${#Project#Type}</Type>
+         <!--Optional:-->
+         <UDF1>${#Project#UDF1}</UDF1>
+         <!--Optional:-->
+         <UDF2>${#Project#UDF2}</UDF2>
+         <!--Optional:-->
+         <UDF3>${#Project#UDF3}</UDF3>
+         <!--Optional:-->
+         <UDF4>${#Project#UDF4}</UDF4>
+         <!--Optional:-->
+         <UDF5>${#Project#UDF5}</UDF5>
+      </gl:inGLCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" id="19a9be20-d907-4015-8e6e-8886d913a884" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="SOAP Response" id="8a2efb01-eb9f-420b-928f-05d5739b1aad" name="SOAP Response"/><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://gl.ws.chromeriver.com/GLService/createGl" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="8827c9c5-bb69-4f7e-ba54-2eba98ead063" name="CreateGL --  Missing Mandate Fields"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>GLServiceSoapBinding</con:interface><con:operation>createGl</con:operation><con:request name="CreateGL --  Missing Mandate Fields" id="5a807d1e-584c-4d42-b1fb-f43cceea8fd6"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_GLV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:gl="http://gl.ws.chromeriver.com/">\r
+   <soapenv:Header>\r
+      <gl:credentials>\r
+         <!--Optional:-->\r
+         <token>?</token>\r
+         <!--Optional:-->\r
+         <user>\r
+            <companyId>${#Project#CompanyID}</companyId>
+            <userId>${#Project#LoginUserName}</userId>
+            <password>${#Project#Password}</password>
+         </user>\r
+      </gl:credentials>\r
+   </soapenv:Header>\r
+   <soapenv:Body>\r
+      <gl:inGLCreate>\r
+         <GLDescription></GLDescription>\r
+         <GLNumber></GLNumber>\r
+         <GLStatusFlag></GLStatusFlag>\r
+         <!--Optional:-->\r
+         <Type>${#Project#Type}</Type>\r
+         <!--Optional:-->\r
+         <UDF1>${#Project#UDF1}</UDF1>\r
+         <!--Optional:-->\r
+         <UDF2>${#Project#UDF2}</UDF2>\r
+         <!--Optional:-->\r
+         <UDF3>${#Project#UDF3}</UDF3>\r
+         <!--Optional:-->\r
+         <UDF4>${#Project#UDF4}</UDF4>\r
+         <!--Optional:-->\r
+         <UDF5>${#Project#UDF5}</UDF5>\r
+      </gl:inGLCreate>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" id="19e888de-b7cd-44fd-a265-01693af0630d" name="XPath Match"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="a5e3e3b5-c476-4d0f-8138-8fc325087063" name="Xpath: code"><con:configuration><path>//code</path><content>1000</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="771d9249-9e00-46dd-8ca9-451c5de38907" name="Xpath: name"><con:configuration><path>//name</path><content>InvalidInput</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="0386b3eb-61a6-4269-a13c-8621b4358b21" name="Xpath: message"><con:configuration><path>//message</path><content>GLStatusFlag must be 'INAC' or 'ACT'.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://gl.ws.chromeriver.com/GLService/createGl" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="766954a3-4e1b-4396-b77d-712d42b844ce" name="CreateGL -- Missing Credentials"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>GLServiceSoapBinding</con:interface><con:operation>createGl</con:operation><con:request name="CreateGL -- Missing Credentials" id="5a807d1e-584c-4d42-b1fb-f43cceea8fd6"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_GLV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:gl="http://gl.ws.chromeriver.com/">\r
+   <soapenv:Header>\r
+      <gl:credentials>\r
+         <!--Optional:-->\r
+         <token>?</token>\r
+         <!--Optional:-->\r
+         <user>\r
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>\r
+      </gl:credentials>\r
+   </soapenv:Header>\r
+   <soapenv:Body>\r
+      <gl:inGLCreate>\r
+         <GLDescription>${#Project#GLDescription}</GLDescription>\r
+         <GLNumber>${#Project#GLNumber}</GLNumber>\r
+         <GLStatusFlag>${#Project#GLStatusFlag}</GLStatusFlag>\r
+         <!--Optional:-->\r
+         <Type>${#Project#Type}</Type>\r
+         <!--Optional:-->\r
+         <UDF1>${#Project#UDF1}</UDF1>\r
+         <!--Optional:-->\r
+         <UDF2>${#Project#UDF2}</UDF2>\r
+         <!--Optional:-->\r
+         <UDF3>${#Project#UDF3}</UDF3>\r
+         <!--Optional:-->\r
+         <UDF4>${#Project#UDF4}</UDF4>\r
+         <!--Optional:-->\r
+         <UDF5>${#Project#UDF5}</UDF5>\r
+      </gl:inGLCreate>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" id="9f60b123-7b84-4f12-9694-4d2ce48c5ca1" name="XPath: statusCode"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="9f60b123-7b84-4f12-9694-4d2ce48c5ca1" name="XPath: errorCode"><con:configuration><path>//validationError/code</path><content>9001</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="9f60b123-7b84-4f12-9694-4d2ce48c5ca1" name="XPath: errorName"><con:configuration><path>//validationError/name</path><content>InvalidSession</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="9f60b123-7b84-4f12-9694-4d2ce48c5ca1" name="XPath: errorMessage"><con:configuration><path>//validationError/message</path><content>No session, or session no longer valid.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://gl.ws.chromeriver.com/GLService/createGl" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="fba057f1-0fe3-4c7a-abbf-2192cdaa7bf5" name="CreateGL --  Wrong Status"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>GLServiceSoapBinding</con:interface><con:operation>createGl</con:operation><con:request name="CreateGL --  Wrong Status" id="5a807d1e-584c-4d42-b1fb-f43cceea8fd6"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_GLV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:gl="http://gl.ws.chromeriver.com/">
+   <soapenv:Header>
+      <gl:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>${#Project#CompanyID}</companyId>
+            <userId>${#Project#LoginUserName}</userId>
+            <password>${#Project#Password}</password>
+         </user>
+      </gl:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <gl:inGLCreate>
+         <GLDescription>${#Project#GLDescription}</GLDescription>
+         <GLNumber>${#Project#GLNumber}</GLNumber>
+         <GLStatusFlag>ACTIVE</GLStatusFlag>
+         <!--Optional:-->
+         <Type>${#Project#Type}</Type>
+         <!--Optional:-->
+         <UDF1>${#Project#UDF1}</UDF1>
+         <!--Optional:-->
+         <UDF2>${#Project#UDF2}</UDF2>
+         <!--Optional:-->
+         <UDF3>${#Project#UDF3}</UDF3>
+         <!--Optional:-->
+         <UDF4>${#Project#UDF4}</UDF4>
+         <!--Optional:-->
+         <UDF5>${#Project#UDF5}</UDF5>
+      </gl:inGLCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" id="4c103985-4711-4f91-b92a-108f411e17fd" name="XPath Match"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="8f661fdf-2655-476a-bb89-0c1ff9db4000" name="Xpath: code"><con:configuration><path>//code</path><content>1000</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="7f2d200c-0a46-4a93-84b2-dfe93633d336" name="Xpath: name"><con:configuration><path>//name</path><content>InvalidInput</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="3e3aebea-fefa-4bc5-8e1e-7914db2d442c" name="Xpath: message"><con:configuration><path>//message</path><content>GLStatusFlag must be 'INAC' or 'ACT'.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://gl.ws.chromeriver.com/GLService/createGl" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="b39ceb8a-94ce-43d8-b185-62a6d2881944" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="GL Update" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Update GL" id="1e8f62c8-be41-43c6-b6f4-20275b333874"><con:settings/><con:config><script/></con:config></con:testStep><con:testStep type="request" id="45193468-14b8-4fc2-ac17-c4b711a4d2df" name="UpdateGL"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>GLServiceSoapBinding</con:interface><con:operation>updateGl</con:operation><con:request name="UpdateGL" id="cb7ae2c7-29ea-4f83-b475-cb52032c9575"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_GLV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:gl="http://gl.ws.chromeriver.com/">\r
+   <soapenv:Header>\r
+      <gl:credentials>\r
+         <!--Optional:-->\r
+         <token>?</token>\r
+         <!--Optional:-->\r
+         <user>\r
+            <companyId>${#Project#CompanyID}</companyId>
+            <userId>${#Project#LoginUserName}</userId>
+            <password>${#Project#Password}</password>
+         </user>\r
+      </gl:credentials>\r
+   </soapenv:Header>\r
+   <soapenv:Body>\r
+      <gl:inGLUpdate>\r
+         <GLDescription>${#Project#GLDescription}</GLDescription>
+         <GLNumber>${#Project#GLNumber}</GLNumber>
+         <GLStatusFlag>${#Project#GLStatusFlag}</GLStatusFlag>
+         <!--Optional:-->
+         <Type>${#Project#Type}</Type>
+         <!--Optional:-->
+         <UDF1>${#Project#UDF1}</UDF1>
+         <!--Optional:-->
+         <UDF2>${#Project#UDF2}</UDF2>
+         <!--Optional:-->
+         <UDF3>${#Project#UDF3}</UDF3>
+         <!--Optional:-->
+         <UDF4>${#Project#UDF4}</UDF4>
+         <!--Optional:-->
+         <UDF5>${#Project#UDF5}</UDF5>
+      </gl:inGLUpdate>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" id="4bf2941b-f6bb-466e-8528-b844acea0320" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="SOAP Response" id="6fb14155-c650-4db9-8017-592bd474b399" name="SOAP Response"/><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://gl.ws.chromeriver.com/GLService/updateGl" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="3440e054-0666-4430-b1c7-d173a1dff506" name="UpdateGL -- Missing Credentials"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>GLServiceSoapBinding</con:interface><con:operation>createGl</con:operation><con:request name="UpdateGL -- Missing Credentials" id="5a807d1e-584c-4d42-b1fb-f43cceea8fd6"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_GLV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:gl="http://gl.ws.chromeriver.com/">\r
+   <soapenv:Header>\r
+      <gl:credentials>\r
+         <!--Optional:-->\r
+         <token>?</token>\r
+         <!--Optional:-->\r
+         <user>\r
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>\r
+      </gl:credentials>\r
+   </soapenv:Header>\r
+   <soapenv:Body>\r
+      <gl:inGLUpdate>
+         <GLDescription>${#Project#GLDescription}</GLDescription>
+         <GLNumber>${#Project#GLNumber}</GLNumber>
+         <GLStatusFlag>${#Project#GLStatusFlag}</GLStatusFlag>
+         <!--Optional:-->
+         <Type>${#Project#Type}</Type>
+         <!--Optional:-->
+         <UDF1>${#Project#UDF1}</UDF1>
+         <!--Optional:-->
+         <UDF2>${#Project#UDF2}</UDF2>
+         <!--Optional:-->
+         <UDF3>${#Project#UDF3}</UDF3>
+         <!--Optional:-->
+         <UDF4>${#Project#UDF4}</UDF4>
+         <!--Optional:-->
+         <UDF5>${#Project#UDF5}</UDF5>
+      </gl:inGLUpdate>
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" id="9f60b123-7b84-4f12-9694-4d2ce48c5ca1" name="XPath: statusCode"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="9f60b123-7b84-4f12-9694-4d2ce48c5ca1" name="XPath: errorCode"><con:configuration><path>//validationError/code</path><content>9001</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="9f60b123-7b84-4f12-9694-4d2ce48c5ca1" name="XPath: errorName"><con:configuration><path>//validationError/name</path><content>InvalidSession</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="9f60b123-7b84-4f12-9694-4d2ce48c5ca1" name="XPath: errorMessage"><con:configuration><path>//validationError/message</path><content>No session, or session no longer valid.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://gl.ws.chromeriver.com/GLService/createGl" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="6ac3bb19-28dc-46da-9b5b-d29ede490ab8" name="UpdateGL --  Missing Mandate Fields"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>GLServiceSoapBinding</con:interface><con:operation>createGl</con:operation><con:request name="UpdateGL --  Missing Mandate Fields" id="5a807d1e-584c-4d42-b1fb-f43cceea8fd6"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_GLV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:gl="http://gl.ws.chromeriver.com/">\r
+   <soapenv:Header>\r
+      <gl:credentials>\r
+         <!--Optional:-->\r
+         <token>?</token>\r
+         <!--Optional:-->\r
+         <user>\r
+            <companyId>${#Project#CompanyID}</companyId>
+            <userId>${#Project#LoginUserName}</userId>
+            <password>${#Project#Password}</password>
+         </user>\r
+      </gl:credentials>\r
+   </soapenv:Header>\r
+   <soapenv:Body>\r
+      <gl:inGLUpdate>
+         <GLDescription></GLDescription>
+         <GLNumber></GLNumber>
+         <GLStatusFlag></GLStatusFlag>
+         <!--Optional:-->
+         <Type>${#Project#Type}</Type>
+         <!--Optional:-->
+         <UDF1>${#Project#UDF1}</UDF1>
+         <!--Optional:-->
+         <UDF2>${#Project#UDF2}</UDF2>
+         <!--Optional:-->
+         <UDF3>${#Project#UDF3}</UDF3>
+         <!--Optional:-->
+         <UDF4>${#Project#UDF4}</UDF4>
+         <!--Optional:-->
+         <UDF5>${#Project#UDF5}</UDF5>
+      </gl:inGLUpdate>
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" id="19e888de-b7cd-44fd-a265-01693af0630d" name="XPath Match"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="a5e3e3b5-c476-4d0f-8138-8fc325087063" name="Xpath: code"><con:configuration><path>//code</path><content>1000</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="771d9249-9e00-46dd-8ca9-451c5de38907" name="Xpath: name"><con:configuration><path>//name</path><content>InvalidInput</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="0386b3eb-61a6-4269-a13c-8621b4358b21" name="Xpath: message"><con:configuration><path>//message</path><content>GLStatusFlag must be 'INAC' or 'ACT'.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://gl.ws.chromeriver.com/GLService/createGl" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="98a2241b-a2fc-4f74-9ac9-181b5deec188" name="UpdateGL -- Wrong Status"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>GLServiceSoapBinding</con:interface><con:operation>updateGl</con:operation><con:request name="UpdateGL -- Wrong Status" id="cb7ae2c7-29ea-4f83-b475-cb52032c9575"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_GLV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:gl="http://gl.ws.chromeriver.com/">\r
+   <soapenv:Header>\r
+      <gl:credentials>\r
+         <!--Optional:-->\r
+         <token>?</token>\r
+         <!--Optional:-->\r
+         <user>\r
+            <companyId>${#Project#CompanyID}</companyId>
+            <userId>${#Project#LoginUserName}</userId>
+            <password>${#Project#Password}</password>
+         </user>\r
+      </gl:credentials>\r
+   </soapenv:Header>\r
+   <soapenv:Body>\r
+      <gl:inGLUpdate>\r
+         <GLDescription>${#Project#GLDescription}</GLDescription>
+         <GLNumber>${#Project#GLNumber}</GLNumber>
+         <GLStatusFlag>ACTIVE</GLStatusFlag>
+         <!--Optional:-->
+         <Type>${#Project#Type}</Type>
+         <!--Optional:-->
+         <UDF1>${#Project#UDF1}</UDF1>
+         <!--Optional:-->
+         <UDF2>${#Project#UDF2}</UDF2>
+         <!--Optional:-->
+         <UDF3>${#Project#UDF3}</UDF3>
+         <!--Optional:-->
+         <UDF4>${#Project#UDF4}</UDF4>
+         <!--Optional:-->
+         <UDF5>${#Project#UDF5}</UDF5>
+      </gl:inGLUpdate>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="6fb14155-c650-4db9-8017-592bd474b399" name="SOAP Response"/><con:assertion type="XPath Match" id="2e2c3cca-76e4-496b-a74c-09182de5c249" name="XPath Match"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="2723afee-5517-482e-8da0-d69d8989f0f0" name="Xpath: code"><con:configuration><path>//code</path><content>1000</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="964ad758-b11a-444a-bf92-5095fe482c03" name="Xpath: name"><con:configuration><path>//name</path><content>InvalidInput</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="c0701292-7f37-4e8a-ba0b-5d9648b0bcff" name="Xpath: message"><con:configuration><path>//message</path><content>GLStatusFlag must be 'INAC' or 'ACT'.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://gl.ws.chromeriver.com/GLService/updateGl" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:properties/></con:testSuite><con:properties><con:property><con:name>LoginUserName</con:name><con:value>pbjtest</con:value></con:property><con:property><con:name>Password</con:name><con:value>1river1</con:value></con:property><con:property><con:name>StagingPassword</con:name><con:value>1river1</con:value></con:property><con:property><con:name>QAPassword</con:name><con:value>DTFVOg46xWOcyYG</con:value></con:property><con:property><con:name>ProductionPassword</con:name><con:value>1river1</con:value></con:property><con:property><con:name>CompanyID</con:name><con:value>www.pbj.com</con:value></con:property><con:property><con:name>GLNumber</con:name><con:value>WS_1017194659995</con:value></con:property><con:property><con:name>GLDescription</con:name><con:value>WS_1017194659995</con:value></con:property><con:property><con:name>GLStatusFlag</con:name><con:value>ACT</con:value></con:property><con:property><con:name>Type</con:name><con:value>WS_1017194659995</con:value></con:property><con:property><con:name>UDF1</con:name><con:value>WS_1017194659995</con:value></con:property><con:property><con:name>UDF2</con:name><con:value>WS_1017194659995</con:value></con:property><con:property><con:name>UDF3</con:name><con:value>WS_1017194659995</con:value></con:property><con:property><con:name>UDF4</con:name><con:value>WS_1017194659995</con:value></con:property><con:property><con:name>UDF5</con:name><con:value>WS_1017194659995</con:value></con:property><con:property><con:name>baseHost</con:name><con:value>staging-api.chromeriver.com</con:value></con:property></con:properties><con:wssContainer/><con:oAuth2ProfileContainer/><con:sensitiveInformation/></con:soapui-project>

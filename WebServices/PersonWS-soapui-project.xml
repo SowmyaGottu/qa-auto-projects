@@ -1,0 +1,2035 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project id="5fafb580-d043-4b86-b3d6-eadfc1fe7124" activeEnvironment="Default" name="PersonWS" resourceRoot="" soapui-version="5.2.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" id="63d54188-129f-413d-866a-7aed298956c8" wsaVersion="NONE" name="PersonServiceSoapBinding" type="wsdl" bindingName="{http://person.ws.chromeriver.com/}PersonServiceSoapBinding" soapVersion="1_1" anonymous="optional" definition="https://staging-api.chromeriver.com/ws_PersonV1?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="https://staging-api.chromeriver.com/ws_PersonV1?wsdl"><con:part><con:url>https://staging-api.chromeriver.com/ws_PersonV1?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="PersonService" targetNamespace="http://person.ws.chromeriver.com/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://person.ws.chromeriver.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http">
+  <wsdl:documentation>The Chrome River Person Web Service fulfills requests from our customers to create/update/delete person records, as well as add/remove person-entity relationships in the Chrome River system.
+
+To get started with Person Web Service, please submit a Chrome River Help Desk ticket. Our Implementation team will work with you to get everything set up and running.
+
+To access this service, use this Web Services Description Language (WSDL) file to generate the required client proxy classes: https://api.chromeriver.com/ws_PersonV1?wsdl
+
+Please also read this documentation to understand what it does and how to properly prepare requests.
+
+Logging In
+
+Each request to access this service must be authenticated via either login credentials or a session token. The Login Web Service may be used to submit the user's login information in a request consisting of companyID, userID, and password. The user will receive a token to submit with subsequent requests to other Chrome River Web Services, eliminating the need to provide the login information again.
+
+While it is also possible to submit login information directly via the header of the Person Web Service, it is recommended that customers use the Login Web Service first to obtain a session token, and then submit this token in each subsequent request to the Person Service.
+
+Chrome River Person Web Service Overview
+
+Please use the following description as a reference, but do not hesitate to contact us at support@chromeriver.com should you run into problems or have questions.
+
+There are eight operations exposed via the Person Web Service: createPerson, updatePerson, deletePerson, addEntity, removeEntity, addPersonDelegate, deletePersonDelegate and getPersonDetails. Each call to createPerson or udpatePerson or deletePerson either creates or updates or deletes a single person record in the Chrome River system for the requesting customer. Each call to addEntity or removeEntity either adds or removes a single person-entity association in the Chrome River system for the requesting customer. Each call to addPersonDelegate adds a new delegate for the person or updates it, if it exists, deletePersonDelegate removes a person-delegate relationship. Calling getPersonDetails with a customerUniqueId as input will return information about the corresponding person or a validation error (code 501) to indicate no such person exists. More specifically, if the person exists in our system, a Person object is returned (as the webServicePayload value of the envelope; see below), the same type (with the same fields) as the Person input to the create/update operations that are documented below.
+
+Each call to one of the first seven operations (createPerson, updatePerson, deletePerson, addEntity, removeEntity, addPersonDelegate and deletePersonDelegate) requires two input objects: the LoginCredentials object and the Person, PersonDelegate or Entity object or Customer Unique ID, depending on the operation. The former contains either the full login information or a session token, while the latter contains input parameter values (those that are optional may be omitted) required to complete the request. The eighth operation (getPersonDetails) expects the same LoginCredentials object and a string representing the customer unique ID to be queried against.
+
+The service responds to a request with the MessageEnvelope object. In the event of a successful outcome, the envelope will contain the statusCode "ReturnStatusCode.SUCCESS." In the event of a failed outcome, the envelope will contain the statusCode "ReturnStatusCode.FAIL," along with a list of ValidationError objects detailing why the request was not completed successfully.
+
+Each ValidationError contains three pieces of information: the error code, the name of the error code, and a brief message explaining the error. For example, in a createPerson request, if the incoming customerUniqueID already points to an existing person in our system, the response envelope will contain the ValidationError with error code "500," the name "ObjectExists," and the message "Person with customerUniqueID jdoe already exists." (In this case, "jdoe" is the customerUniqueID submitted in the request.)
+
+It is recommended that each error message be processed, the input be corrected, and the request be retried at a later time. Also note that each request is first authenticated before further processing, so that if the token or the login credentials are not valid, only a "9000/InvalidLogin" error or a "9001/InvalidSession" error will be returned in the response. For more information about login errors, please see the WSDL documentation for the Login Web Service.
+
+For the createPerson and updatePerson operations, not all of the parameters for the input Person object are required in all cases. If a parameter is not required, it may be omitted from the request. In such a case, it will take on the default value (null/empty value, unless otherwise specified) in our system in a createPerson call. In an updatePerson call, behaviour should be as mentioned below:
+1. If a tag is not present, the corresponding value will not be updated in our system.
+2. If a tag is present with no value, the corresponding value will be removed.
+3. If a tag exists with new value, the corresponding value will be updated.
+
+It is important to note that even when a parameter is required in a create call, if it is not required in an update call, it is marked as optional in the WSDL. Use the validation rules described below to ensure no wrong assumptions are made in these cases (if a field is not documented as being required, then it is optional).
+
+One final note before we list the parameters and validation rules for this Web Service. Even though each person has his/her own password and email format (HTML or text) settings, these cannot be set via the Person Web Service.  Instead, in a createPerson call these are initialized to the default password and email format setup for the customer.  To change these please ask somebody in your company who has admin access to change them in the People Admin screen.
+
+Person Web Service - Parameters and Validation Rules
+
+Here are validation rules for the createPerson / updatePerson / deletePerson operations that are unrelated to the fields of the input Person object.
+
+=========
+Constraint: the createPerson and updatePerson operations currently only support customers in Analytics Phase 1.
+Violation: one of these operations is called for a customer not in Analytics Phase 1.
+Error: 50/AnalyticsPhaseNotSupported
+=========
+Constraint: the Person record has the DND flag set to true, which indicates updates/deletes are not allowed on this record via the Person Web Service or the Person Feed
+Violation: updatePerson is called on a person with this flag set to true
+Error: 502/ObjectLocked
+=========
+Constraint: the Person record has the isModifiable flag set to false, which indicates updates are not allowed on this record
+Violation: updatePerson is called on a person with this flag set to true
+Error: 502/ObjectLocked
+=========
+
+Here are the parameters of the input Person object for the createPerson / updatePerson / deletePerson operations and associated validation rules. Note the getPersonDetails operation returns the same Person object as described here.
+
+=========
+Field: customerUniqueID
+Description: person's unique record identifier.
+---
+Constraint: in createPerson call, must not refer to an existing person
+Violation: input value refers to an existing person
+Error: 500/ObjectExists
+---
+Constraint: in updatePerson call, must refer to an existing person
+Violation: input value does not refer to an existing person
+Error: 501/ObjectMissing
+---
+Constraint: in deletePerson call, must refer to an existing person
+Violation: input value does not refer to an existing person
+Error: 501/ObjectMissing
+---
+Constraint: required
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: max length is 100
+Violation: input value is over 100 characters
+Error: 1005/IncorrectLength
+=========
+Field: firstName/lastName/username
+Description: person's first name/last name/unique identifier used for login
+---
+Constraint: required in createPerson call
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: optional in updatePerson call, but must not specify empty string
+Violation: input value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: max length is 50
+Violation: input value is over 50 characters
+Error: 1005/IncorrectLength
+---
+[username only]
+Constraint: must be unique, i.e. not conflict with another username for the customer
+Violation: another person with the given username already exists
+Error: 3000/ChoiceUnavailable
+=========
+Field: reportsTo
+Description: person UniqueID for direct reporting used for business rules
+Note: in an update call, send the empty string to reset reportsTo to null (reports to no one)
+---
+Constraint: value must be a valid customerUniqueID for the customer
+Violation: value is not a valid customerUniqueID for the customer
+Error: 2003/InvalidPersonCode
+---
+Constraint: in a createPerson call, may not set self as reportsTo
+Violation: value equals customerUniqueID in a createPerson call
+Error: 1007/InvalidOption
+Note: to set self as reportsTo, use the updatePerson operation
+=========
+Field: emailAddress
+Description: unique email address for the person
+---
+Constraint: required in createPerson call
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: optional in updatePerson call, but must not specify empty string
+Violation: input value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: max length is 100
+Violation: input value is over 100 characters
+Error: 1005/IncorrectLength
+---
+Constraint: must be a valid email address
+Violation: not a valid email address
+Error: 1006/InvalidEmail
+---
+Constraint: must be unique, i.e. not conflict with another email address in our database
+Violation: another person with the given email already exists
+Error: 3000/ChoiceUnavailable
+=========
+Field: active
+Description: indicates if this person is active in our system; defaults to true
+Note: for customers who have used our Person Feed process: in a createPerson call, true maps to the person status of 1 (pending) while false maps to 4 (deleted); in an updatePerson call, true reverts status back to 1 if the current status is 4 but does not update the status if the current status is 1 or 2 (active); finally, in an updatePerson call, false maps to the status of 4.
+=========
+Field: title
+Description: title of person
+---
+Constraint: max length is 255
+Violation: input value is over 255 characters
+Error: 1005/IncorrectLength
+=========
+Field: entity1/entity2/entity3
+Description: Assigns person to a customer's defined Entity structure. Must map to customer's EntityType that must be setup first.
+---
+Constraint: customer account must be setup to handle input value for each of these fields
+Violation: customer account not setup to handle entityN (N=1, 2, or 3)
+Error: 1007/InvalidOption
+---
+Constraint: the input value must refer to a valid entity code under the entity type setup in the customer account
+Violation: input value is not a valid entity
+Error: 2004/InvalidEntityCode
+=========
+Field: currencyCode1
+Description: currency code of the Accounts Payable Vendor 1; format: ISO-4217 as supported by www.xe.com
+Note: if omitted in a create call or sending an empty string in an update call, set currencyCode1 to the default currency for the customer
+---
+Constraint: must be a valid currency code (e.g. USD)
+Violation: input value is not a valid currency code
+Error: 2001/InvalidCurrencyCode
+=========
+Field: currencyCode2
+Description: currency code of the Accounts Payable Vendor 2; format: ISO-4217 as supported by www.xe.com
+Note: if sending an empty string in an update call, reset currencyCode2 to default of null
+---
+Constraint: must be a valid currency code (e.g. USD)
+Violation: input value is not a valid currency code
+Error: 2001/InvalidCurrencyCode
+=========
+Field: vendor1Code/vendor2Code
+Description: valid Accounts Payable Vendor 1/2 ID for this person
+---
+Constraint: max length is 100
+Violation: input value is over 100 characters
+Error: 1005/IncorrectLength
+=========
+Field: UDF1/UDF2/UDF3
+Description: used for additional customer defined fields
+---
+Constraint: max length is 50
+Violation: input value is over 50 characters
+Error: 1005/IncorrectLength
+=========
+Field: dateFormatMask
+Description: person's date format preference
+Note: defaults to "MM/DD/YYYY"; if sending an empty string in an update call, reset dateFormatMask to default
+---
+Constraint: input must match predefined patterns (currently MM/DD/YYYY or DD/MM/YYYY)
+Violation: input value is not a valid pattern
+Error: 1001/InvalidPattern
+=========
+Field: currencyMask
+Description: person's currency preference
+Note: defaults to "###,###.00"; if sending an empty string in an update call, reset currencyMask to default
+---
+Constraint: input must match predefined patterns (currently ###,###.00 or ###.###,00)
+Violation: input value is not a valid pattern
+Error: 1001/InvalidPattern
+=========
+Field: expenseBar
+Description: person's expense bar preference; value is the expense bar name
+---
+Constraint: required in createPerson call
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: optional in updatePerson call, but must not specify empty string
+Violation: input value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: must be a valid primary expense bar name setup for the customer
+Violation: input value is not valid
+Error: 1000/InvalidInput
+=========
+Field: VATLocation
+Description: person's country code for VAT purposes
+---
+Constraint: must be a valid country code per ISO 3166
+Violation: input value is not a valid country code
+Error: 2007/InvalidCountryCode
+=========
+Field: interactionUserID/interactionAccountName
+Description: Interaction CRM integration – Interaction UserID/Account.  Leave empty if not using this feature.
+---
+Constraint: max length is 50
+Violation: input value is over 50 characters
+Error: 1005/IncorrectLength
+---
+Constraint: must be empty/omitted if customer is not setup to use interaction feature
+Violation: a non-empty value is provided even though customer is not setup to use interaction feature
+Error: 1007/InvalidOption
+=========
+Field: isAdmin
+Description: administration module access; defaults to false
+=========
+Field: isCopyingItems
+Description: Configure copy behavior of previous data from one expense entry to the next to simplify expense entry.  Valid entries are:
+FALSE: Disables copying of Matter, Business Purpose and Transaction Date from the previous line item
+TRUE: Enables copying of Matter, Business Purpose and Transaction Date from the previous line item
+Defaults to TRUE.
+=========
+Field: isSuperDelegate
+Description: user can delegate to full list of users for delegate access; further security restrictions may also be applied; defaults to false
+=========
+Field: useOnline
+Description: Enables only network search (no cache) for Matter search.  Valid entries are:
+FALSE: Cached search
+TRUE: Limited network search (no local cache used)
+Defaults to FALSE.
+=========
+Field: languageCode
+Description: person's assigned language code
+Note: defaults to English; if sending an empty string in an update call, reset languageCode to default
+---
+Constraint: must specify a valid language code (per ISO 639-1 (2-letter code) or ISO 639-2 (3-letter code))
+Violation: input value is not a valid language code
+Error: 2002/InvalidLanguageCode
+=========
+Field: alternateCurrencyCodes
+Description: person's additional currency codes. this is a list type, i.e. multiple values may be sent in one request
+Note: if sending an empty string in an update call, reset alternateCurrencyCodes to default of null
+---
+Constraint: each currency code provided must be a valid currency code (e.g. USD)
+Violation: an input value is not a valid currency code
+Error: 2001/InvalidCurrencyCode
+=========
+Field: alternateEmailAddress1
+Description: unique person's alternate email address1.
+Note: if sending an empty string in an update call, it will delete the email address from tbl_PersonAlternateEmailAddress. If tags are not sent, email address will not be updated. Optional in both createPerson and updatePerson call. 
+---
+Constraint: max length is 100
+Violation: input value is over 100 characters
+Error: 1005/IncorrectLength
+---
+Constraint: must be a valid email address
+Violation: not a valid email address
+Error: 1006/InvalidEmail
+---
+Constraint: must be unique, i.e. not conflict with another email address in our database(tbl_Person and tbl_PersonAlternateEmailAddress)
+Violation: This email address is already used as an alternate email address in the system/This email address is already used as a main email address in the system.
+Error: 3000/ChoiceUnavailable
+=========
+Field: alternateEmailAddress2
+Description: unique person's alternate email address2.
+Note: if sending an empty string in an update call, it will delete the email address from tbl_PersonAlternateEmailAddress. If tags are not sent, email address will not be updated. Optional in both createPerson and updatePerson call.
+---
+Constraint: max length is 100
+Violation: input value is over 100 characters
+Error: 1005/IncorrectLength
+---
+Constraint: must be a valid email address
+Violation: not a valid email address
+Error: 1006/InvalidEmail
+---
+Constraint: must be unique, i.e. not conflict with another email address in our database(tbl_Person and tbl_PersonAlternateEmailAddress)
+Violation: This email address is already used as an alternate email address in the system/This email address is already used as a main email address in the system.
+Error: 3000/ChoiceUnavailable
+=========
+Field: alternateEmailAddress3
+Description: unique person's alternate email address3.
+Note: if sending an empty string in an update call, it will delete the email address from tbl_PersonAlternateEmailAddress. If tags are not sent, email address will not be updated. Optional in both createPerson and updatePerson call.
+---
+Constraint: max length is 100
+Violation: input value is over 100 characters
+Error: 1005/IncorrectLength
+---
+Constraint: must be a valid email address
+Violation: not a valid email address
+Error: 1006/InvalidEmail
+---
+Constraint: must be unique, i.e. not conflict with another email address in our database(tbl_Person and tbl_PersonAlternateEmailAddress)
+Violation: This email address is already used as an alternate email address in the system/This email address is already used as a main email address in the system.
+Error: 3000/ChoiceUnavailable
+=========
+Field: analyticsUserType
+Description: user type for access to the Analytics Reporting tool;
+Note: Supports Analytics Phase 1 and 2 values. For customers who have used our Person Feed process, note that U99 corresponds to isFirmReporting=true, while NULL corresponds to isFirmReporting=false
+---
+Constraint: required in createPerson call
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: optional in updatePerson call, but if present must be specified together with the analyticsModules and analyticsView fields
+Violation: the above constraint is not met
+Error: 1008/InvalidCombination
+---
+Constraint: analyticsUserType U99 is not allowed for the analytics phase 2 or above
+Violation: Invalid value of the field analyticsUserType for the currently enabled analytics phase
+Error: 1010-01/InvalidanalyticsUserType
+=========
+Constraint: analyticsUserType U01 is only allowed with the analytics phase 2 or above
+Violation: Invalid value of the field analyticsUserType for the currently enabled analytics phase
+Error: 1010-02/InvalidanalyticsUserType
+=========
+Constraint: analyticsUserType U02 is only allowed with the analytics phase 2 or above
+Violation: Invalid value of the field analyticsUserType for the currently enabled analytics phase
+Error: 1010-03/InvalidanalyticsUserType
+=========
+Constraint: Valid choices: [NULL, U99, U01, U02, U03, U04]
+Violation: Invalid analyticsUserType specified
+Error: 1010/InvalidanalyticsUserType
+=========
+Field: analyticsModules
+Description: modules configuration for access to the Analytics Reporting tool
+Note: Supports Analytics Phase 1 and 2 values
+---
+Constraint: required in createPerson call
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: optional in updatePerson call, but if present must be specified together with the analyticsUserType and analyticsView fields
+Violation: the above constraint is not met
+Error: 1008/InvalidCombination
+---
+Constraint: analyticsModules must be NULL for the analytics phase 1
+Violation: Invalid value of the field analyticsModules for the currently enabled analytics phase
+Error: 1011-01/InvalidAnalyticsModules
+=========
+Constraint: analyticsModules can not be NULL for the analytics phase 2 or above
+Violation: Invalid value of the field analyticsModules for the currently enabled analytics phase
+Error: 1011-02/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M01, following subscriptions are required - EXPENSE
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-03/InvalidAnalyticsModules
+=========
+Constraint: analyticsModules M01 is not valid with INVOICE-Only Subscription.
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-04/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M02, following subscriptions are required - INVOICE
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-05/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M03, following subscriptions are required - AUDIT
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-07/InvalidAnalyticsModules
+=========
+Constraint: analyticsModules M03 is not valid with INVOICE-Only Subscription.
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-08/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M04, the following subscriptions are required - EXPENSE and AUDIT (No EXPENSE Subscription)
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-09/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M04, the following subscriptions are required - EXPENSE and AUDIT (No AUDIT Subscription)
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-10/InvalidAnalyticsModules
+=========
+Constraint: analyticsModules M04 is not valid with INVOICE-Only Subscription.
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-11/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M05, the following subscriptions are required - EXPENSE and INVOICE (No EXPENSE Subscription)
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-12/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M05, the following subscriptions are required - EXPENSE and INVOICE (No INVOICE Subscription)
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-13/InvalidAnalyticsModules
+=========
+Constraint: analyticsModules M05 is not valid with INVOICE-Only Subscription.
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-14/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M06, the following subscriptions are required - EXPENSE, INVOICE and AUDIT (No EXPENSE Subscription)
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-15/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M06, the following subscriptions are required - EXPENSE, INVOICE and AUDIT (No INVOICE Subscription)
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-16/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M06, the following subscriptions are required - EXPENSE, INVOICE and AUDIT (No AUDIT Subscription)
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-17/InvalidAnalyticsModules
+=========
+Constraint: analyticsModules M06 is not valid with INVOICE-Only Subscription
+Violation: Invalid value of the field analyticsModules for the configured subscriptions.
+Error: 1011-18/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M07, following subscriptions are required - INVOICE and PO (No INVOICE Subscription)
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-19/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M07, following subscriptions are required - INVOICE and PO (No PO Subscription)
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-20/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M08, following subscriptions are required - INVOICE and PO (No INVOICE Subscription)
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-21/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M08, following subscriptions are required - INVOICE and PO (No PO Subscription)
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-22/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M09, the following subscriptions are required - EXPENSE, INVOICE and PO(No EXPENSE Subscription).
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-23/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M09, the following subscriptions are required - EXPENSE, INVOICE and PO(No INVOICE Subscription)
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-24/InvalidAnalyticsModules
+=========
+Constraint: analyticsModules M09 is not valid with INVOICE-Only Subscription.
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-25/InvalidAnalyticsModules
+=========
+Constraint: analyticsModules M09 is not valid with EXPENSE, INVOICE and PO (No PO Subscription).
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-26/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M10, the following subscriptions are required - EXPENSE, INVOICE, PO and AUDIT(No EXPENSE Subscription)
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-27/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M10, the following subscriptions are required - EXPENSE, INVOICE, PO and AUDIT(No INVOICE Subscription)
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-28/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M10, the following subscriptions are required - EXPENSE, INVOICE, PO and AUDIT(No AUDIT Subscription)
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-29/InvalidAnalyticsModules
+=========
+Constraint: analyticsModules M10 is not valid with INVOICE-Only Subscription
+Violation: Invalid value of the field analyticsModules for the configured subscriptions.
+Error: 1011-30/InvalidAnalyticsModules
+=========
+Constraint: For analyticsModules M10, the following subscriptions are required - EXPENSE, INVOICE, PO and AUDIT(No PO Subscription)
+Violation: Invalid value of the field analyticsModules for the configured subscriptions
+Error: 1011-31/InvalidAnalyticsModules
+=========
+Constraint: Valid choices: [NULL, M01, M02, M03, M04, M05, M06, M07, M08, M09, M10]
+Violation: Invalid analyticsModules specified
+Error: 1011/InvalidAnalyticsModules
+=========
+Field: analyticsView
+Description: view configuration for access to the Analytics Reporting tool
+Note: Supports Analytics Phase 1 and 2 values
+---
+Constraint: required in createPerson call
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: optional in updatePerson call, but if present must be specified together with the analyticsUserType and analyticsModules fields
+Violation: the above constraint is not met
+Error: 1008/InvalidCombination
+---
+Constraint: analyticsView must be NULL for the analytics phase 1
+Violation: Invalid value of the field analyticsView for the currently enabled analytics phase
+Error: 1012-01/InvalidAnalyticsView
+=========
+Constraint: analyticsView can not be NULL for the analytics phase 2 or above
+Violation: Invalid value of the field analyticsView for the currently enabled analytics phase
+Error: 1012-02/InvalidAnalyticsView
+=========
+Constraint: analyticsView V01 is only valid with analyticsUserType U01
+Violation: Invalid combination of analyticsView and analyticsUserType in the request
+Error: 1012-03/InvalidAnalyticsView
+=========
+Constraint: analyticsView V01 is not valid with analyticsModules M02, M03, M07 or M08
+Violation: Invalid combination of analyticsView and analyticsModules in the request
+Error: 1012-04/InvalidAnalyticsView
+=========
+Constraint: analyticsView V02 is only valid with analyticsUserType U01
+Violation: Invalid combination of analyticsView and analyticsUserType in the request
+Error: 1012-05/InvalidAnalyticsView
+=========
+Constraint: analyticsView V03 is only valid with analyticsUserType U01
+Violation: Invalid combination of analyticsView and analyticsUserType in the request
+Error: 1012-06/InvalidAnalyticsView
+=========
+Constraint: analyticsView V04 is only valid with analyticsUserType U01
+Violation: Invalid combination of analyticsView and analyticsUserType in the request
+Error: 1012-07/InvalidAnalyticsView
+=========
+Constraint: analyticsView V04 is not valid with analyticsModules M02, M03, M07 or M08
+Violation: Invalid combination of analyticsView and analyticsModules in the request
+Error: 1012-08/InvalidAnalyticsView
+=========
+Constraint: analyticsView V05 is only valid with analyticsUserType U01
+Violation: Invalid combination of analyticsView and analyticsUserType in the request
+Error: 1012-09/InvalidAnalyticsView
+=========
+Constraint: analyticsView V06 is only valid with analyticsUserType U01
+Violation: Invalid combination of analyticsView and analyticsUserType in the request
+Error: 1012-10/InvalidAnalyticsView
+=========
+Constraint: analyticsView V06 is not valid with analyticsModules M02, M03, M07 or M08
+Violation: Invalid combination of analyticsView and analyticsModules in the request
+Error: 1012-11/InvalidAnalyticsView
+=========
+Constraint: analyticsView V07 is only valid with analyticsUserType U02
+Violation: Invalid combination of analyticsView and analyticsUserType in the request
+Error: 1012-12/InvalidAnalyticsView
+=========
+Constraint: analyticsView V07 is not valid with analyticsModules M02, M03, M07 or M08
+Violation: Invalid combination of analyticsView and analyticsModules in the request
+Error: 1012-13/InvalidAnalyticsView
+=========
+Constraint: analyticsView V09 is only valid with analyticsUserType U02
+Violation: Invalid combination of analyticsView and analyticsUserType in the request
+Error: 1012-17/InvalidAnalyticsView
+=========
+Constraint: analyticsView V09 is only valid with analyticsModules M02, M03, M07 or M08
+Violation: Invalid combination of analyticsView and analyticsModules in the request
+Error: 1012-18/InvalidAnalyticsView
+=========
+Constraint: Valid choices: [NULL, V01, V02, V03, V04, V05, V06, V07, V08, V09, V10]
+Violation: Invalid analyticsView specified
+Error: 1012/InvalidAnalyticsView
+=========
+Field: defaultApplication
+Description: person's attribute for application.
+---
+Constraint: Valid choices: [NULL, 1, 2]
+Violation: input value does not refer to the valid values
+Error: 1007/InvalidOption
+=========
+
+Here are the parameters of the input Entity object for the addEntity and removeEntity operations and associated validation rules.
+
+=========
+Field: customerUniqueID
+Description: person's unique record identifier.
+---
+Constraint: must refer to an existing person
+Violation: input value does not refer to an existing person
+Error: 501/ObjectMissing
+---
+Constraint: required
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+=========
+Field: roleName
+Description: the name of the role for the person-entity relationship being updated
+---
+Constraint: must refer to a valid role
+Violation: input value does not refer to a valid role
+Error: 501/ObjectMissing
+---
+Constraint: required
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+=========
+Field: entityTypeCode
+Description: the entity type code for the person-entity relationship being updated
+---
+Constraint: must be a valid entity type code
+Violation: input value does not refer to a valid entity type
+Error: 501/ObjectMissing
+---
+Constraint: required
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+=========
+Field: entityCode
+Description: the entity code for the person-entity relationship being updated
+---
+Constraint: must refer to a valid entity under the input entity type
+Violation: input value does not refer to a valid entity
+Error: 501/ObjectMissing
+---
+Constraint: required
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: in a removeEntity call, must refer to an existing person-entity relationship for the person being updated
+Violation: entity not currently part of a person-entity relationship for the person being updated
+Error: 501/ObjectMissing
+
+Here are the validation rules performed in a call to the getPersonDetails operation.
+
+=========
+Input: customerUniqueId
+Description: person's unique record identifier.
+---
+Constraint: must refer to an existing person
+Violation: input value does not refer to an existing person
+Error: 501/ObjectMissing
+---
+Constraint: required
+Violation: value is the empty string
+Error: 1004/EmptyField
+
+
+Here are the parameters of the input PersonDelegate object for the addPersonDelegate, deletePersonDelegate operation and associated validation rules.
+
+=========
+Field: fromCustomerUniqueID
+Description: person's unique record identifier.
+---
+Constraint: must refer to an existing person
+Violation: input value does not refer to an existing person
+Error: 501/ObjectMissing
+---
+Constraint: required
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+=========
+Field: toCustomerUniqueID
+Description: person's unique record identifier.
+---
+Constraint: must refer to an existing person
+Violation: input value does not refer to an existing person
+Error: 501/ObjectMissing
+---
+Constraint: required
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+=========
+For more information about this and other Chrome River Web Services, please contact us at support@chromeriver.com.</wsdl:documentation>
+  <wsdl:types>
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://person.ws.chromeriver.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:complexType name="loginCredentials">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="token" type="xs:string"/>
+          <xs:element minOccurs="0" name="user" type="tns:userLoginInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="userLoginInfo">
+        <xs:sequence>
+          <xs:element name="companyId" type="xs:string"/>
+          <xs:element name="userId" type="xs:string"/>
+          <xs:element name="password" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="MessageEnvelope">
+        <xs:sequence>
+          <xs:element name="statusCode" type="tns:returnStatusCode"/>
+          <xs:element minOccurs="0" name="sessionId" type="xs:string"/>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="validationError" type="tns:ValidationError"/>
+          <xs:element minOccurs="0" name="webServicePayload" type="tns:Payload"/>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="webServicePayloadList" nillable="true" type="tns:Payload"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ValidationError">
+        <xs:sequence>
+          <xs:element name="code" type="xs:string"/>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element minOccurs="0" name="message" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Payload">
+        <xs:sequence/>
+      </xs:complexType>
+      <xs:complexType name="Person">
+        <xs:complexContent>
+          <xs:extension base="tns:Payload">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="firstName" type="xs:string"/>
+              <xs:element minOccurs="0" name="lastName" type="xs:string"/>
+              <xs:element name="username" type="xs:string"/>
+              <xs:element minOccurs="0" name="customerUniqueID" type="xs:string"/>
+              <xs:element minOccurs="0" name="reportsTo" type="xs:string"/>
+              <xs:element minOccurs="0" name="emailAddress" type="xs:string"/>
+              <xs:element default="true" minOccurs="0" name="active" type="xs:boolean"/>
+              <xs:element minOccurs="0" name="title" type="xs:string"/>
+              <xs:element minOccurs="0" name="entity1" type="xs:string"/>
+              <xs:element minOccurs="0" name="entity2" type="xs:string"/>
+              <xs:element minOccurs="0" name="entity3" type="xs:string"/>
+              <xs:element minOccurs="0" name="currencyCode1" type="xs:string"/>
+              <xs:element minOccurs="0" name="vendor1Code" type="xs:string"/>
+              <xs:element minOccurs="0" name="currencyCode2" type="xs:string"/>
+              <xs:element minOccurs="0" name="vendor2Code" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF1" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF2" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF3" type="xs:string"/>
+              <xs:element minOccurs="0" name="dateFormatMask" type="xs:string"/>
+              <xs:element minOccurs="0" name="currencyMask" type="xs:string"/>
+              <xs:element minOccurs="0" name="expenseBar" type="xs:string"/>
+              <xs:element minOccurs="0" name="VATLocation" type="xs:string"/>
+              <xs:element minOccurs="0" name="interactionUserID" type="xs:string"/>
+              <xs:element minOccurs="0" name="interactionAccountName" type="xs:string"/>
+              <xs:element default="false" minOccurs="0" name="isAdmin" type="xs:boolean"/>
+              <xs:element default="true" minOccurs="0" name="isCopyingItems" type="xs:boolean"/>
+              <xs:element default="false" minOccurs="0" name="isSuperDelegate" type="xs:boolean"/>
+              <xs:element default="false" minOccurs="0" name="useOnline" type="xs:boolean"/>
+              <xs:element minOccurs="0" name="languageCode" type="xs:string"/>
+              <xs:element maxOccurs="unbounded" minOccurs="0" name="alternateCurrencyCodes" nillable="true" type="xs:string"/>
+              <xs:element minOccurs="0" name="alternateEmailAddress1" type="xs:string"/>
+              <xs:element minOccurs="0" name="alternateEmailAddress2" type="xs:string"/>
+              <xs:element minOccurs="0" name="alternateEmailAddress3" type="xs:string"/>
+              <xs:element default="NULL" name="analyticsUserType" type="xs:string"/>
+              <xs:element default="NULL" name="analyticsModules" type="xs:string"/>
+              <xs:element default="NULL" name="analyticsView" type="xs:string"/>
+              <xs:element default="NULL" minOccurs="0" name="defaultApplication" type="xs:string"/>
+              <xs:element maxOccurs="unbounded" minOccurs="0" name="personEntities" nillable="true" type="tns:PersonEntity"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="PersonEntity">
+        <xs:sequence>
+          <xs:element name="roleName" type="xs:string"/>
+          <xs:element minOccurs="0" name="entityTypeName" type="xs:string"/>
+          <xs:element name="entityTypeCode" type="xs:string"/>
+          <xs:element minOccurs="0" name="entityName" type="xs:string"/>
+          <xs:element name="entityCode" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="PersonDelegate">
+        <xs:sequence>
+          <xs:element name="fromCustomerUniqueID" type="xs:string"/>
+          <xs:element name="toCustomerUniqueID" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Entity">
+        <xs:complexContent>
+          <xs:extension base="tns:Payload">
+            <xs:sequence>
+              <xs:element name="customerUniqueID" type="xs:string"/>
+              <xs:element name="roleName" type="xs:string"/>
+              <xs:element name="entityTypeCode" type="xs:string"/>
+              <xs:element name="entityCode" type="xs:string"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:simpleType name="returnStatusCode">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="FAIL"/>
+          <xs:enumeration value="SUCCESS"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:element name="credentials" nillable="true" type="tns:loginCredentials"/>
+      <xs:element name="Exception" type="tns:Exception"/>
+      <xs:complexType name="Exception">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="message" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="inCustomerUniqueId" nillable="true" type="xs:string"/>
+      <xs:element name="getPersonDetailsResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inPersonCreate" nillable="true" type="tns:Person"/>
+      <xs:element name="createPersonResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inPersonDelegate" nillable="true" type="tns:PersonDelegate"/>
+      <xs:element name="addPersonDelegateResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inEntityRemove" nillable="true" type="tns:Entity"/>
+      <xs:element name="removeEntityResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inPersonUpdate" nillable="true" type="tns:Person"/>
+      <xs:element name="updatePersonResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inEntityAdd" nillable="true" type="tns:Entity"/>
+      <xs:element name="addEntityResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inCustomerUniqueIdDelete" nillable="true" type="xs:string"/>
+      <xs:element name="deletePersonResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inPersonDelegateDelete" nillable="true" type="tns:PersonDelegate"/>
+      <xs:element name="delPersonDelegateResponse" nillable="true" type="tns:MessageEnvelope"/>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="addEntityResponse">
+    <wsdl:part element="tns:addEntityResponse" name="addEntityResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updatePerson">
+    <wsdl:part element="tns:inPersonUpdate" name="inPersonUpdate"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="deletePersonResponse">
+    <wsdl:part element="tns:deletePersonResponse" name="deletePersonResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updatePersonResponse">
+    <wsdl:part element="tns:updatePersonResponse" name="updatePersonResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="addEntity">
+    <wsdl:part element="tns:inEntityAdd" name="inEntityAdd"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="delPersonDelegateResponse">
+    <wsdl:part element="tns:delPersonDelegateResponse" name="delPersonDelegateResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getPersonDetails">
+    <wsdl:part element="tns:inCustomerUniqueId" name="inCustomerUniqueId"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createPerson">
+    <wsdl:part element="tns:inPersonCreate" name="inPersonCreate"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="Exception">
+    <wsdl:part element="tns:Exception" name="Exception"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="addPersonDelegate">
+    <wsdl:part element="tns:inPersonDelegate" name="inPersonDelegate"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="addPersonDelegateResponse">
+    <wsdl:part element="tns:addPersonDelegateResponse" name="addPersonDelegateResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="removeEntity">
+    <wsdl:part element="tns:inEntityRemove" name="inEntityRemove"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createPersonResponse">
+    <wsdl:part element="tns:createPersonResponse" name="createPersonResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="deletePerson">
+    <wsdl:part element="tns:inCustomerUniqueIdDelete" name="inCustomerUniqueIdDelete"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getPersonDetailsResponse">
+    <wsdl:part element="tns:getPersonDetailsResponse" name="getPersonDetailsResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="removeEntityResponse">
+    <wsdl:part element="tns:removeEntityResponse" name="removeEntityResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="delPersonDelegate">
+    <wsdl:part element="tns:inPersonDelegateDelete" name="inPersonDelegateDelete"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="PersonService">
+    <wsdl:operation name="getPersonDetails">
+      <wsdl:input message="tns:getPersonDetails" name="getPersonDetails"></wsdl:input>
+      <wsdl:output message="tns:getPersonDetailsResponse" name="getPersonDetailsResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createPerson">
+      <wsdl:input message="tns:createPerson" name="createPerson"></wsdl:input>
+      <wsdl:output message="tns:createPersonResponse" name="createPersonResponse"></wsdl:output>
+      <wsdl:fault message="tns:Exception" name="Exception"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="addPersonDelegate">
+      <wsdl:input message="tns:addPersonDelegate" name="addPersonDelegate"></wsdl:input>
+      <wsdl:output message="tns:addPersonDelegateResponse" name="addPersonDelegateResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="removeEntity">
+      <wsdl:input message="tns:removeEntity" name="removeEntity"></wsdl:input>
+      <wsdl:output message="tns:removeEntityResponse" name="removeEntityResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updatePerson">
+      <wsdl:input message="tns:updatePerson" name="updatePerson"></wsdl:input>
+      <wsdl:output message="tns:updatePersonResponse" name="updatePersonResponse"></wsdl:output>
+      <wsdl:fault message="tns:Exception" name="Exception"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="addEntity">
+      <wsdl:input message="tns:addEntity" name="addEntity"></wsdl:input>
+      <wsdl:output message="tns:addEntityResponse" name="addEntityResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="deletePerson">
+      <wsdl:input message="tns:deletePerson" name="deletePerson"></wsdl:input>
+      <wsdl:output message="tns:deletePersonResponse" name="deletePersonResponse"></wsdl:output>
+      <wsdl:fault message="tns:Exception" name="Exception"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="delPersonDelegate">
+      <wsdl:input message="tns:delPersonDelegate" name="delPersonDelegate"></wsdl:input>
+      <wsdl:output message="tns:delPersonDelegateResponse" name="delPersonDelegateResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="PersonServiceSoapBinding" type="tns:PersonService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="getPersonDetails">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getPersonDetails">
+        <soap:header message="tns:getPersonDetails" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inCustomerUniqueId" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getPersonDetailsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createPerson">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createPerson">
+        <soap:header message="tns:createPerson" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inPersonCreate" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createPersonResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="Exception">
+        <soap:fault name="Exception" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="addPersonDelegate">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="addPersonDelegate">
+        <soap:header message="tns:addPersonDelegate" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inPersonDelegate" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="addPersonDelegateResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="removeEntity">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="removeEntity">
+        <soap:header message="tns:removeEntity" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inEntityRemove" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="removeEntityResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updatePerson">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="updatePerson">
+        <soap:header message="tns:updatePerson" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inPersonUpdate" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="updatePersonResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="Exception">
+        <soap:fault name="Exception" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="addEntity">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="addEntity">
+        <soap:header message="tns:addEntity" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inEntityAdd" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="addEntityResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="deletePerson">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="deletePerson">
+        <soap:header message="tns:deletePerson" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inCustomerUniqueIdDelete" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="deletePersonResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="Exception">
+        <soap:fault name="Exception" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="delPersonDelegate">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="delPersonDelegate">
+        <soap:header message="tns:delPersonDelegate" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inPersonDelegateDelete" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="delPersonDelegateResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="PersonService">
+    <wsdl:port binding="tns:PersonServiceSoapBinding" name="PersonServicePort">
+      <soap:address location="https://staging-api.chromeriver.com/ws_PersonV1"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>https://staging-api.chromeriver.com/ws_PersonV1</con:endpoint></con:endpoints><con:operation id="7fbc8dc1-142c-488e-8f5d-d354f9b06efb" isOneWay="false" action="" name="addEntity" bindingOperationName="addEntity" type="Request-Response" outputName="addEntityResponse" inputName="addEntity" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="23426695-66a0-441d-9a4c-9252fe01d2ec" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inEntityAdd>
+         <customerUniqueID>?</customerUniqueID>
+         <roleName>?</roleName>
+         <entityTypeCode>?</entityTypeCode>
+         <entityCode>?</entityCode>
+      </per:inEntityAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/addEntity"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation id="a0f51a1e-bf1d-427b-a211-e935fff585cd" isOneWay="false" action="" name="addPersonDelegate" bindingOperationName="addPersonDelegate" type="Request-Response" outputName="addPersonDelegateResponse" inputName="addPersonDelegate" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="a94dacbd-3a68-47a1-9435-f9b7cfec4bdb" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inPersonDelegate>
+         <fromCustomerUniqueID>?</fromCustomerUniqueID>
+         <toCustomerUniqueID>?</toCustomerUniqueID>
+      </per:inPersonDelegate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/addPersonDelegate"/></con:call></con:operation><con:operation id="c284287f-20e5-4be4-8deb-cd25eab5367f" isOneWay="false" action="" name="createPerson" bindingOperationName="createPerson" type="Request-Response" outputName="createPersonResponse" inputName="createPerson" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="d64592e1-e29b-49d3-957b-b03869d827cc" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inPersonCreate>
+         <username>?</username>
+         <analyticsUserType>NULL</analyticsUserType>
+         <analyticsModules>NULL</analyticsModules>
+         <analyticsView>NULL</analyticsView>
+      </per:inPersonCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/createPerson"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation id="fb237eae-7d4b-4d89-8bf2-3448a300356b" isOneWay="false" action="" name="deletePerson" bindingOperationName="deletePerson" type="Request-Response" outputName="deletePersonResponse" inputName="deletePerson" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="a78dd115-3632-46da-975e-0e9c23c04b73" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inCustomerUniqueIdDelete>?</per:inCustomerUniqueIdDelete>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/deletePerson"/></con:call></con:operation><con:operation id="8ecbf8da-1d8c-48b5-bf02-5d2d15e7438b" isOneWay="false" action="" name="getPersonDetails" bindingOperationName="getPersonDetails" type="Request-Response" outputName="getPersonDetailsResponse" inputName="getPersonDetails" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="c8e08c64-e3b2-4c6e-bf84-24e059303ec0" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inCustomerUniqueId>?</per:inCustomerUniqueId>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/getPersonDetails"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation id="64782866-952c-4414-b3f6-5f5ac82d8307" isOneWay="false" action="" name="removeEntity" bindingOperationName="removeEntity" type="Request-Response" outputName="removeEntityResponse" inputName="removeEntity" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="1494118d-64e2-4ed0-af4f-db59fde5844b" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inEntityRemove>
+         <customerUniqueID>?</customerUniqueID>
+         <roleName>?</roleName>
+         <entityTypeCode>?</entityTypeCode>
+         <entityCode>?</entityCode>
+      </per:inEntityRemove>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/removeEntity"/></con:call></con:operation><con:operation id="889b669c-001d-4b38-93cf-dd23de73f596" isOneWay="false" action="" name="updatePerson" bindingOperationName="updatePerson" type="Request-Response" outputName="updatePersonResponse" inputName="updatePerson" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="f7016760-c90e-4fba-9825-e48ec4dfb1b9" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inPersonUpdate>
+         <username>?</username>
+         <analyticsUserType>NULL</analyticsUserType>
+         <analyticsModules>NULL</analyticsModules>
+         <analyticsView>NULL</analyticsView>
+      </per:inPersonUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/updatePerson"/></con:call></con:operation><con:operation id="119e8428-af2a-45bc-8213-9d3fa1befcb9" isOneWay="false" action="" name="delPersonDelegate" bindingOperationName="delPersonDelegate" type="Request-Response" outputName="delPersonDelegateResponse" inputName="delPersonDelegate" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="71aa9a43-68af-4ce3-89ab-70c0158e1d15" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inPersonDelegateDelete>
+         <fromCustomerUniqueID>?</fromCustomerUniqueID>
+         <toCustomerUniqueID>?</toCustomerUniqueID>
+      </per:inPersonDelegateDelete>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/delPersonDelegate"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:interface xsi:type="con:WsdlInterface" id="8597a7ac-9ccc-4da2-9f68-150b0ee0e914" wsaVersion="NONE" name="LoginServiceSoapBinding" type="wsdl" bindingName="{http://login.ws.chromeriver.com/}LoginServiceSoapBinding" soapVersion="1_1" anonymous="optional" definition="https://staging-api.chromeriver.com/ws_LoginV1?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="https://staging-api.chromeriver.com/ws_LoginV1?wsdl"><con:part><con:url>https://staging-api.chromeriver.com/ws_LoginV1?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="LoginService" targetNamespace="http://login.ws.chromeriver.com/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://login.ws.chromeriver.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:documentation>The Chrome River Login Web Service fulfills requests from our customers to log in to our Web Services platform.
+
+To get started with Chrome River Web Services, please submit a Chrome River Help Desk ticket. Our Implementation team will work with you to get everything set up and running.
+
+To access this service, use this Web Services Description Language (WSDL) file to generate the required client proxy classes: https://api.chromeriver.com/ws_LoginV1?wsdl
+
+Please also read this documentation to understand what it does and how to properly prepare requests.
+
+Logging In
+
+Each request to access a Chrome River Web Service must be authenticated via either login credentials or a session token. The Login Web Service may be used to submit the user's login information in a request consisting of companyID, userID, and password. The user will receive a token to submit with subsequent requests to other Chrome River Web Services, eliminating the need to provide the login information again. 
+
+While it is also possible to submit login information directly via the header of every Chrome River Web Service, it is recommended that customers use the Login Web Service first to obtain a session token, and then submit this token in each subsequent request to the other services.
+
+Chrome River Login Web Service Overview
+
+Only one operation is exposed via the Login Web Service: createSession. The purpose of this operation is to submit login credentials and get in response a session token used to access other Chrome River Web Services. The token will renew each time it is used in a request. It will expire after 30 minutes of inactivity, at which point a new token must be acquired by resubmitting the login credentials to this service.
+
+Each call to the createSession operation requires the LoginCredentials input object, which contains two parameters: token and user. This object is actually a shared input across all Chrome River Web Services. In services other than the Login Service, the token parameter is used to submit the session ID along with the rest of the request. In the Login Service, use the user parameter to set the required login credentials: companyID, userID, and password. 
+
+The service responds to a request with the MessageEnvelope object. In the event of a successful outcome, the envelope will contain the statusCode "ReturnStatusCode.SUCCESS," along with a session token in the sessionID field. In the event of a failed outcome, the envelope will contain the statusCode "ReturnStatusCode.FAIL," along with a list of ValidationError objects detailing why the request was not successful. Each ValidationError contains three pieces of information: the error code, the name of the error code, and a brief message explaining the error.
+
+In the Login Service there are two possible error scenarios: 
+
+1. Invalid Login
+=====================
+Description: The credentials provided do not match a valid record in our system.
+Error Code: 9000
+Error Name: InvalidLogin
+Error Message: Invalid login information
+Resolution: Double-check that the companyID, userID, and password match those provided to you previously by Chrome River.
+
+2. Invalid Session
+=====================
+Description: The token provided is not valid or has expired.
+Error Code: 9001
+Error Name: InvalidSession
+Error Message: No session, or session no longer valid.
+Resolution: Log in again with full credentials to obtain a new and valid session token.
+
+For more information about this and other Chrome River Web Services, please contact us at support@chromeriver.com.</wsdl:documentation>
+  <wsdl:types>
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://login.ws.chromeriver.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:complexType name="loginCredentials">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="token" type="xs:string"/>
+          <xs:element minOccurs="0" name="user" type="tns:userLoginInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="userLoginInfo">
+        <xs:sequence>
+          <xs:element name="companyId" type="xs:string"/>
+          <xs:element name="userId" type="xs:string"/>
+          <xs:element name="password" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="MessageEnvelope">
+        <xs:sequence>
+          <xs:element name="statusCode" type="tns:returnStatusCode"/>
+          <xs:element minOccurs="0" name="sessionId" type="xs:string"/>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="validationError" type="tns:ValidationError"/>
+          <xs:element minOccurs="0" name="webServicePayload" type="tns:Payload"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ValidationError">
+        <xs:sequence>
+          <xs:element name="code" type="xs:string"/>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element minOccurs="0" name="message" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Payload">
+        <xs:sequence/>
+      </xs:complexType>
+      <xs:simpleType name="returnStatusCode">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="FAIL"/>
+          <xs:enumeration value="SUCCESS"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:element name="loginCredentials" nillable="true" type="tns:loginCredentials"/>
+      <xs:element name="createSessionResponse" nillable="true" type="tns:MessageEnvelope"/>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="createSessionResponse">
+    <wsdl:part element="tns:createSessionResponse" name="createSessionResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createSession">
+    <wsdl:part element="tns:loginCredentials" name="loginCredentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="Login">
+    <wsdl:operation name="createSession">
+      <wsdl:input message="tns:createSession" name="createSession"></wsdl:input>
+      <wsdl:output message="tns:createSessionResponse" name="createSessionResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="LoginServiceSoapBinding" type="tns:Login">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="createSession">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createSession">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createSessionResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="LoginService">
+    <wsdl:port binding="tns:LoginServiceSoapBinding" name="LoginPort">
+      <soap:address location="https://staging-api.chromeriver.com/ws_LoginV1"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>https://staging-api.chromeriver.com/ws_LoginV1</con:endpoint></con:endpoints><con:operation id="9e2c061c-91fc-4a41-aa65-24678ab3f9ed" isOneWay="false" action="" name="createSession" bindingOperationName="createSession" type="Request-Response" outputName="createSessionResponse" inputName="createSession" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="e2ac3553-7315-452f-b64e-91d4da78be18" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_LoginV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:log="http://login.ws.chromeriver.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <log:loginCredentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </log:loginCredentials>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://login.ws.chromeriver.com/Login/createSession"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:testSuite id="3a087b5b-521e-48f8-b8d3-084a161a7aee" name="PersonWS_Suite"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="f1386f74-e48e-46c5-9182-16f63ae83b85" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Login_Case" searchProperties="true"><con:settings/><con:testStep type="groovy" name="setLoginVariables" id="1f003a07-3883-489b-b394-54d3011fe432"><con:settings/><con:config><script>import soapUI.*
+
+def baseHost = com.eviware.soapui.SoapUI.globalProperties.getPropertyValue("basehost");
+
+if ( baseHost == 'api.chromeriver.com' ){
+	testRunner.testCase.testSuite.project.setPropertyValue("Environment","Production");
+	
+} else if ( baseHost == 'qa-api.chromeriver.com' ){
+	testRunner.testCase.testSuite.project.setPropertyValue("Environment","QA");
+	
+} else {
+	// baseHost == staging-api.chromeriver.com
+	testRunner.testCase.testSuite.project.setPropertyValue("Environment","Staging");
+}
+
+def env = testRunner.testCase.testSuite.project.getPropertyValue("Environment");
+def password = testRunner.testCase.testSuite.project.getPropertyValue("Password");
+
+
+if(env == "Staging"){
+	def stagingPassword = new java.util.Properties();
+	stagingPassword = testRunner.testCase.testSuite.project.getPropertyValue("StagingPassword");
+	testRunner.testCase.testSuite.project.setPropertyValue( "Password", stagingPassword);
+	
+} else if(env == "QA"){
+	def QAPassword = new java.util.Properties();
+	QAPassword = testRunner.testCase.testSuite.project.getPropertyValue("QAPassword");
+	testRunner.testCase.testSuite.project.setPropertyValue( "Password", QAPassword);
+} else if(env == "Production"){
+	def ProductionPassword = new java.util.Properties();
+	ProductionPassword = testRunner.testCase.testSuite.project.getPropertyValue("ProductionPassword");
+	testRunner.testCase.testSuite.project.setPropertyValue( "Password", ProductionPassword);
+} else {
+	testRunner.cancel( "Invalid Environment : " + env ) 
+}</script></con:config></con:testStep><con:testStep type="request" name="LoginRequest" id="0627bbf3-7247-4dbf-a146-fb74c7c0e9dc"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>LoginServiceSoapBinding</con:interface><con:operation>createSession</con:operation><con:request name="LoginRequest" id="51ee5cab-add4-48bd-867c-dc337e88efc9"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_LoginV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:log="http://login.ws.chromeriver.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <log:loginCredentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>${#Project#CompanyID}</companyId>
+            <userId>${#Project#LoginUserName}</userId>
+            <password>${#Project#Password}</password>
+         </user>
+      </log:loginCredentials>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="9aae2222-6db8-4f92-b4c1-641f6e1e0222"/><con:assertion type="XPath Match" id="17bd612a-8ecf-442d-922f-73bd281d93ff" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="transfer" name="Property Transfer" id="4ecf622e-aeca-4daf-ab0d-72b9469b4bfa"><con:settings/><con:config xsi:type="con:PropertyTransfersStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:transfers setNullOnMissingSource="true" transferTextContent="true" failOnError="true" ignoreEmpty="false" transferToAll="false" entitize="false" transferChildNodes="false"><con:name>SessionID</con:name><con:sourceType>Response</con:sourceType><con:sourceStep>LoginRequest</con:sourceStep><con:sourcePath>//sessionId</con:sourcePath><con:targetType>SessionID</con:targetType><con:targetStep>#Project#</con:targetStep><con:upgraded>true</con:upgraded></con:transfers></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="7477f3b7-eccf-4fe5-b5a8-f6b4ae7c0c39" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="GetPersonDetails_Case" searchProperties="true"><con:settings/><con:testStep type="request" id="aaabb07b-687f-43ab-958c-2a29a502f6e5" name="getPersonDetails_Request"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>getPersonDetails</con:operation><con:request name="getPersonDetails_Request" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="f3c29334-5136-4238-b544-f631eff83160"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inCustomerUniqueId>${#Project#UniqueID}</per:inCustomerUniqueId>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="c95232da-a27a-46c8-a5f1-6935eecc28c5" name="SOAP Response"/><con:assertion type="XPath Match" id="73706ab7-b361-448e-9fb3-c6bf47a36496" name="XPath statusCode"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="4b2e02f6-4e2a-411d-b2dd-3792d57b95a3" name="XPath firstName"><con:configuration><path>//firstName</path><content>Chrome River</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="1b05d5ad-bd62-4f6b-ba6c-24a6b7d53b81" name="XPath lastName"><con:configuration><path>//lastName</path><content>Peanut, Butter and Jelly</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="efb27356-f1bb-49f1-b999-fe78f1fd851a" name="XPath customerUniqueID"><con:configuration><path>//customerUniqueID</path><content>chromeriver</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="2729384f-1c9a-4a32-a9ee-316d94c9959c" name="XPath emailAddress" disabled="true"><con:configuration><path>//emailAddress</path><content>chromeriver5@chromewallet.com</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="f57ddb49-cb5a-41b1-9250-5585f2a245a3" name="XPath Match"><con:configuration><path>//personEntities/roleName</path><content>Part Of</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="7c370e4c-bac6-42a0-a222-aab513e57848" name="XPath: EntityTypeName"><con:configuration><path>//personEntities/entityTypeName</path><content>Rules Group Exception</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="7e74bdc4-d3c4-4fd3-879b-69122a9926fe" name="XPath: EntityTypeCode"><con:configuration><path>//personEntities/entityTypeCode</path><content>RGE</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="d2830af3-ea4d-4e1d-b8ad-ce23450befd3" name="XPath: entityName"><con:configuration><path>//personEntities/entityName</path><content>Invoice Management</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="78a9be4a-c7cb-4603-b6c2-509151e9bd78" name="XPath: entityCode"><con:configuration><path>//personEntities/entityCode</path><content>INVMGT</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/getPersonDetails"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="8f1aaa6b-135c-45b2-b329-e90e256b6080" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="CreatePerson_Case" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Create Person TestData" id="70c62f9d-b7bd-4982-9f4f-5ab3e48c60b3"><con:settings/><con:config><script>import java.text.SimpleDateFormat
+import java.util.Calendar
+
+def props = new java.util.Properties();
+props = testRunner.testCase.getTestStepByName("CreatePersonProperties");
+
+//get today and tomorrow's dates
+def today = new Date()
+Calendar c = Calendar.getInstance();
+c.setTime(today);
+c.add(Calendar.DATE, 1);
+def tomorrow = c.getTime();
+
+newPerson = new SimpleDateFormat("MMddHHmmssSS")
+
+//set the person data Properties with the new info returned from SoapUITestData
+testRunner.testCase.testSuite.project.setPropertyValue( "userName", "WS_" + newPerson.format(today))
+testRunner.testCase.testSuite.project.setPropertyValue( "customerUniqueID", "WS_" + newPerson.format(today))
+testRunner.testCase.testSuite.project.setPropertyValue( "emailAddress", "WS_" + newPerson.format(today) + "@chromewallet.com")
+testRunner.testCase.testSuite.project.setPropertyValue( "alternateEmailAddress1", "WS_" + newPerson.format(today) + "_alt@chromewallet.com")
+testRunner.testCase.testSuite.project.setPropertyValue( "alternateEmailAddress2", "WS_" + newPerson.format(today) + "_alt2@chromewallet.com")
+testRunner.testCase.testSuite.project.setPropertyValue( "alternateEmailAddress3", "WS_" + newPerson.format(today) + "_alt3@chromewallet.com")</script></con:config></con:testStep><con:testStep type="request" id="2c70dfbf-ffa3-40ec-8c93-66c83ae5a10c" name="createPerson_Request"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>createPerson</con:operation><con:request name="createPerson_Request" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="89107fe1-c791-40ed-932d-60f36bc0ee60"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;entry key="SOAPAction" value="TM_CR_LOGIN" xmlns="http://eviware.com/soapui/config"/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inPersonCreate>
+          <!--Optional:-->
+         <firstName>${#Project#firstName}</firstName>
+         <!--Optional:-->
+         <lastName>${#Project#lastName}</lastName>
+         <username>${#Project#username}</username>
+         <!--Optional:-->
+         <customerUniqueID>${#Project#customerUniqueID}</customerUniqueID>
+         <!--Optional:-->
+         <reportsTo/>
+         <!--Optional:-->
+         <emailAddress>${#Project#emailAddress}</emailAddress>
+         <!--Optional:-->
+         <active>true</active>
+         <!--Optional:-->
+         <title/>
+         <!--Optional:-->
+         <entity1/>
+         <!--Optional:-->
+         <entity2/>
+         <!--Optional:-->
+         <entity3/>
+         <!--Optional:-->
+         <currencyCode1/>
+         <!--Optional:-->
+         <vendor1Code/>
+         <!--Optional:-->
+         <currencyCode2/>
+         <!--Optional:-->
+         <vendor2Code/>
+         <!--Optional:-->
+         <UDF1/>
+         <!--Optional:-->
+         <UDF2/>
+         <!--Optional:-->
+         <UDF3/>
+         <!--Optional:-->
+         <dateFormatMask/>
+         <!--Optional:-->
+         <currencyMask/>
+         <!--Optional:-->
+         <expenseBar>Primary</expenseBar>
+         <!--Optional:-->
+         <VATLocation/>
+         <!--Optional:-->
+         <interactionUserID/>
+         <!--Optional:-->
+         <interactionAccountName/>
+         <!--Optional:-->
+         <isAdmin/>
+         <!--Optional:-->
+         <isCopyingItems/>
+         <!--Optional:-->
+         <isSuperDelegate/>
+         <!--Optional:-->
+         <useOnline/>
+         <!--Optional:-->
+         <languageCode/>
+         <!--Zero or more repetitions:-->
+         <alternateCurrencyCodes/>
+         <!--Optional:-->
+         <alternateEmailAddress1>${#Project#alternateEmailAddress1}</alternateEmailAddress1>
+         <!--Optional:-->
+         <alternateEmailAddress2>${#Project#alternateEmailAddress2}</alternateEmailAddress2>
+         <!--Optional:-->
+         <alternateEmailAddress3>${#Project#alternateEmailAddress3}</alternateEmailAddress3>
+         <analyticsUserType>U01</analyticsUserType>
+         <analyticsModules>M01</analyticsModules>
+         <analyticsView>V01</analyticsView>
+         <!--Optional:-->
+         <defaultApplication>NULL</defaultApplication>
+      </per:inPersonCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="41e62250-b4e2-4637-bb14-0ba4f8b35d4c" name="SOAP Response"/><con:assertion type="XPath Match" id="e6ea09d1-6f24-460c-bf69-d475f212c583" name="XPath statusCode"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/createPerson"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="9d59bc2e-bc8f-49c4-967b-8a5d6acaadc0" name="getPersonDetails_Request (CreatedUser)"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>getPersonDetails</con:operation><con:request name="getPersonDetails_Request (CreatedUser)" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="f3c29334-5136-4238-b544-f631eff83160"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inCustomerUniqueId>${#Project#customerUniqueID}</per:inCustomerUniqueId>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="c95232da-a27a-46c8-a5f1-6935eecc28c5" name="SOAP Response"/><con:assertion type="XPath Match" id="a066e5e4-247a-4b14-bad3-826153bf00c5" name="XPath statusCode"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="4283300b-0bea-4f1d-b423-20252cc1e45f" name="XPath firstName"><con:configuration><path>//firstName</path><content>${#Project#firstName}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="389eb9f2-2068-4de2-b76a-b2cbdcdb569f" name="XPath lastName"><con:configuration><path>//lastName</path><content>${#Project#lastName}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="561f6895-bdc6-447e-a5f2-c8c10d240ae9" name="XPath username"><con:configuration><path>//username</path><content>${#Project#userName}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="2876e3f1-6136-47f9-80af-6a2f4e4132ee" name="XPath customerUniqueID"><con:configuration><path>//customerUniqueID</path><content>${#Project#customerUniqueID}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="944536f7-8d7e-40b1-9178-01b4b3d76202" name="XPath emailAddress"><con:configuration><path>//emailAddress</path><content>${#Project#userName}@chromewallet.com</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="388f6e4c-bb7a-4c2a-8b70-7e447b08592b" name="XPath active"><con:configuration><path>//active</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="862640a4-d5c7-4c18-9120-a23909a37e24" name="XPath alternateEmailAddress1"><con:configuration><path>//alternateEmailAddress1</path><content>${#Project#userName}_alt@chromewallet.com</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="27c4bd93-ccf0-4517-8243-8c05e257b882" name="XPath alternateEmailAddress2"><con:configuration><path>//alternateEmailAddress2</path><content>${#Project#userName}_alt2@chromewallet.com</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="db9d0f2d-0125-433d-9cf6-b3ee95e4aeee" name="XPath alternateEmailAddress3"><con:configuration><path>//alternateEmailAddress3</path><content>${#Project#userName}_alt3@chromewallet.com</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/getPersonDetails"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="UpdatePerson_TestCase" searchProperties="true" id="9aa5ee7d-f1ec-405f-92ac-0df48ed6472c"><con:settings/><con:testStep type="request" name="updatePerson" id="2e1f9357-9caa-4939-b501-c6fc01e651b7"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>updatePerson</con:operation><con:request name="updatePerson" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="b7d58898-0ce0-4fc3-a5d3-a0ae212ab90d"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inPersonUpdate>
+         <!--Optional:-->
+         <firstName>First Name Updated</firstName>
+         <!--Optional:-->
+         <lastName>${#Project#lastName}</lastName>
+         <username>${#Project#username}</username>
+         <!--Optional:-->
+         <customerUniqueID>${#Project#customerUniqueID}</customerUniqueID>
+         <!--Optional:-->
+         <reportsTo></reportsTo>
+         <!--Optional:-->
+         <emailAddress>${#Project#emailAddress}</emailAddress>
+         <!--Optional:-->
+         <active>true</active>
+         <!--Optional:-->
+         <title></title>
+         <!--Optional:-->
+         <entity1></entity1>
+         <!--Optional:-->
+         <entity2></entity2>
+         <!--Optional:-->
+         <entity3></entity3>
+         <!--Optional:-->
+         <currencyCode1></currencyCode1>
+         <!--Optional:-->
+         <vendor1Code></vendor1Code>
+         <!--Optional:-->
+         <currencyCode2></currencyCode2>
+         <!--Optional:-->
+         <vendor2Code></vendor2Code>
+         <!--Optional:-->
+         <UDF1></UDF1>
+         <!--Optional:-->
+         <UDF2></UDF2>
+         <!--Optional:-->
+         <UDF3></UDF3>
+         <!--Optional:-->
+         <dateFormatMask></dateFormatMask>
+         <!--Optional:-->
+         <currencyMask></currencyMask>
+         <!--Optional:-->
+         <expenseBar>Primary</expenseBar>
+         <!--Optional:-->
+         <VATLocation></VATLocation>
+         <!--Optional:-->
+         <interactionUserID></interactionUserID>
+         <!--Optional:-->
+         <interactionAccountName></interactionAccountName>
+         <!--Optional:-->
+         <isAdmin>false</isAdmin>
+         <!--Optional:-->
+         <isCopyingItems>true</isCopyingItems>
+         <!--Optional:-->
+         <isSuperDelegate>false</isSuperDelegate>
+         <!--Optional:-->
+         <useOnline>false</useOnline>
+         <!--Optional:-->
+         <languageCode></languageCode>
+         <!--Zero or more repetitions:-->
+         <alternateCurrencyCodes></alternateCurrencyCodes>
+         <!--Optional:-->
+         <alternateEmailAddress1></alternateEmailAddress1>
+         <!--Optional:-->
+         <alternateEmailAddress2></alternateEmailAddress2>
+         <!--Optional:-->
+         <alternateEmailAddress3></alternateEmailAddress3>
+         <analyticsUserType>NULL</analyticsUserType>
+         <analyticsModules>NULL</analyticsModules>
+         <analyticsView>NULL</analyticsView>
+         <!--Optional:-->
+         <defaultApplication>NULL</defaultApplication>
+      </per:inPersonUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="51041d8d-421b-4853-9ee2-452b5e8cc1dd"/><con:assertion type="XPath Match" name="XPath Match - statusCode" id="1a641920-e8bc-42b3-9abb-b9d99d540071"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/updatePerson"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updatePerson_active" id="3c0b5fea-346b-4dd5-b41a-704743b4ebfc"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>updatePerson</con:operation><con:request name="updatePerson_active" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="7732aa95-2f51-4cf9-a004-724f467225bd"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inPersonUpdate>
+         <!--Optional:-->
+         <firstName>First Name Updated</firstName>
+         <!--Optional:-->
+         <lastName>${#Project#lastName}</lastName>
+         <username>${#Project#username}</username>
+         <!--Optional:-->
+         <customerUniqueID>${#Project#customerUniqueID}</customerUniqueID>
+         <!--Optional:-->
+         <emailAddress>${#Project#emailAddress}</emailAddress>
+         <!--Optional:-->
+         <expenseBar>Primary</expenseBar>
+         <active>false</active>
+         <!--Optional:-->
+         <analyticsUserType>U01</analyticsUserType>
+         <!--Optional:-->
+         <analyticsModules>M01</analyticsModules>
+         <!--Optional:-->
+         <analyticsView>V01</analyticsView>
+      </per:inPersonUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="51041d8d-421b-4853-9ee2-452b5e8cc1dd"/><con:assertion type="XPath Match" name="XPath Match - statusCode" id="1a641920-e8bc-42b3-9abb-b9d99d540071"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/updatePerson"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updatePerson_EmptyFields" id="3cc0a290-84b5-4dab-ba3c-3189cd762f43"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>updatePerson</con:operation><con:request name="updatePerson_EmptyFields" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="4db0e34b-740e-4c52-a3ea-c1ad116394da"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inPersonUpdate>
+         <!--Optional:-->
+         <firstName>First Name Updated</firstName>
+         <!--Optional:-->
+         <lastName>${#Project#lastName}</lastName>
+         <username>${#Project#username}</username>
+         <!--Optional:-->
+         <customerUniqueID>${#Project#customerUniqueID}</customerUniqueID>
+         <!--Optional:-->
+         <reportsTo></reportsTo>
+         <!--Optional:-->
+         <emailAddress>123${#Project#emailAddress}</emailAddress>
+         <!--Optional:-->
+         <active></active>
+         <!--Optional:-->
+         <title></title>
+         <!--Optional:-->
+         <entity1></entity1>
+         <!--Optional:-->
+         <entity2></entity2>
+         <!--Optional:-->
+         <entity3></entity3>
+         <!--Optional:-->
+         <currencyCode1></currencyCode1>
+         <!--Optional:-->
+         <vendor1Code></vendor1Code>
+         <!--Optional:-->
+         <currencyCode2></currencyCode2>
+         <!--Optional:-->
+         <vendor2Code></vendor2Code>
+         <!--Optional:-->
+         <UDF1></UDF1>
+         <!--Optional:-->
+         <UDF2></UDF2>
+         <!--Optional:-->
+         <UDF3></UDF3>
+         <!--Optional:-->
+         <dateFormatMask></dateFormatMask>
+         <!--Optional:-->
+         <currencyMask></currencyMask>
+         <!--Optional:-->
+         <expenseBar>Primary</expenseBar>
+         <!--Optional:-->
+         <VATLocation></VATLocation>
+         <!--Optional:-->
+         <interactionUserID></interactionUserID>
+         <!--Optional:-->
+         <interactionAccountName></interactionAccountName>
+         <!--Optional:-->
+         <isAdmin></isAdmin>
+         <!--Optional:-->
+         <isCopyingItems></isCopyingItems>
+         <!--Optional:-->
+         <isSuperDelegate></isSuperDelegate>
+         <!--Optional:-->
+         <useOnline></useOnline>
+         <!--Optional:-->
+         <languageCode></languageCode>
+         <!--Zero or more repetitions:-->
+         <alternateCurrencyCodes></alternateCurrencyCodes>
+         <!--Optional:-->
+         <analyticsUserType>U01</analyticsUserType>
+         <!--Optional:-->
+         <analyticsModules>M01</analyticsModules>
+         <!--Optional:-->
+         <analyticsView>V01</analyticsView>
+      </per:inPersonUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="84fbccb1-1f8c-4612-8915-4e05bdcec717"/><con:assertion type="XPath Match" name="XPath Match - statusCode" id="2cac2f1b-23c6-4c42-bc59-bd5de947ebb2"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/updatePerson"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="getDetails of UpdatedPerson" id="520bfe9a-5c89-4b90-b535-a996019720bc"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>getPersonDetails</con:operation><con:request name="getDetails of UpdatedPerson" id="15f7171d-38b1-46d4-ae30-df74db572915"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inCustomerUniqueId>${#Project#customerUniqueID}</per:inCustomerUniqueId>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="9e4e5491-8cd0-4520-a6a6-7b9a7ddb15d1"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - firstName" id="12612d66-ebaa-4d80-b79e-3aa695d0f35e"><con:configuration><path>//firstName</path><content>First Name Updated</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - lastName" id="057581b5-498c-4cc5-8f37-9a269813a47f"><con:configuration><path>//lastName</path><content>${#Project#lastName}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - emailAddress" id="172ff336-16b9-402b-9585-867054f3b3f4"><con:configuration><path>//emailAddress</path><content>123${#Project#emailAddress}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - SessionID Count" id="354a9798-8cf5-4903-9506-adde424fd41f"><con:configuration><path>count(//sessionId)</path><content>1</content><allowWildcards>true</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://person.ws.chromeriver.com/PersonService/getPersonDetails" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updatePerson - Reset" id="81aaf698-8b74-4257-9546-aa18400b92ee"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>updatePerson</con:operation><con:request name="updatePerson - Reset" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="b71ac08b-6cd8-418f-816b-daa9329ea66c"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inPersonUpdate>
+         <!--Optional:-->
+         <firstName>${#Project#firstName}</firstName>
+         <!--Optional:-->
+         <lastName>${#Project#lastName}</lastName>
+         <username>${#Project#username}</username>
+         <!--Optional:-->
+         <customerUniqueID>${#Project#customerUniqueID}</customerUniqueID>
+         <!--Optional:-->
+         <reportsTo></reportsTo>
+         <!--Optional:-->
+         <emailAddress>${#Project#emailAddress}</emailAddress>
+         <!--Optional:-->
+         <active></active>
+         <!--Optional:-->
+         <title></title>
+         <!--Optional:-->
+         <entity1></entity1>
+         <!--Optional:-->
+         <entity2></entity2>
+         <!--Optional:-->
+         <entity3></entity3>
+         <!--Optional:-->
+         <currencyCode1></currencyCode1>
+         <!--Optional:-->
+         <vendor1Code></vendor1Code>
+         <!--Optional:-->
+         <currencyCode2></currencyCode2>
+         <!--Optional:-->
+         <vendor2Code></vendor2Code>
+         <!--Optional:-->
+         <UDF1></UDF1>
+         <!--Optional:-->
+         <UDF2></UDF2>
+         <!--Optional:-->
+         <UDF3></UDF3>
+         <!--Optional:-->
+         <dateFormatMask></dateFormatMask>
+         <!--Optional:-->
+         <currencyMask></currencyMask>
+         <!--Optional:-->
+         <expenseBar>Primary</expenseBar>
+         <!--Optional:-->
+         <VATLocation></VATLocation>
+         <!--Optional:-->
+         <interactionUserID></interactionUserID>
+         <!--Optional:-->
+         <interactionAccountName></interactionAccountName>
+         <!--Optional:-->
+         <isAdmin></isAdmin>
+         <!--Optional:-->
+         <isCopyingItems></isCopyingItems>
+         <!--Optional:-->
+         <isSuperDelegate></isSuperDelegate>
+         <!--Optional:-->
+         <useOnline></useOnline>
+         <!--Optional:-->
+         <languageCode></languageCode>
+         <!--Zero or more repetitions:-->
+         <alternateCurrencyCodes></alternateCurrencyCodes>
+         <!--Optional:-->
+         <analyticsUserType>U01</analyticsUserType>
+         <!--Optional:-->
+         <analyticsModules>M01</analyticsModules>
+         <!--Optional:-->
+         <analyticsView>V01</analyticsView>
+      </per:inPersonUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="4bbb4a4f-26f9-4d74-b579-51929fc74fea"/><con:assertion type="XPath Match" name="XPath Match" id="118e0327-2abc-4e18-9274-a365af9eb79e"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/updatePerson"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="getDetails of update - Reset" id="0f5cd336-47fc-46be-8936-4d5627e77bc6"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>getPersonDetails</con:operation><con:request name="getDetails of update - Reset" id="8852c9a5-59b9-400a-ad21-83502049af49"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inCustomerUniqueId>${#Project#customerUniqueID}</per:inCustomerUniqueId>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="Status" id="7d1ac06c-ef24-4892-bfda-b10e2db20ea9"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="firstName" id="8dd8b3a1-9354-474b-8553-c07c804ff5aa"><con:configuration><path>//firstName</path><content>${#Project#firstName}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="lastName" id="3973fb65-9103-4e7d-ae0d-453e2a6d81b2"><con:configuration><path>//lastName</path><content>${#Project#lastName}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="SessionID Count" id="58a417f6-8ec6-49c9-a324-152f3e5d07fb"><con:configuration><path>count(//sessionId)</path><content>1</content><allowWildcards>true</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match" id="82f3283a-336a-4aac-9bb7-04dd7ec3a7d2"><con:configuration><path>//emailAddress</path><content>${#Project#emailAddress}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://person.ws.chromeriver.com/PersonService/getPersonDetails" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updatePerson - vendor" id="064c587f-bf1b-481f-996e-68b3173de957"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>updatePerson</con:operation><con:request name="updatePerson - vendor" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="b7d58898-0ce0-4fc3-a5d3-a0ae212ab90d"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inPersonUpdate>
+         <!--Optional:-->
+         <firstName>First Name Updated</firstName>
+         <!--Optional:-->
+         <lastName>${#Project#lastName}</lastName>
+         <username>${#Project#username}</username>
+         <!--Optional:-->
+         <customerUniqueID>${#Project#customerUniqueID}</customerUniqueID>
+         <!--Optional:-->
+         <emailAddress>${#Project#emailAddress}</emailAddress>
+         <!--Optional:-->
+         <expenseBar>Primary</expenseBar>
+         <!--Optional:-->
+         <analyticsUserType>NULL</analyticsUserType>
+         <!--Optional:-->
+         <analyticsModules>NULL</analyticsModules>
+         <!--Optional:-->
+         <analyticsView>NULL</analyticsView>
+      </per:inPersonUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="51041d8d-421b-4853-9ee2-452b5e8cc1dd"/><con:assertion type="XPath Match" name="XPath Match - statusCode" id="1a641920-e8bc-42b3-9abb-b9d99d540071"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/updatePerson"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updatePerson - Change Alt Email Addresses" id="a17d5179-7815-4a0f-b5ee-12e39c3d92bd"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>updatePerson</con:operation><con:request name="updatePerson - Change Alt Email Addresses" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="b7d58898-0ce0-4fc3-a5d3-a0ae212ab90d"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inPersonUpdate>
+         <!--Optional:-->
+         <firstName>${#Project#firstName}</firstName>
+         <!--Optional:-->
+         <lastName>${#Project#lastName}</lastName>
+         <username>${#Project#username}</username>
+         <!--Optional:-->
+         <customerUniqueID>${#Project#customerUniqueID}</customerUniqueID>
+         <!--Optional:-->
+         <emailAddress>${#Project#emailAddress}</emailAddress>
+         <!--Optional:-->
+         <expenseBar>Primary</expenseBar>
+         <!--Optional:-->
+         <analyticsUserType></analyticsUserType>
+         <!--Optional:-->
+         <analyticsModules></analyticsModules>
+         <!--Optional:-->
+         <analyticsView></analyticsView>
+         <alternateEmailAddress1>${#Project#alternateEmailAddress1}</alternateEmailAddress1>
+         <alternateEmailAddress2>${#Project#alternateEmailAddress2}</alternateEmailAddress2>
+         <alternateEmailAddress3>${#Project#alternateEmailAddress3}</alternateEmailAddress3>
+      </per:inPersonUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="51041d8d-421b-4853-9ee2-452b5e8cc1dd"/><con:assertion type="XPath Match" name="XPath Match - statusCode" id="1a641920-e8bc-42b3-9abb-b9d99d540071"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/updatePerson"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updatePerson - Remove Alt Email Addresses" id="657db636-e20f-4151-bbbd-60872ff8cfbf"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>updatePerson</con:operation><con:request name="updatePerson - Remove Alt Email Addresses" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="b7d58898-0ce0-4fc3-a5d3-a0ae212ab90d"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inPersonUpdate>
+         <!--Optional:-->
+         <firstName>${#Project#firstName}</firstName>
+         <!--Optional:-->
+         <lastName>${#Project#lastName}</lastName>
+         <username>${#Project#username}</username>
+         <!--Optional:-->
+         <customerUniqueID>${#Project#customerUniqueID}</customerUniqueID>
+         <!--Optional:-->
+         <emailAddress>${#Project#emailAddress}</emailAddress>
+         <!--Optional:-->
+         <expenseBar>Primary</expenseBar>
+         <!--Optional:-->
+         <analyticsUserType></analyticsUserType>
+         <!--Optional:-->
+         <analyticsModules></analyticsModules>
+         <!--Optional:-->
+         <analyticsView></analyticsView>
+         <alternateEmailAddress1></alternateEmailAddress1>
+         <alternateEmailAddress2></alternateEmailAddress2>
+         <alternateEmailAddress3></alternateEmailAddress3>
+      </per:inPersonUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="51041d8d-421b-4853-9ee2-452b5e8cc1dd"/><con:assertion type="XPath Match" name="XPath Match - statusCode" id="1a641920-e8bc-42b3-9abb-b9d99d540071"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/updatePerson"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties><con:property><con:name>Description</con:name><con:value>Tests related to the updating of Persons</con:value></con:property></con:properties></con:testCase><con:testCase id="32b9792f-0611-4136-a360-4b3db3da3a0c" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="AddEntity_Case" searchProperties="true"><con:settings/><con:testStep type="request" id="584fbc6b-4f18-4e24-9605-ae5ea5f9de44" name="addEntity_Request"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>addEntity</con:operation><con:request name="addEntity_Request" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="d47a8e17-19d2-4949-93e5-707dcff4d172"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inEntityAdd>
+         <customerUniqueID>${#Project#customerUniqueID}</customerUniqueID>
+         <roleName>APReview</roleName>
+         <entityTypeCode>OFF</entityTypeCode>
+         <entityCode>LAX</entityCode>
+      </per:inEntityAdd>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="e0d3628b-ece4-492f-9001-1fb1e3618845" name="SOAP Response"/><con:assertion type="XPath Match" id="ff2763e6-8ad6-413e-b031-8d62ead21ab2" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="433ac743-2ce4-493c-95f8-b5aab7014351" name="SessionID"><con:configuration><path>//sessionId</path><content>${#Project#SessionID}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/addEntity"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="69dbdbff-b666-47c5-a395-4158d5c112f4" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="RemoveEntity_Case" searchProperties="true"><con:settings/><con:testStep type="request" id="529f33ca-dd10-4c31-a57e-d605af06a520" name="removeEntity_Request"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>removeEntity</con:operation><con:request name="removeEntity_Request" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="a02938d6-6b35-4b00-9fb7-9afff7284413"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inEntityRemove>
+         <customerUniqueID>${#Project#customerUniqueID}</customerUniqueID>
+         <roleName>APReview</roleName>
+         <entityTypeCode>OFF</entityTypeCode>
+         <entityCode>LAX</entityCode>
+      </per:inEntityRemove>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="5228abbb-f56b-45d4-b39e-014112e43a29" name="SOAP Response"/><con:assertion type="XPath Match" id="4be1f56c-453b-47ff-9c2f-a1d51c195b71" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/removeEntity"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="AddPersonDelegate_Case" searchProperties="true" id="0895dfc7-659b-47fa-ad1b-483e9c01c0c3"><con:settings/><con:testStep type="groovy" name="TestData - Person Delegate" id="47741a5a-54a8-4582-9a7a-99353366e4d5"><con:settings/><con:config><script>import soapUI.*
+
+String addedPerson = testRunner.testCase.testSuite.project.getPropertyValue("username");
+
+//set the username Properties with the person added in the previous createPerson test case
+testRunner.testCase.testSuite.project.setPropertyValue( "Assisting", addedPerson);</script></con:config></con:testStep><con:testStep type="request" name="addPersonDelegate" id="60c71b40-6c2d-47e5-b4c5-08e46483c7e6"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>addPersonDelegate</con:operation><con:request name="addPersonDelegate" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="bb842e9c-35bb-485e-b699-33fcb2fdb28e"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inPersonDelegate>
+         <fromCustomerUniqueID>${#Project#Assisting}</fromCustomerUniqueID>
+         <toCustomerUniqueID>${#Project#Assisted}</toCustomerUniqueID>
+      </per:inPersonDelegate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="59998314-364e-45e3-8886-37027e30c535"/><con:assertion type="XPath Match" name="XPath Match - statusCode" id="9ddb02a3-a614-4749-8ec7-35d20a7408a2"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/addPersonDelegate"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPersonDelegate - MissingTO" id="61d9f257-2c2c-4a70-af54-8b0b2c6994fd"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>addPersonDelegate</con:operation><con:request name="addPersonDelegate - MissingTO" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="8a508eab-47fe-4985-8440-4aa239f8742f"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inPersonDelegate>
+         <fromCustomerUniqueID>${#Project#Assisting}</fromCustomerUniqueID>
+         <toCustomerUniqueID></toCustomerUniqueID>
+      </per:inPersonDelegate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="59998314-364e-45e3-8886-37027e30c535"/><con:assertion type="XPath Match" name="XPath Match - statusCode" id="830920dc-bd59-407b-85e2-48b8120bfc85"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match  - message" id="42b56150-cf8a-4012-8e74-e0fdd8eb4e87"><con:configuration><path>//message</path><content>Delegate uniqueID may not be empty</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/addPersonDelegate"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPersonDelegate - MissingFROM" id="c9067634-f85d-4295-97b6-4d098056af03"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>addPersonDelegate</con:operation><con:request name="addPersonDelegate - MissingFROM" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="83fad426-71a0-4547-9975-f970fd30dbbb"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inPersonDelegate>
+         <fromCustomerUniqueID></fromCustomerUniqueID>
+         <toCustomerUniqueID>${#Project#Assisted}</toCustomerUniqueID>
+      </per:inPersonDelegate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="59998314-364e-45e3-8886-37027e30c535"/><con:assertion type="XPath Match" name="XPath Match - statusCode" id="a7591c4d-47d6-4eb9-8da0-e79d5c702286"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="21067857-0633-48b5-b4c3-380098bb6794"><con:configuration><path>//message</path><content>Person uniqueID may not be empty</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/addPersonDelegate"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPersonDelegate - InvalidTO" id="6c9361ea-a09b-4d22-b614-737806d6a5ad"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>addPersonDelegate</con:operation><con:request name="addPersonDelegate - InvalidTO" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="0a1975b1-51e8-4490-9671-ecace445f10b"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inPersonDelegate>
+         <fromCustomerUniqueID>${#Project#Assisting}</fromCustomerUniqueID>
+         <toCustomerUniqueID>invalidUser</toCustomerUniqueID>
+      </per:inPersonDelegate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="59998314-364e-45e3-8886-37027e30c535"/><con:assertion type="XPath Match" name="XPath Match - statusCode" id="123aa8fe-b723-45b9-89cc-75484d5a1bbd"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="90a4b26b-e93f-4da6-97dd-d20eb6b81a15"><con:configuration><path>//message</path><content>Delegate with 'invalidUser' uniqueID doesn't exist</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/addPersonDelegate"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="addPersonDelegate - InvalidFROM" id="1005bbe2-7e25-4325-8693-544131b2cc05"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>addPersonDelegate</con:operation><con:request name="addPersonDelegate - InvalidFROM" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="710b4a40-3a1f-4a9d-8d43-1d7a60432565"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inPersonDelegate>
+         <fromCustomerUniqueID>invalidUser</fromCustomerUniqueID>
+         <toCustomerUniqueID>${#Project#Assisted}</toCustomerUniqueID>
+      </per:inPersonDelegate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="59998314-364e-45e3-8886-37027e30c535"/><con:assertion type="XPath Match" name="XPath Match - statusCode" id="4b4f065d-55de-43ea-810c-c0e068a52314"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="33e0ee27-1b58-48ce-9e19-91793c4c7d02"><con:configuration/></con:assertion><con:assertion type="XPath Match" name="XPath Match - message" id="88e0475f-092f-4d79-bb1d-0bf504efeb0a"><con:configuration><path>//message</path><content>Person with 'invalidUser' uniqueID doesn't exist</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/addPersonDelegate"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="32c35257-cf8f-4604-a804-15e97152021f" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DeletePersonDelegate_Case" searchProperties="true"><con:settings/><con:testStep type="request" id="fc080636-b782-4b27-9856-08211518ff29" name="delPersonDelegate - Request 1"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>delPersonDelegate</con:operation><con:request name="delPersonDelegate - Request 1" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="0085d48f-eab3-42fe-944c-0c2e9596bb0b"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inPersonDelegateDelete>
+         <fromCustomerUniqueID>${#Project#Assisting}</fromCustomerUniqueID>
+         <toCustomerUniqueID>${#Project#Assisted}</toCustomerUniqueID>
+      </per:inPersonDelegateDelete>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="2c7bd8bf-43ca-48f7-a075-f02b60dd18d1" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="f8fb2258-6dde-4619-ab9c-bbbe368f1c12" name="Not SOAP Fault"/><con:assertion type="XPath Match" id="49c2bbdc-14e6-4208-9939-a66c6edee8c8" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="ef6aec30-b84a-44db-bd3d-7c12e916fdd3" name="SessionID"><con:configuration><path>//sessionId</path><content>${#Project#SessionID}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://person.ws.chromeriver.com/PersonService/delPersonDelegate"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DeletePerson_Case" searchProperties="true" id="2a947ce2-ff12-410b-bdef-ee642e433972"><con:settings/><con:testStep type="request" name="deletePerson" id="25c5067d-5692-4854-ae7f-cc41a5c84e9a"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>deletePerson</con:operation><con:request name="deletePerson" id="206a9593-8f40-458a-8997-7346b28f284f"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId/>
+            <userId/>
+            <password/>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inCustomerUniqueIdDelete>${#Project#customerUniqueID}</per:inCustomerUniqueIdDelete>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="70e6262d-833d-4dbf-97ea-20db98dab2a1"/><con:assertion type="XPath Match" id="b982abad-2f8d-4610-a77b-29cacc222a3b" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="getDetails of created person after delete" id="d52d8cfc-9f74-4f0f-b889-6fee60e50a59"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>getPersonDetails</con:operation><con:request name="getDetails of created person after delete" id="2166abe2-6e95-48d3-83ee-c8f35e055e04"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inCustomerUniqueId>${#Project#customerUniqueID}</per:inCustomerUniqueId>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match - statusCode" id="b6eba23a-0d0b-410e-b85b-2d77304c2c7c"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - firstName" id="389b7aae-d02d-4c54-9957-7e1b748f988d"><con:configuration><path>//firstName</path><content>${#Project#firstName}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - lastName" id="2622d5b7-f56e-47aa-8e7a-b102741fadf2"><con:configuration><path>//lastName</path><content>${#Project#lastName}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" name="XPath Match - SessionID Count" id="a4b4105b-6fc6-4e75-96c3-d1431c0d4a12"><con:configuration><path>count(//sessionId)</path><content>1</content><allowWildcards>true</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="8f8aea8e-1709-4cd0-aa83-23b0a46d8a51" name="XPath active"><con:configuration><path>//active</path><content>false</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://person.ws.chromeriver.com/PersonService/getPersonDetails" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="deletePerson-Invalid Person" id="5e3b0220-8b3d-4733-8b04-f659aaa8a28d"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>PersonServiceSoapBinding</con:interface><con:operation>deletePerson</con:operation><con:request name="deletePerson-Invalid Person" id="206a9593-8f40-458a-8997-7346b28f284f"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_PersonV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.ws.chromeriver.com/">
+   <soapenv:Header>
+      <per:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </per:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <per:inCustomerUniqueIdDelete>${#Project#customerUniqueID}_BAD</per:inCustomerUniqueIdDelete>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="70e6262d-833d-4dbf-97ea-20db98dab2a1"/><con:assertion type="XPath Match" id="2c197c12-bc67-45cc-b60a-edb51dd7f906" name="XPath Match"><con:configuration><path>//message</path><content>Person with customerUniqueID * does not exist.</content><allowWildcards>true</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties><con:property><con:name>Description</con:name><con:value>Tests related to creating/adding Persons</con:value></con:property></con:properties></con:testCase><con:properties/></con:testSuite><con:properties><con:property><con:name>customerUniqueID</con:name><con:value>0619160146291</con:value></con:property><con:property><con:name>alternateEmailAddress1</con:name><con:value>WS_1017194750279_alt@chromewallet.com</con:value></con:property><con:property><con:name>alternateEmailAddress3</con:name><con:value>WS_1017194750279_alt3@chromewallet.com</con:value></con:property><con:property><con:name>CompanyID</con:name><con:value>www.pbj.com</con:value></con:property><con:property><con:name>emailAddress</con:name><con:value>WS_1017194750279@chromewallet.com</con:value></con:property><con:property><con:name>Environment</con:name><con:value>Staging</con:value></con:property><con:property><con:name>lastName</con:name><con:value>WS_LastName</con:value></con:property><con:property><con:name>LoginUserName</con:name><con:value>pbjtest</con:value></con:property><con:property><con:name>Password</con:name><con:value>1river1</con:value></con:property><con:property><con:name>ProductionPassword</con:name><con:value>1river1</con:value></con:property><con:property><con:name>QAPassword</con:name><con:value>DTFVOg46xWOcyYG</con:value></con:property><con:property><con:name>SessionID</con:name><con:value>5132df9a-684f-4de0-8dda-fa085c0ac5bd</con:value></con:property><con:property><con:name>StagingPassword</con:name><con:value>1river1</con:value></con:property><con:property><con:name>url</con:name><con:value>staging-api</con:value></con:property><con:property><con:name>customerUniqueID</con:name><con:value>WS_1017194750279</con:value></con:property><con:property><con:name>UniqueID</con:name><con:value>chromeriver</con:value></con:property><con:property><con:name>userName</con:name><con:value>WS_1017194750279</con:value></con:property><con:property><con:name>alternateEmailAddress2</con:name><con:value>WS_1017194750279_alt2@chromewallet.com</con:value></con:property><con:property><con:name>firstName</con:name><con:value>WS_First Name</con:value></con:property><con:property><con:name>Assisting</con:name><con:value>WS_1017194750279</con:value></con:property><con:property><con:name>Assisted</con:name><con:value>traveluser</con:value></con:property></con:properties><con:wssContainer/><con:oAuth2ProfileContainer/><con:sensitiveInformation/></con:soapui-project>
