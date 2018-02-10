@@ -1,0 +1,1 @@
+pybot -d Results -i SAML -i SSO -i ADFS TestCases\*

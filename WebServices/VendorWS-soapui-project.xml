@@ -1,0 +1,956 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project id="8ba448bb-6ff8-4058-9112-063b0f211440" activeEnvironment="Default" name="VendorWS" resourceRoot="" soapui-version="5.2.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" id="c3507cd9-c519-41f8-9c5e-c755f391dabf" wsaVersion="NONE" name="VendorServiceSoapBinding" type="wsdl" bindingName="{http://vendor.ws.chromeriver.com/}VendorServiceSoapBinding" soapVersion="1_1" anonymous="optional" definition="https://staging-api.chromeriver.com/ws_VendorV1?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="https://staging-api.chromeriver.com/ws_VendorV1?wsdl"><con:part><con:url>https://staging-api.chromeriver.com/ws_VendorV1?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="VendorService" targetNamespace="http://vendor.ws.chromeriver.com/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://vendor.ws.chromeriver.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:documentation>The Chrome River Vendor Web Service fulfills requests from our customers to create or update invoice vendors or vendor addresses in the Chrome River system.
+
+To get started with Vendor Web Service, please submit a Chrome River Help Desk ticket. Our Implementation team will work with you to get everything set up and running.
+
+To access this service, use this Web Services Description Language (WSDL) file to generate the required client proxy classes: https://api.chromeriver.com/ws_VendorV1?wsdl
+
+Please also read this documentation to understand what it does and how to properly prepare requests.
+
+Logging In
+
+Each request to access this service must be authenticated via either login credentials or a session token. The Login Web Service may be used to submit the user's login information in a request consisting of companyID, userID, and password. The user will receive a token to submit with subsequent requests to other Chrome River Web Services, eliminating the need to provide the login information again. 
+
+While it is also possible to submit login information directly via the header of the Vendor Web Service, it is recommended that customers use the Login Web Service first to obtain a session token, and then submit this token in each subsequent request to the Vendor Service.
+
+Chrome River Vendor Web Service Overview
+
+Please use the following description as a reference, but do not hesitate to contact us at support@chromeriver.com should you run into problems or have questions.
+
+There are four operations exposed via the Vendor Web Service: createVendor, updateVendor, createVendorAddress, and updateVendorAddress. Each call either creates or updates a single invoice vendor or invoice vendor address in the Chrome River system for the requesting customer.
+
+Each call to an operation requires two input objects: the LoginCredentials object and the Vendor or VendorAddress object, depending on the operation. The former contains either the full login information or a session token, while the latter contains input parameter values (those that are optional may be omitted) required to complete the create or update request. 
+
+The service responds to a request with the MessageEnvelope object. In the event of a successful outcome, the envelope will contain the statusCode "ReturnStatusCode.SUCCESS." In the event of a failed outcome, the envelope will contain the statusCode "ReturnStatusCode.FAIL," along with a list of ValidationError objects detailing why the request was not successful. 
+
+Each ValidationError contains three pieces of information: the error code, the name of the error code, and a brief message explaining the error. For example, in a createVendor request, if the incoming vendorUniqueID already points to an existing vendor in our system, the response envelope will contain the ValidationError with error code "500," the name "ObjectExists," and the message "Vendor ABC already exists." (In this case, "ABC" is the vendorUniqueID submitted in the request.) 
+
+It is recommended that each error message be processed, the input be corrected, and the request be retried at a later time. Also note that each request is first authenticated before further processing, so that if the token or the login credentials are not valid, only a "9000/InvalidLogin" error or a "9001/InvalidSession" error will be returned in the response. For more information about login errors, please see the WSDL documentation for the Login Web Service.
+
+Not all of the parameters for the input Vendor and VendorAddress objects are required in all cases. If a parameter is not required, it may be omitted from the request. In such a case, it will take on the empty value in our system in a createVendor/createVendorAddress call. In an updateVendor/updateVendorAddress call, the corresponding value will not be updated in our system. 
+
+It is important to note that even when a parameter is required in a create call, if it is not required in an update call, it is marked as optional in the WSDL. Use the validation rules below to ensure no wrong assumptions are made in these cases (if a field is not documented as being required, then it is optional).
+
+Below are the parameters of the input Vendor object for the createVendor and updateVendor operations.
+
+=========
+Field: vendorUniqueId
+Description: Vendor's Unique ID
+---
+Constraint: in createVendor call, must not refer to an existing vendor
+Violation: input value refers to an existing vendor
+Error: 500/ObjectExists
+---
+Constraint: in updateVendor call, must refer to an existing vendor
+Violation: input value does not refer to an existing vendor
+Error: 501/ObjectMissing
+---
+Constraint: required
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: max length is 50
+Violation: input value is over 50 characters
+Error: 1005/IncorrectLength
+=========
+Field: vendorName
+Description: Vendor's Name
+---
+Constraint: required in createVendor call
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: optional in updateVendor call, but must not specify empty string
+Violation: input value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: max length is 200
+Violation: input value is over 200 characters
+Error: 1005/IncorrectLength
+=========
+Field: status
+Description: Status of the Vendor (active or inactive); legal values are ACT or INAC
+---
+Constraint: required in createVendor call
+Violation: missing from input
+Error: 1002/InvalidStatus
+=========
+Field: UDF1/UDF2/UDF3/UDF4/UDF5
+Description: Used for additional customer defined fields
+---
+Constraint: max length is 100
+Violation: input value is over 100 characters
+Error: 1005/IncorrectLength
+=========
+
+Below are the parameters of the input VendorAddress object for the createVendorAddress and updateVendorAddress operations.
+
+=========
+Field: vendorUniqueId
+---
+Constraint: must refer to an existing vendor
+Violation: input value does not refer to an existing vendor
+Error: 501/ObjectMissing
+=========
+Field: vendorAddressUniqueId
+Description: Vendor Address Unique ID
+---
+Constraint: in createVendorAddress call, must not refer to an existing vendor address
+Violation: input value refers to an existing vendor address
+Error: 500/ObjectExists
+---
+Constraint: in updateVendorAddress call, must refer to an existing vendor address
+Violation: input value does not refer to an existing vendor address
+Error: 501/ObjectMissing
+---
+Constraint: required
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: max length is 50
+Violation: input value is over 50 characters
+Error: 1005/IncorrectLength
+=========
+Field: vendorAddressName
+Description: Vendor Address Name
+---
+Constraint: required in createVendorAddress call
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: optional in updateVendorAddress call, but must not specify empty string
+Violation: input value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: max length is 200
+Violation: input value is over 200 characters
+Error: 1005/IncorrectLength
+=========
+Field: status
+Description: Status of the Vendor Address (active or inactive)
+---
+Constraint: required in createVendorAddress call; legal values are ACT or INAC
+Violation: missing from input
+Error: 1002/InvalidStatus
+=========
+Field: currencyCode
+Description: Currency Code; format: ISO-4217 as supported by www.xe.com
+---
+Constraint: required in createVendorAddress call
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: optional in updateVendorAddress call, but must not specify empty string
+Violation: input value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: must be a valid currency code (e.g. USD)
+Violation: input value is not a valid currency code
+Error: 2001/InvalidCurrencyCode
+=========
+Field: addressDescription1
+Description: First Line of Address
+---
+Constraint: max length is 100
+Violation: input value is over 100 characters
+Error: 1005/IncorrectLength
+=========
+Field: addressDescription2
+Description: Second Line of Address
+---
+Constraint: max length is 100
+Violation: input value is over 100 characters
+Error: 1005/IncorrectLength
+=========
+Field: city
+Description: City
+---
+Constraint: max length is 200
+Violation: input value is over 200 characters
+Error: 1005/IncorrectLength
+=========
+Field: stateProvince
+Description: State or Province
+---
+Constraint: max length is 120
+Violation: input value is over 120 characters
+Error: 1005/IncorrectLength
+=========
+Field: zipPostCode
+Description: Zip Code or Postal Code
+---
+Constraint: max length is 25
+Violation: input value is over 25 characters
+Error: 1005/IncorrectLength
+=========
+Field: country
+Description: Country
+---
+Constraint: max length is 50
+Violation: input value is over 50 characters
+Error: 1005/IncorrectLength
+=========
+Field: phoneNumber
+Description: Phone Number (e.g., 310-234-8889)
+---
+Constraint: max length is 50
+Violation: input value is over 50 characters
+Error: 1005/IncorrectLength
+=========
+Field: defaultTaxCode1
+Description: default Vendor Address tax code (e.g. VAT tax code). Note: Values in this field are validated against a table of Tax Codes that must be set up first.
+---
+Constraint: value must match an active parent tax code previously set up in our database table
+Violation: invalid input
+Error: 2006/InvalidTaxCode
+=========
+Field: defaultTaxCode2
+Description: default Vendor Address tax code. Note: Values in this field are NOT validated against a table of Tax Codes; this field is just treated as text.
+---
+Constraint: max length is 50
+Violation: input value is over 50 characters
+Error: 1005/IncorrectLength
+=========
+Field: bankCode
+Description: Bank Code
+---
+Constraint: max length is 10
+Violation: input value is over 10 characters
+Error: 1005/IncorrectLength
+=========
+Field: UDF1/UDF2/UDF3/UDF4/UDF5
+Description: Used for additional customer defined fields
+---
+Constraint: max length is 100
+Violation: input value is over 100 characters
+Error: 1005/IncorrectLength
+
+For more information about this and other Chrome River Web Services, please contact us at support@chromeriver.com.</wsdl:documentation>
+  <wsdl:types>
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://vendor.ws.chromeriver.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:complexType name="Payload">
+        <xs:sequence/>
+      </xs:complexType>
+      <xs:complexType name="Vendor">
+        <xs:complexContent>
+          <xs:extension base="tns:Payload">
+            <xs:sequence>
+              <xs:element name="vendorUniqueId" type="xs:string"/>
+              <xs:element minOccurs="0" name="vendorName" type="xs:string"/>
+              <xs:element minOccurs="0" name="status" type="tns:vendorStatus"/>
+              <xs:element minOccurs="0" name="UDF1" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF2" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF3" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF4" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF5" type="xs:string"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="loginCredentials">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="token" type="xs:string"/>
+          <xs:element minOccurs="0" name="user" type="tns:userLoginInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="userLoginInfo">
+        <xs:sequence>
+          <xs:element name="companyId" type="xs:string"/>
+          <xs:element name="userId" type="xs:string"/>
+          <xs:element name="password" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="MessageEnvelope">
+        <xs:sequence>
+          <xs:element name="statusCode" type="tns:returnStatusCode"/>
+          <xs:element minOccurs="0" name="sessionId" type="xs:string"/>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="validationError" type="tns:ValidationError"/>
+          <xs:element minOccurs="0" name="webServicePayload" type="tns:Payload"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ValidationError">
+        <xs:sequence>
+          <xs:element name="code" type="xs:string"/>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element minOccurs="0" name="message" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="VendorAddress">
+        <xs:complexContent>
+          <xs:extension base="tns:Payload">
+            <xs:sequence>
+              <xs:element name="vendorUniqueId" type="xs:string"/>
+              <xs:element name="vendorAddressUniqueId" type="xs:string"/>
+              <xs:element minOccurs="0" name="vendorAddressName" type="xs:string"/>
+              <xs:element minOccurs="0" name="status" type="tns:addressStatus"/>
+              <xs:element name="currencyCode" type="xs:string"/>
+              <xs:element minOccurs="0" name="addressDescription1" type="xs:string"/>
+              <xs:element minOccurs="0" name="addressDescription2" type="xs:string"/>
+              <xs:element minOccurs="0" name="city" type="xs:string"/>
+              <xs:element minOccurs="0" name="stateProvince" type="xs:string"/>
+              <xs:element minOccurs="0" name="zipPostCode" type="xs:string"/>
+              <xs:element minOccurs="0" name="country" type="xs:string"/>
+              <xs:element minOccurs="0" name="phoneNumber" type="xs:string"/>
+              <xs:element minOccurs="0" name="defaultTaxCode1" type="xs:string"/>
+              <xs:element minOccurs="0" name="defaultTaxCode2" type="xs:string"/>
+              <xs:element minOccurs="0" name="bankCode" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF1" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF2" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF3" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF4" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF5" type="xs:string"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:simpleType name="vendorStatus">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="ACT"/>
+          <xs:enumeration value="INAC"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="returnStatusCode">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="FAIL"/>
+          <xs:enumeration value="SUCCESS"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="addressStatus">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="ACT"/>
+          <xs:enumeration value="INAC"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:element name="credentials" nillable="true" type="tns:loginCredentials"/>
+      <xs:element name="inVendorUpdate" nillable="true" type="tns:Vendor"/>
+      <xs:element name="updateVendorResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inVendorAddressCreate" nillable="true" type="tns:VendorAddress"/>
+      <xs:element name="createVendorAddressResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inVendorAddressUpdate" nillable="true" type="tns:VendorAddress"/>
+      <xs:element name="updateVendorAddressResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inVendorCreate" nillable="true" type="tns:Vendor"/>
+      <xs:element name="createVendorResponse" nillable="true" type="tns:MessageEnvelope"/>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="createVendor">
+    <wsdl:part element="tns:inVendorCreate" name="inVendorCreate"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createVendorAddressResponse">
+    <wsdl:part element="tns:createVendorAddressResponse" name="createVendorAddressResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateVendor">
+    <wsdl:part element="tns:inVendorUpdate" name="inVendorUpdate"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateVendorAddressResponse">
+    <wsdl:part element="tns:updateVendorAddressResponse" name="updateVendorAddressResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateVendorAddress">
+    <wsdl:part element="tns:inVendorAddressUpdate" name="inVendorAddressUpdate"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createVendorAddress">
+    <wsdl:part element="tns:inVendorAddressCreate" name="inVendorAddressCreate"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createVendorResponse">
+    <wsdl:part element="tns:createVendorResponse" name="createVendorResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateVendorResponse">
+    <wsdl:part element="tns:updateVendorResponse" name="updateVendorResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="VendorService">
+    <wsdl:operation name="updateVendor">
+      <wsdl:input message="tns:updateVendor" name="updateVendor"></wsdl:input>
+      <wsdl:output message="tns:updateVendorResponse" name="updateVendorResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createVendorAddress">
+      <wsdl:input message="tns:createVendorAddress" name="createVendorAddress"></wsdl:input>
+      <wsdl:output message="tns:createVendorAddressResponse" name="createVendorAddressResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateVendorAddress">
+      <wsdl:input message="tns:updateVendorAddress" name="updateVendorAddress"></wsdl:input>
+      <wsdl:output message="tns:updateVendorAddressResponse" name="updateVendorAddressResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createVendor">
+      <wsdl:input message="tns:createVendor" name="createVendor"></wsdl:input>
+      <wsdl:output message="tns:createVendorResponse" name="createVendorResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="VendorServiceSoapBinding" type="tns:VendorService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="updateVendor">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="updateVendor">
+        <soap:header message="tns:updateVendor" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inVendorUpdate" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="updateVendorResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createVendorAddress">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createVendorAddress">
+        <soap:header message="tns:createVendorAddress" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inVendorAddressCreate" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createVendorAddressResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateVendorAddress">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="updateVendorAddress">
+        <soap:header message="tns:updateVendorAddress" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inVendorAddressUpdate" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="updateVendorAddressResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createVendor">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createVendor">
+        <soap:header message="tns:createVendor" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inVendorCreate" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createVendorResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="VendorService">
+    <wsdl:port binding="tns:VendorServiceSoapBinding" name="VendorServicePort">
+      <soap:address location="https://staging-api.chromeriver.com/ws_VendorV1"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>https://staging-api.chromeriver.com/ws_VendorV1</con:endpoint></con:endpoints><con:operation id="f3544e76-dded-4099-a4bf-1690ea6e7e6c" isOneWay="false" action="" name="createVendor" bindingOperationName="createVendor" type="Request-Response" outputName="createVendorResponse" inputName="createVendor" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="c2675cfa-9b5a-46a5-96b5-f5bfc1d6f044" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_VendorV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ven="http://vendor.ws.chromeriver.com/">
+   <soapenv:Header>
+      <ven:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ven:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ven:inVendorCreate>
+         <vendorUniqueId>?</vendorUniqueId>
+         <!--Optional:-->
+         <vendorName>?</vendorName>
+         <!--Optional:-->
+         <status>?</status>
+         <!--Optional:-->
+         <UDF1>?</UDF1>
+         <!--Optional:-->
+         <UDF2>?</UDF2>
+         <!--Optional:-->
+         <UDF3>?</UDF3>
+         <!--Optional:-->
+         <UDF4>?</UDF4>
+         <!--Optional:-->
+         <UDF5>?</UDF5>
+      </ven:inVendorCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://vendor.ws.chromeriver.com/VendorService/createVendor"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation id="53bed8bc-292b-4541-8cba-d30f531655c8" isOneWay="false" action="" name="createVendorAddress" bindingOperationName="createVendorAddress" type="Request-Response" outputName="createVendorAddressResponse" inputName="createVendorAddress" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="3441a537-efbe-41db-a64c-62f69d1ec18d" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_VendorV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ven="http://vendor.ws.chromeriver.com/">
+   <soapenv:Header>
+      <ven:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ven:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ven:inVendorAddressCreate>
+         <vendorUniqueId>?</vendorUniqueId>
+         <vendorAddressUniqueId>?</vendorAddressUniqueId>
+         <!--Optional:-->
+         <vendorAddressName>?</vendorAddressName>
+         <!--Optional:-->
+         <status>?</status>
+         <currencyCode>?</currencyCode>
+         <!--Optional:-->
+         <addressDescription1>?</addressDescription1>
+         <!--Optional:-->
+         <addressDescription2>?</addressDescription2>
+         <!--Optional:-->
+         <city>?</city>
+         <!--Optional:-->
+         <stateProvince>?</stateProvince>
+         <!--Optional:-->
+         <zipPostCode>?</zipPostCode>
+         <!--Optional:-->
+         <country>?</country>
+         <!--Optional:-->
+         <phoneNumber>?</phoneNumber>
+         <!--Optional:-->
+         <defaultTaxCode1>?</defaultTaxCode1>
+         <!--Optional:-->
+         <defaultTaxCode2>?</defaultTaxCode2>
+         <!--Optional:-->
+         <bankCode>?</bankCode>
+         <!--Optional:-->
+         <UDF1>?</UDF1>
+         <!--Optional:-->
+         <UDF2>?</UDF2>
+         <!--Optional:-->
+         <UDF3>?</UDF3>
+         <!--Optional:-->
+         <UDF4>?</UDF4>
+         <!--Optional:-->
+         <UDF5>?</UDF5>
+      </ven:inVendorAddressCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://vendor.ws.chromeriver.com/VendorService/createVendorAddress"/></con:call></con:operation><con:operation id="d61fe83a-9c3b-431e-9ea6-d31623aa3754" isOneWay="false" action="" name="updateVendor" bindingOperationName="updateVendor" type="Request-Response" outputName="updateVendorResponse" inputName="updateVendor" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="7a7c8b3b-c5a8-424c-a6ff-ebf3fe046b48" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_VendorV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ven="http://vendor.ws.chromeriver.com/">
+   <soapenv:Header>
+      <ven:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ven:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ven:inVendorUpdate>
+         <vendorUniqueId>?</vendorUniqueId>
+         <!--Optional:-->
+         <vendorName>?</vendorName>
+         <!--Optional:-->
+         <status>?</status>
+         <!--Optional:-->
+         <UDF1>?</UDF1>
+         <!--Optional:-->
+         <UDF2>?</UDF2>
+         <!--Optional:-->
+         <UDF3>?</UDF3>
+         <!--Optional:-->
+         <UDF4>?</UDF4>
+         <!--Optional:-->
+         <UDF5>?</UDF5>
+      </ven:inVendorUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://vendor.ws.chromeriver.com/VendorService/updateVendor"/></con:call></con:operation><con:operation id="3b58bcf7-65c8-4f90-bd9d-d2781c2bccee" isOneWay="false" action="" name="updateVendorAddress" bindingOperationName="updateVendorAddress" type="Request-Response" outputName="updateVendorAddressResponse" inputName="updateVendorAddress" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="0d1b7ea9-a028-4ce6-9c15-bafb2bff71a6" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_VendorV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ven="http://vendor.ws.chromeriver.com/">
+   <soapenv:Header>
+      <ven:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ven:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ven:inVendorAddressUpdate>
+         <vendorUniqueId>?</vendorUniqueId>
+         <vendorAddressUniqueId>?</vendorAddressUniqueId>
+         <!--Optional:-->
+         <vendorAddressName>?</vendorAddressName>
+         <!--Optional:-->
+         <status>?</status>
+         <currencyCode>?</currencyCode>
+         <!--Optional:-->
+         <addressDescription1>?</addressDescription1>
+         <!--Optional:-->
+         <addressDescription2>?</addressDescription2>
+         <!--Optional:-->
+         <city>?</city>
+         <!--Optional:-->
+         <stateProvince>?</stateProvince>
+         <!--Optional:-->
+         <zipPostCode>?</zipPostCode>
+         <!--Optional:-->
+         <country>?</country>
+         <!--Optional:-->
+         <phoneNumber>?</phoneNumber>
+         <!--Optional:-->
+         <defaultTaxCode1>?</defaultTaxCode1>
+         <!--Optional:-->
+         <defaultTaxCode2>?</defaultTaxCode2>
+         <!--Optional:-->
+         <bankCode>?</bankCode>
+         <!--Optional:-->
+         <UDF1>?</UDF1>
+         <!--Optional:-->
+         <UDF2>?</UDF2>
+         <!--Optional:-->
+         <UDF3>?</UDF3>
+         <!--Optional:-->
+         <UDF4>?</UDF4>
+         <!--Optional:-->
+         <UDF5>?</UDF5>
+      </ven:inVendorAddressUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://vendor.ws.chromeriver.com/VendorService/updateVendorAddress"/></con:call></con:operation></con:interface><con:interface xsi:type="con:WsdlInterface" id="a403cee1-05d2-4b4a-94d0-eadd4a4bb7a0" wsaVersion="NONE" name="LoginServiceSoapBinding" type="wsdl" bindingName="{http://login.ws.chromeriver.com/}LoginServiceSoapBinding" soapVersion="1_1" anonymous="optional" definition="https://staging-api.chromeriver.com/ws_LoginV1?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="https://staging-api.chromeriver.com/ws_LoginV1?wsdl"><con:part><con:url>https://staging-api.chromeriver.com/ws_LoginV1?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="LoginService" targetNamespace="http://login.ws.chromeriver.com/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://login.ws.chromeriver.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:documentation>The Chrome River Login Web Service fulfills requests from our customers to log in to our Web Services platform.
+
+To get started with Chrome River Web Services, please submit a Chrome River Help Desk ticket. Our Implementation team will work with you to get everything set up and running.
+
+To access this service, use this Web Services Description Language (WSDL) file to generate the required client proxy classes: https://api.chromeriver.com/ws_LoginV1?wsdl
+
+Please also read this documentation to understand what it does and how to properly prepare requests.
+
+Logging In
+
+Each request to access a Chrome River Web Service must be authenticated via either login credentials or a session token. The Login Web Service may be used to submit the user's login information in a request consisting of companyID, userID, and password. The user will receive a token to submit with subsequent requests to other Chrome River Web Services, eliminating the need to provide the login information again. 
+
+While it is also possible to submit login information directly via the header of every Chrome River Web Service, it is recommended that customers use the Login Web Service first to obtain a session token, and then submit this token in each subsequent request to the other services.
+
+Chrome River Login Web Service Overview
+
+Only one operation is exposed via the Login Web Service: createSession. The purpose of this operation is to submit login credentials and get in response a session token used to access other Chrome River Web Services. The token will renew each time it is used in a request. It will expire after 30 minutes of inactivity, at which point a new token must be acquired by resubmitting the login credentials to this service.
+
+Each call to the createSession operation requires the LoginCredentials input object, which contains two parameters: token and user. This object is actually a shared input across all Chrome River Web Services. In services other than the Login Service, the token parameter is used to submit the session ID along with the rest of the request. In the Login Service, use the user parameter to set the required login credentials: companyID, userID, and password. 
+
+The service responds to a request with the MessageEnvelope object. In the event of a successful outcome, the envelope will contain the statusCode "ReturnStatusCode.SUCCESS," along with a session token in the sessionID field. In the event of a failed outcome, the envelope will contain the statusCode "ReturnStatusCode.FAIL," along with a list of ValidationError objects detailing why the request was not successful. Each ValidationError contains three pieces of information: the error code, the name of the error code, and a brief message explaining the error.
+
+In the Login Service there are two possible error scenarios: 
+
+1. Invalid Login
+=====================
+Description: The credentials provided do not match a valid record in our system.
+Error Code: 9000
+Error Name: InvalidLogin
+Error Message: Invalid login information
+Resolution: Double-check that the companyID, userID, and password match those provided to you previously by Chrome River.
+
+2. Invalid Session
+=====================
+Description: The token provided is not valid or has expired.
+Error Code: 9001
+Error Name: InvalidSession
+Error Message: No session, or session no longer valid.
+Resolution: Log in again with full credentials to obtain a new and valid session token.
+
+For more information about this and other Chrome River Web Services, please contact us at support@chromeriver.com.</wsdl:documentation>
+  <wsdl:types>
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://login.ws.chromeriver.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:complexType name="loginCredentials">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="token" type="xs:string"/>
+          <xs:element minOccurs="0" name="user" type="tns:userLoginInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="userLoginInfo">
+        <xs:sequence>
+          <xs:element name="companyId" type="xs:string"/>
+          <xs:element name="userId" type="xs:string"/>
+          <xs:element name="password" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="MessageEnvelope">
+        <xs:sequence>
+          <xs:element name="statusCode" type="tns:returnStatusCode"/>
+          <xs:element minOccurs="0" name="sessionId" type="xs:string"/>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="validationError" type="tns:ValidationError"/>
+          <xs:element minOccurs="0" name="webServicePayload" type="tns:Payload"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ValidationError">
+        <xs:sequence>
+          <xs:element name="code" type="xs:string"/>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element minOccurs="0" name="message" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Payload">
+        <xs:sequence/>
+      </xs:complexType>
+      <xs:simpleType name="returnStatusCode">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="FAIL"/>
+          <xs:enumeration value="SUCCESS"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:element name="loginCredentials" nillable="true" type="tns:loginCredentials"/>
+      <xs:element name="createSessionResponse" nillable="true" type="tns:MessageEnvelope"/>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="createSessionResponse">
+    <wsdl:part element="tns:createSessionResponse" name="createSessionResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createSession">
+    <wsdl:part element="tns:loginCredentials" name="loginCredentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="Login">
+    <wsdl:operation name="createSession">
+      <wsdl:input message="tns:createSession" name="createSession"></wsdl:input>
+      <wsdl:output message="tns:createSessionResponse" name="createSessionResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="LoginServiceSoapBinding" type="tns:Login">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="createSession">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createSession">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createSessionResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="LoginService">
+    <wsdl:port binding="tns:LoginServiceSoapBinding" name="LoginPort">
+      <soap:address location="https://staging-api.chromeriver.com/ws_LoginV1"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>https://staging-api.chromeriver.com/ws_LoginV1</con:endpoint></con:endpoints><con:operation id="6b7ce4d0-3e92-4399-9356-052cb1520056" isOneWay="false" action="" name="createSession" bindingOperationName="createSession" type="Request-Response" outputName="createSessionResponse" inputName="createSession" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="f24614e8-b935-4ca7-bd16-8da682e51e58" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_LoginV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:log="http://login.ws.chromeriver.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <log:loginCredentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </log:loginCredentials>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://login.ws.chromeriver.com/Login/createSession"/></con:call></con:operation></con:interface><con:testSuite id="d223023a-8f83-41aa-8b9f-8f856cbcb570" name="VendorWS_Suite"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="6a10657b-ad45-46a1-b64a-27ca9d2a7950" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Login_Case" searchProperties="true"><con:settings/><con:testStep type="groovy" name="setLoginVariables" id="092aa80a-5af7-4f9b-8004-4e3b97a7492e"><con:settings/><con:config><script>import soapUI.*
+
+def baseHost = com.eviware.soapui.SoapUI.globalProperties.getPropertyValue("basehost");
+
+if ( baseHost == 'api.chromeriver.com' ){
+	testRunner.testCase.testSuite.project.setPropertyValue("Environment","Production");
+	
+} else if ( baseHost == 'qa-api.chromeriver.com' ){
+	testRunner.testCase.testSuite.project.setPropertyValue("Environment","QA");
+	
+} else {
+	// baseHost == staging-api.chromeriver.com
+	testRunner.testCase.testSuite.project.setPropertyValue("Environment","Staging");
+}
+
+def env = testRunner.testCase.testSuite.project.getPropertyValue("Environment");
+def password = testRunner.testCase.testSuite.project.getPropertyValue("Password");
+
+
+if(env == "Staging"){
+	def stagingPassword = new java.util.Properties();
+	stagingPassword = testRunner.testCase.testSuite.project.getPropertyValue("StagingPassword");
+	testRunner.testCase.testSuite.project.setPropertyValue( "Password", stagingPassword);
+	
+} else if(env == "QA"){
+	def QAPassword = new java.util.Properties();
+	QAPassword = testRunner.testCase.testSuite.project.getPropertyValue("QAPassword");
+	testRunner.testCase.testSuite.project.setPropertyValue( "Password", QAPassword);
+} else if(env == "Production"){
+	def ProductionPassword = new java.util.Properties();
+	ProductionPassword = testRunner.testCase.testSuite.project.getPropertyValue("ProductionPassword");
+	testRunner.testCase.testSuite.project.setPropertyValue( "Password", ProductionPassword);
+} else {
+	testRunner.cancel( "Invalid Environment : " + env ) 
+}</script></con:config></con:testStep><con:testStep type="request" name="LoginRequest" id="004dc4f1-8787-4020-b567-a0fd3fa91fbe"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>LoginServiceSoapBinding</con:interface><con:operation>createSession</con:operation><con:request name="LoginRequest" id="51ee5cab-add4-48bd-867c-dc337e88efc9"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_LoginV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:log="http://login.ws.chromeriver.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <log:loginCredentials>
+         <user>
+            <companyId>${#Project#CompanyID}</companyId>
+            <userId>${#Project#LoginUserName}</userId>
+            <password>${#Project#Password}</password>
+         </user>
+      </log:loginCredentials>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="9aae2222-6db8-4f92-b4c1-641f6e1e0222"/><con:assertion type="XPath Match" id="17bd612a-8ecf-442d-922f-73bd281d93ff" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="transfer" name="Property Transfer" id="c50717e1-f86a-4660-95f8-86ec1c7338dc"><con:settings/><con:config xsi:type="con:PropertyTransfersStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:transfers setNullOnMissingSource="true" transferTextContent="true" failOnError="true" ignoreEmpty="false" transferToAll="false" entitize="false" transferChildNodes="false"><con:name>SessionID</con:name><con:sourceType>Response</con:sourceType><con:sourceStep>LoginRequest</con:sourceStep><con:sourcePath>//sessionId</con:sourcePath><con:targetType>SessionID</con:targetType><con:targetStep>#Project#</con:targetStep><con:upgraded>true</con:upgraded></con:transfers></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="c0da9549-0f00-494b-a5b6-cfb560db2863" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="CreateVendor_Case" searchProperties="true"><con:settings/><con:testStep type="groovy" name="TestData - Vendor Create" id="d821b2e7-aa18-40ba-88ea-e83dd942515f"><con:settings/><con:config><script>import soapUI.*
+import java.text.SimpleDateFormat
+
+//get new Vendor Data 
+def today = new Date()
+newVendor = new SimpleDateFormat("MMddHHmmssSS");
+
+//set the vendor Properties with the new info returned from SoapUITestData
+testRunner.testCase.testSuite.project.setPropertyValue( "VendorID", "WS_" + newVendor.format(today));
+</script></con:config></con:testStep><con:testStep type="request" id="961d10ca-c071-4189-bd26-64c5fcee9c1c" name="createVendor_Request"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>VendorServiceSoapBinding</con:interface><con:operation>createVendor</con:operation><con:request name="createVendor_Request" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="26170956-b200-4a24-aec7-2f0cac5227ea"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;entry key="SOAPAction" value="TM_CR_LOGIN" xmlns="http://eviware.com/soapui/config"/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_VendorV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ven="http://vendor.ws.chromeriver.com/">
+   <soapenv:Header>
+      <ven:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ven:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ven:inVendorCreate>
+         <vendorUniqueId>${#Project#VendorID}</vendorUniqueId>
+         <!--Optional:-->
+         <vendorName>WebService &amp; Testing</vendorName>
+         <!--Optional:-->
+         <status>ACT</status>
+         <!--Optional:-->
+         <UDF1>?</UDF1>
+         <!--Optional:-->
+         <UDF2>?</UDF2>
+         <!--Optional:-->
+         <UDF3>?</UDF3>
+         <!--Optional:-->
+         <UDF4>?</UDF4>
+         <!--Optional:-->
+         <UDF5>?</UDF5>
+      </ven:inVendorCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="467c0c0c-98cf-41c2-a542-50acd733c2d1" name="SOAP Response"/><con:assertion type="XPath Match" id="24133963-71b1-402e-a74d-dc064fea09b5" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://vendor.ws.chromeriver.com/VendorService/createVendor"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="301924a4-470c-44ff-bc80-a34f555014fc" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="CreateVendorAddress_Case" searchProperties="true"><con:settings/><con:testStep type="request" id="2d41f277-a5c3-43d7-b184-18438b221d4d" name="createVendorAddress_Request"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>VendorServiceSoapBinding</con:interface><con:operation>createVendorAddress</con:operation><con:request name="createVendorAddress_Request" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="89bcc734-c487-48cf-963e-013bbb4f752e"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_VendorV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ven="http://vendor.ws.chromeriver.com/">
+   <soapenv:Header>
+      <ven:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ven:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ven:inVendorAddressCreate>
+         <vendorUniqueId>${#Project#VendorID}</vendorUniqueId>
+         <vendorAddressUniqueId>${#Project#VendorAddressID}</vendorAddressUniqueId>
+         <!--Optional:-->
+         <vendorAddressName>WSTest Vendor Address</vendorAddressName>
+         <!--Optional:-->
+         <status>ACT</status>
+         <currencyCode>USD</currencyCode>
+         <!--Optional:-->
+         <addressDescription1>Address Description 1</addressDescription1>
+         <!--Optional:-->
+         <addressDescription2>Address Description 2</addressDescription2>
+         <!--Optional:-->
+         <city>Los Angeles</city>
+         <!--Optional:-->
+         <stateProvince>CA</stateProvince>
+         <!--Optional:-->
+         <zipPostCode>90036</zipPostCode>
+         <!--Optional:-->
+         <country>?</country>
+         <!--Optional:-->
+         <phoneNumber>818-000-1234</phoneNumber>
+         <!--Optional:-->
+         <defaultTaxCode1></defaultTaxCode1>
+         <!--Optional:-->
+         <defaultTaxCode2></defaultTaxCode2>
+         <!--Optional:-->
+         <bankCode>?</bankCode>
+         <!--Optional:-->
+         <UDF1></UDF1>
+         <!--Optional:-->
+         <UDF2></UDF2>
+         <!--Optional:-->
+         <UDF3></UDF3>
+         <!--Optional:-->
+         <UDF4></UDF4>
+         <!--Optional:-->
+         <UDF5></UDF5>
+      </ven:inVendorAddressCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="863d1d32-5c65-484d-a287-1d8f7151bca6" name="SOAP Response"/><con:assertion type="XPath Match" id="e35dafb4-13d6-4c3c-9af8-cadf88c1f667" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://vendor.ws.chromeriver.com/VendorService/createVendorAddress"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="1fa2daf9-cf35-47d5-ab0e-9a630e4f05d9" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="UpdateVendorAddress_Case" searchProperties="true"><con:settings/><con:testStep type="request" id="298caa00-0454-4fe6-9357-7e5466c22cf5" name="updateVendorAddress_Request"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>VendorServiceSoapBinding</con:interface><con:operation>updateVendorAddress</con:operation><con:request name="updateVendorAddress_Request" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="28a873be-2fd0-4a77-a872-b62370cd91ac"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_VendorV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ven="http://vendor.ws.chromeriver.com/">
+   <soapenv:Header>
+      <ven:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ven:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ven:inVendorAddressUpdate>
+         <vendorUniqueId>${#Project#VendorID}</vendorUniqueId>
+         <vendorAddressUniqueId>${#Project#VendorAddressID}</vendorAddressUniqueId>
+         <!--Optional:-->
+         <vendorAddressName>Updated Vendor Address</vendorAddressName>
+         <!--Optional:-->
+         <status>DEL</status>
+         <currencyCode>USD</currencyCode>
+         <!--Optional:-->
+         <addressDescription1></addressDescription1>
+         <!--Optional:-->
+         <addressDescription2></addressDescription2>
+         <!--Optional:-->
+         <city></city>
+         <!--Optional:-->
+         <stateProvince></stateProvince>
+         <!--Optional:-->
+         <zipPostCode></zipPostCode>
+         <!--Optional:-->
+         <country>?</country>
+         <!--Optional:-->
+         <phoneNumber></phoneNumber>
+         <!--Optional:-->
+         <defaultTaxCode1></defaultTaxCode1>
+         <!--Optional:-->
+         <defaultTaxCode2></defaultTaxCode2>
+         <!--Optional:-->
+         <bankCode></bankCode>
+         <!--Optional:-->
+         <UDF1></UDF1>
+         <!--Optional:-->
+         <UDF2></UDF2>
+         <!--Optional:-->
+         <UDF3></UDF3>
+         <!--Optional:-->
+         <UDF4></UDF4>
+         <!--Optional:-->
+         <UDF5></UDF5>
+      </ven:inVendorAddressUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="d47e0053-8872-4799-97ba-2f819d9bb745" name="SOAP Response"/><con:assertion type="XPath Match" id="92137d6d-9cb1-4edf-9d4f-bddc065f3d33" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://vendor.ws.chromeriver.com/VendorService/updateVendorAddress"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="9554d042-ec9e-446f-b5e1-d8e50ad38628" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="UpdateVendor_Case" searchProperties="true"><con:settings/><con:testStep type="request" id="676eb345-8dba-4388-bba0-f1cb0501845b" name="updateVendor_Request"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>VendorServiceSoapBinding</con:interface><con:operation>updateVendor</con:operation><con:request name="updateVendor_Request" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="88593c31-6662-4aba-8c1b-d445cf81a4bb"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Global#basehost}/ws_VendorV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ven="http://vendor.ws.chromeriver.com/">
+   <soapenv:Header>
+      <ven:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </ven:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ven:inVendorUpdate>
+         <vendorUniqueId>${#Project#VendorID}</vendorUniqueId>
+         <!--Optional:-->
+         <vendorName>Update Vendor Name</vendorName>
+         <!--Optional:-->
+         <status>DEL</status>
+         <!--Optional:-->
+         <UDF1>?</UDF1>
+         <!--Optional:-->
+         <UDF2>?</UDF2>
+         <!--Optional:-->
+         <UDF3>?</UDF3>
+         <!--Optional:-->
+         <UDF4>?</UDF4>
+         <!--Optional:-->
+         <UDF5>?</UDF5>
+      </ven:inVendorUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="88381633-5cce-4b45-80a9-9c107a25f235" name="SOAP Response"/><con:assertion type="XPath Match" id="2d94422c-a0dd-4a4c-958b-4231f1ab297a" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://vendor.ws.chromeriver.com/VendorService/updateVendor"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:properties/></con:testSuite><con:properties><con:property><con:name>LoginUserName</con:name><con:value>pbjtest</con:value></con:property><con:property><con:name>Password</con:name><con:value>1river1</con:value></con:property><con:property><con:name>StagingPassword</con:name><con:value>1river1</con:value></con:property><con:property><con:name>QAPassword</con:name><con:value>DTFVOg46xWOcyYG</con:value></con:property><con:property><con:name>ProductionPassword</con:name><con:value>1river1</con:value></con:property><con:property><con:name>CompanyID</con:name><con:value>www.pbj.com</con:value></con:property><con:property><con:name>Environment</con:name><con:value>Staging</con:value></con:property><con:property><con:name>SessionID</con:name><con:value>f9bee138-d486-4560-b76d-7f9fafcae632</con:value></con:property><con:property><con:name>VendorID</con:name><con:value>WS_1017194735269</con:value></con:property><con:property><con:name>VendorAddressID</con:name><con:value>1</con:value></con:property></con:properties><con:wssContainer/><con:oAuth2ProfileContainer/><con:sensitiveInformation/></con:soapui-project>

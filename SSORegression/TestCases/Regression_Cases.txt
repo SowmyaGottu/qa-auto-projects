@@ -1,0 +1,21 @@
+*** Settings ***
+Documentation  Regression Test Cases :: SAML SSO Toyota
+Test Teardown     Close Browser
+Resource  ../Resources/Resource.txt
+
+*** Test Cases ***
+Deleted User Mercury
+    [Documentation]  MER-4665 Check
+    [Tags]  Regression  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  URL  ONELOGIN  MERCURY  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  chrome_saml_admin5@chromewallet.com  1river101
+        Verify Restricted Mercury Message
+
+Non Existing User Mercury
+    [Documentation]  User is not in CR application
+    [Tags]  Regression  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  URL  ONELOGIN  MERCURY  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  nonexistentdb@chromewallet.com  1river101
+        Verify Restricted Mercury Message

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-workspace name="GetThereWS" soapui-version="5.2.1" xmlns:con="http://eviware.com/soapui/config">
+  <con:settings/>
+  <con:project name="GetThereWS">D:/ChromeRiver/CR_SVN/WebServices/GetThereWS-soapui-project.xml</con:project>
+  <con:project name="Getting There">D:/ChromeRiver/CR_SVN/WebServices/Getting-There-soapui-project.xml</con:project>
+  <con:project name="GetThere2.0WS">D:/ChromeRiver/CR_SVN/WebServices/GetThere20WS-soapui-project.xml</con:project>
+  <con:collectInfoForSupport>false</con:collectInfoForSupport>
+</con:soapui-workspace>

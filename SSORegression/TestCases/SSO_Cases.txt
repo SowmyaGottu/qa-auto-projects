@@ -1,0 +1,90 @@
+*** Settings ***
+Documentation  Saml SSO Test Cases
+Test Teardown     Close Browser
+Resource  ../Resources/Resource.txt
+
+*** Test Cases ***
+Test Image Case
+      [Tags]  Test
+      Test Image Test
+
+ChromeSso Java Url JennyEndpoint Platinum Pass Case
+      [Documentation]  Verify Login
+      [Tags]  SSO  Java
+            ${Path}=  Intial Setup  ${ENV}  CR_SSO  JAVA  GET  URL  ONELOGIN  PLATINUM  EMAIL  C1
+            Open New Browser  ${Path}  ${BROWSER}
+            Mercury App  ${ASAHQ_PassPt_UserName}  ${ASAHQ_PassPt_Password}  ${ASAHQ_CompanyID}
+            Verify Platinum URL
+
+ChromeSso Java Url JennyEndpoint Platinum Fail Case
+      [Documentation]  Verify Login
+      [Tags]  SSO  Java
+            ${Path}=  Intial Setup  ${ENV}  CR_SSO  JAVA  GET  URL  ONELOGIN  PLATINUM  EMAIL  C1
+            Open New Browser  ${Path}  ${BROWSER}
+            Mercury App  ${ASAHQ_Fail_UserName}  ${ASAHQ_Fail_Password}  ${ASAHQ_CompanyID}
+            Verify Failed Mercury Message
+
+ChromeSso Java Url JennyEndpoint Mercury Pass Case
+      [Documentation]  Verify Login
+      [Tags]  SSO  Java
+            ${Path}=  Intial Setup  ${ENV}  CR_SSO  JAVA  GET  URL  ONELOGIN  MERCURY  EMAIL  C1
+            Open New Browser  ${Path}  ${BROWSER}
+            Mercury App  ${ASAHQ_Pass_UserName}  ${ASAHQ_Pass_Password}  ${ASAHQ_CompanyID}
+            Verify Mercury Dashboard
+
+ChromeSso Java Url JennyEndpoint Mercury Fail Case
+      [Documentation]  Verify Login
+      [Tags]  SSO  Java
+            ${Path}=  Intial Setup  ${ENV}  CR_SSO  JAVA  GET  URL  ONELOGIN  MERCURY  EMAIL  C1
+            Open New Browser  ${Path}  ${BROWSER}
+            Mercury App  ${ASAHQ_Fail_UserName}  ${ASAHQ_Fail_Password}  ${ASAHQ_CompanyID}
+            Verify Failed Mercury Message
+
+ChromeSso Php Url JennyEndpoint Platinum Pass Case
+      [Documentation]  Verify Login
+      [Tags]  SSO  Php
+            ${Path}=  Intial Setup  ${ENV}  CR_SSO  PHP  GET  URL  ONELOGIN  MERCURY  EMAIL  C1
+            #${Path}=  Get Local File Path
+            Open New Browser  ${Path}  ${BROWSER}
+            SSO Simulation Page  ${PBJ_Sso_PlatinumUserName}  ${PBJ_Sso_PlatinumPassword}  ${PBJ_Sso_CompanyID}
+            Verify Platinum URL
+
+ChromeSso Php Url JennyEndpoint Platinum Fail Case
+      [Tags]  SSO  Php  kabulgrover
+            #Validate Platinum Session in Mercury  YMe5CnnF4gsBiKdKt+G6V7I4    06583576-3917-4c6d-84ee-dddccc9d8158
+            ${Path}=  Intial Setup  ${ENV}  CR_SSO  PHP  GET  URL  ONELOGIN  MERCURY  EMAIL  C1
+            Open New Browser  ${Path}  ${BROWSER}
+            SSO Simulation Page  ${PBJ_Sso_PlatinumUserName_Bad}  ${PBJ_Sso_PlatinumPassword}  ${PBJ_Sso_CompanyID}
+            Verify Failed Platinum Page
+
+ChromeSso Drl Url JennyEndpoint Platinum Pass Case
+
+ChromeSso Drl Url JennyEndpoint Platinum Fail Case
+
+ChromeSso Drl Url JennyEndpoint Mercury Pass Case
+
+ChromeSso Drl Url JennyEndpoint Mercury Fail Case
+
+ChromeSso Java Login JennyEndpoint Platinum Pass Case
+
+ChromeSso Java Login JennyEndpoint Platinum Fail Case
+
+ChromeSso Java Login JennyEndpoint Mercury Pass Case
+
+ChromeSso Java Login JennyEndpoint Mercury Fail Case
+
+ChromeSso Php Login JennyEndpoint Platinum Pass Case
+
+ChromeSso Php Login JennyEndpoint Platinum Fail Case
+
+ChromeSso Php Login JennyEndpoint Mercury Pass Case
+
+ChromeSso Php Login JennyEndpoint Mercury Fail Case
+
+ChromeSso Drl Login JennyEndpoint Platinum Pass Case
+
+ChromeSso Drl Login JennyEndpoint Platinum Fail Case
+
+ChromeSso Drl Login JennyEndpoint Mercury Pass Case
+
+ChromeSso Drl Login JennyEndpoint Mercury Fail Case

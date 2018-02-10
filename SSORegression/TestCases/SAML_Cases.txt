@@ -1,0 +1,150 @@
+*** Settings ***
+Documentation  Saml SSO Test Cases
+Test Teardown     Close Browser
+Resource  ../Resources/Resource.txt
+
+*** Test Cases ***
+SAML Java Url OneLogin Platinum Email Pass Case
+    [Documentation]  Verify Login
+    [Tags]  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  URL  ONELOGIN  PLATINUM  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${CFA_Saml_PlatinumUserEmail}  ${CFA_Saml_PlatinumPassword}
+        Verify Platinum URL
+
+Saml Java Url OneLogin Platinum UniqueId Pass Case
+    [Documentation]  Verify Login
+    [Tags]  SAML  UniqueId  TestMe
+        #Set Global Variable    ${BROWSER}    ff
+        ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  URL  ONELOGIN  PLATINUM  UNIQUEID  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${PBJ_Saml_PlatinumUserEmail}  ${PBJ_Saml_PlatinumPassword}
+        Verify Platinum URL
+
+Saml Java Url OneLogin Platinum Email Fail Case
+    [Documentation]  Verify Login
+    [Tags]  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  URL  ONELOGIN  PLATINUM  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${CFA_Saml_PlatinumUserEmail}  ${CFA_Saml_PlatinumPassword_Bad}
+        Verify Failed OneLogin Message
+
+Saml Java Url OneLogin Platinum UniqueId Fail Case
+    [Documentation]  Verify Login
+    [Tags]  SAML  UniqueId
+        ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  URL  ONELOGIN  PLATINUM  UNIQUEID  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${PBJ_Saml_PlatinumUserEmail}  ${PBJ_Saml_PlatinumPassword_Bad}
+        Verify Failed OneLogin Message
+
+Saml Java Url OneLogin Mercury Email Pass Case
+    [Documentation]  Verify Login
+    [Tags]  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  URL  ONELOGIN  MERCURY  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${CFA_Saml_MercuryUserEmail}  ${CFA_Saml_MercuryPassword}
+        Verify Mercury Dashboard
+
+Saml Java Url OneLogin Mercury UniqueId Pass Case
+    [Documentation]  Verify Login
+    [Tags]  SAML  UniqueId
+        ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  URL  ONELOGIN  MERCURY  UNIQUEID  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${PBJ_Saml_MercuryUserEmail}  ${PBJ_Saml_MercuryPassword}
+        Verify Mercury Dashboard
+
+Saml Java Url OneLogin Mercury Email Fail Case
+    [Documentation]  Verify Login
+    [Tags]  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  URL  ONELOGIN  MERCURY  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${CFA_Saml_MercuryUserEmail}  ${CFA_Saml_MercuryPassword_Bad}
+        Verify Failed OneLogin Message
+
+Saml Java Url OneLogin Mercury UniqueId Fail Case
+    [Documentation]  Verify Login
+    [Tags]  SAML  UniqueId
+        ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  URL  ONELOGIN  MERCURY  UNIQUEID  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${PBJ_Saml_MercuryUserEmail}  ${PBJ_Saml_MercuryPassword_Bad}
+        Verify Failed OneLogin Message
+
+Saml Java Pt Url OneLogin Mercury Email Pass Case
+    [Documentation]  Verify Login
+    [Tags]  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  PT  ONELOGIN  MERCURY  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${CFA_Saml_MercuryUserEmail}  ${CFA_Saml_MercuryPassword}
+        Verify Platinum URL
+
+Saml Java Pt Url OneLogin Mercury UniqueId Pass Case
+    [Documentation]  Verify Login
+    [Tags]  SAML  UniqueId
+        ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  PT  ONELOGIN  MERCURY  UNIQUEID  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${PBJ_Saml_MercuryUserEmail}  ${PBJ_Saml_MercuryPassword}
+        Verify Platinum URL
+
+Saml Java Pt Url OneLogin Mercury Email Fail Case
+    [Documentation]  Verify Login
+    [Tags]  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  PT  ONELOGIN  MERCURY  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${CFA_Saml_MercuryUserEmail}  ${CFA_Saml_MercuryPassword_Bad}
+        Verify Failed OneLogin Message
+
+Saml Java Pt Url OneLogin Mercury UniqueId Fail Case
+    [Documentation]  Verify Login
+    [Tags]  SAML  UniqueId
+        ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  PT  ONELOGIN  MERCURY  UNIQUEID  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${PBJ_Saml_MercuryUserEmail}  ${PBJ_Saml_MercuryPassword_Bad}
+        Verify Failed OneLogin Message
+
+Saml Java Hg Url OneLogin Platinum Email Pass Case
+    [Documentation]  Verify Login
+    [Tags]  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  HG  ONELOGIN  PLATINUM  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${CFA_Saml_PlatinumUserEmail}  ${CFA_Saml_PlatinumPassword}
+        Verify Mercury Dashboard
+
+Saml Java Hg Url OneLogin Platinum UniqueId Pass Case
+      [Documentation]  Verify Login
+    [Tags]  SAML  UniqueId
+        ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  HG  ONELOGIN  PLATINUM  UNIQUEID  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${PBJ_Saml_PlatinumUserEmail}  ${PBJ_Saml_PlatinumPassword}
+        Verify Mercury Dashboard
+
+Saml Java Hg Url OneLogin Platinum Email Fail Case
+    [Documentation]  Verify Login
+    [Tags]  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  HG  ONELOGIN  PLATINUM  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${CFA_Saml_PlatinumUserEmail}  ${CFA_Saml_PlatinumPassword_Bad}
+        Verify Failed OneLogin Message
+
+Saml Java Hg Url OneLogin Platinum UniqueId Fail Case
+    [Documentation]  Verify Login
+    [Tags]  SAML  UniqueId
+        ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  HG  ONELOGIN  PLATINUM  UNIQUEID  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${PBJ_Saml_PlatinumUserEmail}  ${PBJ_Saml_PlatinumPassword_Bad}
+        Verify Failed OneLogin Message
+
+Saml Php Url OneLogin Platinum Pass Case
+    [Documentation]  Verify Login
+    [Tags]  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  PHP  GET  URL  ONELOGIN  PLATINUM  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${CFA_Saml_PlatinumUserEmail}  ${CFA_Saml_PlatinumPassword}
+        Verify Platinum URL
+
+Saml Php Url OneLogin Platinum Fail Case
+    [Documentation]  Verify Login
+    [Tags]  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  PHP  GET  URL  ONELOGIN  PLATINUM  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${CFA_Saml_PlatinumUserEmail}  ${CFA_Saml_PlatinumPassword_Bad}
+        Verify Failed OneLogin Message

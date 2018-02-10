@@ -1,0 +1,1809 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project id="52682b63-8098-4c7d-b5c8-a3ce025a2e7a" activeEnvironment="Default" name="MatterWS - TEMP" resourceRoot="" soapui-version="5.2.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" id="e64b36a0-1666-46b2-8f14-f48c1754769f" wsaVersion="NONE" name="MatterServiceSoapBinding" type="wsdl" bindingName="{http://matter.ws.chromeriver.com/}MatterServiceSoapBinding" soapVersion="1_1" anonymous="optional" definition="https://staging-api.chromeriver.com/ws_MatterV1?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="https://staging-api.chromeriver.com/ws_MatterV1?wsdl"><con:part><con:url>https://staging-api.chromeriver.com/ws_MatterV1?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="MatterService" targetNamespace="http://matter.ws.chromeriver.com/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://matter.ws.chromeriver.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:documentation>The Chrome River Matter Web Service fulfills requests from our customers to create/update/delete matter records, update matter filters records in the Chrome River system.
+
+To get started with Matter Web Service, please submit a Chrome River Help Desk ticket. Our Implementation team will work with you to get everything set up and running.
+
+To access this service, use this Web Services Description Language (WSDL) file to generate the required client proxy classes: https://api.chromeriver.com/ws_MatterV1?wsdl
+
+Please also read this documentation to understand what it does and how to properly prepare requests.
+
+Logging In
+
+Each request to access this service must be authenticated via either login credentials or a session token. The Login Web Service may be used to submit the user's login information in a request consisting of companyID, userID, and password. The user will receive a token to submit with subsequent requests to other Chrome River Web Services, eliminating the need to provide the login information again.
+
+While it is also possible to submit login information directly via the header of the Matter Web Service, it is recommended that customers use the Login Web Service first to obtain a session token, and then submit this token in each subsequent request to the Matter Service.
+
+Chrome River Matter Web Service Overview
+
+Please use the following description as a reference, but do not hesitate to contact us at support@chromeriver.com should you run into problems or have questions.
+
+There are four operations exposed via the Matter Web Service: create, update, delete and updateMatterFilter. Each call to create or update or delete operations either creates or updates or deletes a single matter and/or matter client record in the Chrome River system for the requesting customer. To clarify this point, note that a matter record is uniquely identified by the MatterNumber and ClientNumber. If the combination of MatterNumber and ClientNumber refers to an existing matter, this record will be updated in an update call  Otherwise, a new matter record will be inserted in a create call.   Furthermore, a matter client record is uniquely identified by ClientNumber and ClientName. If the combination of ClientNumber and ClientName refers to an existing client, this record will be updated and associated with the matter record from the request. Otherwise, a new client record will be inserted and associated with the matter record from the request.
+       
+Each call to create, update and delete operations requires two input objects: the LoginCredentials object and the Matter object. The former contains either the full login information or a session token, while the latter contains input parameter values (those that are optional may be omitted) required to complete the request.
+
+The updateMatterFilter operation updates search1 and search2 parameters for a single matter record in the Chrome River system for the requesting customer. For this operation a matter record is uniquely identified by the UniqueMatterID. If the UniqueMatterID refers to an existing matter, this record will be updated.
+       
+Each call to updateMatterFilter operation requires two input objects: the LoginCredentials object and the MatterFilter object. The latter contains input parameter values (those that are optional may be omitted) required to complete the request.
+
+The service responds to a request with the MessageEnvelope object. In the event of a successful outcome, the envelope will contain the statusCode "ReturnStatusCode.SUCCESS." In the event of a failed outcome, the envelope will contain the statusCode "ReturnStatusCode.FAIL," along with a list of ValidationError objects detailing why the request was not completed successfully.
+
+Each ValidationError contains three pieces of information: the error code, the name of the error code, and a brief message explaining the error. For example, in a create request, if the incoming MatterNumber and ClientNumber already point to an existing matter in our system, the response envelope will contain the ValidationError with error code "500," the name "ObjectExists," and the message "Matter MatterNumber_ClientNumber already exists."
+
+It is recommended that each error message be processed, the input be corrected, and the request be retried at a later time. Also note that each request is first authenticated before further processing, so that if the token or the login credentials are not valid, only a "9000/InvalidLogin" error or a "9001/InvalidSession" error will be returned in the response. For more information about login errors, please see the WSDL documentation for the Login Web Service.
+
+For the create, update and delete operations, not all of the parameters for the input Matter object are required in all cases. If a parameter is not required, it may be omitted from the request. In such a case, it will take on the default value (null/empty value, unless otherwise specified) in our system in a create call. In an update call, the corresponding value will not be updated in our system.
+
+It is important to note that even when a parameter is required in a create call, if it is not required in an update call, it is marked as optional in the WSDL. Use the validation rules described below to ensure no wrong assumptions are made in these cases (if a field is not documented as being required, then it is optional).
+
+Matter Web Service - Parameters and Validation Rules
+
+Here are the parameters of the input Matter object for the create, update and delete operations and associated validation rules.
+
+=========
+Field: matterNumber and clientNumber
+Description: together make the matter's record identifier: matterNumber_clientNumber
+---
+Constraint: in create call, must not refer to an existing matter
+Violation: input values refer to an existing matter
+Error: 500/ObjectExists
+---
+Constraint: in update call, must refer to an existing matter
+Violation: input values do not refer to an existing matter
+Error: 501/ObjectMissing
+---
+Constraint: in delete call, must refer to an existing matter
+Violation: input values do not refer to an existing matter
+Error: 501/ObjectMissing
+---
+Constraint: required
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: max length is 20 (each)
+Violation: input value is over 20 characters
+Error: 1005/IncorrectLength
+=========
+Field: clientName
+Description: client name description
+---
+Constraint: required
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: max length is 130
+Violation: input value is over 130 characters
+Error: 1005/IncorrectLength
+=========
+Field: matterName
+Description: matter name description
+---
+Constraint: required in create call
+Violation: missing from input, or value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: optional in update call, but must not specify empty string
+Violation: input value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: optional in delete call, but must not specify empty string
+Violation: input value is the empty string
+Error: 1004/EmptyField
+---
+Constraint: max length is 255
+Violation: input value is over 255 characters
+Error: 1005/IncorrectLength
+=========
+Field: parentClientNumber
+Description: optional parent grouping identifier.
+---
+Constraint: max length is 20
+Violation: input value is over 20 characters
+Error: 1005/IncorrectLength
+=========
+Field: type
+Description: free form text identifier that may be used in business rules.
+---
+Constraint: max length is 10
+Violation: input value is over 10 characters
+Error: 1005/IncorrectLength
+=========
+Field: routeIndependent
+Description: assigns status of an allocation to indicate if expense charged to this allocation should route independently or be "kept together" for approval review. A value of false means items charged to this allocation will not be exported until all items are approved. Defaults to true.
+=========
+Field: closedDate
+Description: assigns closed date of a matter to remove from valid selection. Leaving the field blank will re-open a previously closed matter.
+---
+Constraint: must follow the format MM/DD/YYYY
+Error: 1003/InvalidDate
+=========
+Field: GLAccount
+Description: free form text identifier that may be used in business rules or export data templates.
+---
+Constraint: max length is 50
+Violation: input value is over 50 characters
+Error: 1005/IncorrectLength
+=========
+Field: entity1/entity2/entity3
+Description: configured by Implementation team. Assigns matter to a customer's defined Entity structure. Must map to customer's EntityType that must be setup first.
+---
+Constraint: customer account must be setup to handle input value for each of these fields
+Violation: customer account not setup to handle entityN (N=1, 2, or 3)
+Error: 1007/InvalidOption
+---
+Constraint: the input value must refer to a valid entity code under the entity type setup in the customer account
+Violation: input value is not a valid entity
+Error: 2004/InvalidEntityCode
+=========
+Field: languageCode
+Description: language of the Matter
+Note: defaults to English; if sending an empty string in an update call, reset languageCode to default
+---
+Constraint: must specify a valid language code (per ISO 639-1 (2-letter code) or ISO 639-2 (3-letter code))
+Violation: input value is not a valid language code
+Error: 2002/InvalidLanguageCode
+=========
+Field: currencyCode
+Description: currency code of the Matter; format: ISO-4217 as supported by www.xe.com
+Note: if omitted in a create call or sending an empty string in an create/update call, set currencyCode to the default currency: USD
+---
+Constraint: must be a valid currency code (e.g. USD)
+Violation: input value is not a valid currency code
+Error: 2001/InvalidCurrencyCode
+=========
+Field: UDF1/UDF2/UDF3/UDF4
+Description: used for additional customer defined fields
+---
+Constraint: max length is 50
+Violation: input value is over 50 characters
+Error: 1005/IncorrectLength
+=========
+Field: UDF1PersonUniqueID/UDF2PersonUniqueID/UDF3PersonUniqueID
+Description: used for Matter assignment of PersonUniqueID.
+---
+Constraint: must be a valid customerUniqueId for this customer
+Violation: is not a valid customerUniqueId
+Error: 2003/InvalidPersonCode
+=========
+Field: extraLineItemData1LegalValues
+Description: list of valid GLDept values that may be selected along with this specific Matter. Must map to customer's CodeType. Values separated by commas.
+---
+Constraint: max length is 1000
+Violation: input value is over 1000 characters
+Error: 1005/IncorrectLength
+---
+Constraint: the comma-delimited values in the input must all be valid entity codes for the EntityType setup for this purpose
+Violation: one of the values is not a valid entity code
+Error: 2004/InvalidEntityCode
+---
+Constraint: extraLineItemData1LegalValues and onSelect1EntityTypeCode cannot both be present, as they are used for similar purposes
+Violation: extraLineItemData1LegalValues and onSelect1EntityTypeCode are both present in request
+Error: 1000/InvalidInput
+Note: if one is specified but not the other, the one not specified will be reset to null
+=========
+Field: onSelect1EntityTypeCode
+Description: a valid entity type code
+---
+Constraint: must be a valid entity type code for this customer
+Violation: not a valid entity type code
+Error: 2005/InvalidEntityTypeCode
+---
+Constraint: extraLineItemData1LegalValues and onSelect1EntityTypeCode cannot both be present, as they are used for similar purposes
+Violation: extraLineItemData1LegalValues and onSelect1EntityTypeCode are both present in request
+Error: 1000/InvalidInput
+Note: if one is specified but not the other, the one not specified will be reset to null
+
+Here are the parameters of the input MatterFilter object for the updateMatterFilter operation and associated validation rules.
+=========
+Field: matterUniqueID
+Description: make the matter's record identifier
+---
+Constraint: required
+Violation: missing from input
+Error: 1004/EmptyField
+---
+Constraint: must refer to an existing matter
+Violation: input values do not refer to an existing matter
+Error: 501/ObjectMissing
+=========
+Field: search1
+Description: Search terms separated by a delimiter (_zZz_)
+---
+Constraint: required
+Violation: missing from input
+Error: 1004/EmptyField
+---
+Constraint: max length is 15000
+Violation: input value is over 15000 characters
+Error: 1005/IncorrectLength
+Field: search2
+Description: Search terms separated by a delimiter (_zZz_)
+---
+Constraint: required
+Violation: missing from input
+Error: 1004/EmptyField
+---
+Constraint: max length is 15000
+Violation: input value is over 15000 characters
+Error: 1005/IncorrectLength
+
+For more information about this and other Chrome River Web Services, please contact us at support@chromeriver.com.
+The Chrome River MatterOnSelect Web Service fulfills requests from our customers to create/update matterOnSelectEntity records in the Chrome River system.
+
+To get started with Matter Web Service, please submit a Chrome River Help Desk ticket. Our Implementation team will work with you to get everything set up and running.
+
+To access this service, use this Web Services Description Language (WSDL) file to generate the required client proxy classes: https://api.chromeriver.com/ws_MatterV1?wsdl
+
+Please also read this documentation to understand what it does and how to properly prepare requests.
+
+Logging In
+
+Each request to access this service must be authenticated via either login credentials or a session token. The Login Web Service may be used to submit the user's login information in a request consisting of companyID, userID, and password. The user will receive a token to submit with subsequent requests to other Chrome River Web Services, eliminating the need to provide the login information again.
+
+While it is also possible to submit login information directly via the header of the Matter Web Service, it is recommended that customers use the Login Web Service first to obtain a session token, and then submit this token in each subsequent request to the Matter Service.
+
+Chrome River MatterOnSelect Web Service Overview
+
+Please use the following description as a reference, but do not hesitate to contact us at support@chromeriver.com should you run into problems or have questions.
+
+There are two operations exposed via the MatterOnSelect Web Service: create and update. Each call to create or update either creates or updates a single matterOnSelectEntity and update matter record in the Chrome River system for the requesting customer. To clarify this point, note that a matterOnSelectEntity record is uniquely identified by the EntityTypeCode. If EntityTypeCode refers to an existing matterOnSelectEntity, this record will be updated in an update call  Otherwise, a new matterOnSelectEntity record will be inserted in a create call. Furthermore, a matter record is uniquely identified by MatterUniqueID. This record will be updated and associated with the matterOnSelectEntity from the request.
+       
+Each call to one of these two operations requires two input objects: the LoginCredentials object and the Matter object. The former contains either the full login information or a session token, while the latter contains input parameter values (those that are optional may be omitted) required to complete the request.
+
+The service responds to a request with the MessageEnvelope object. In the event of a successful outcome, the envelope will contain the statusCode "ReturnStatusCode.SUCCESS." In the event of a failed outcome, the envelope will contain the statusCode "ReturnStatusCode.FAIL," along with a list of ValidationError objects detailing why the request was not completed successfully.
+
+Each ValidationError contains three pieces of information: the error code, the name of the error code, and a brief message explaining the error. For example, in a create request, if the incoming EntityTypeCode points to an unexisting entityType in our system, the response envelope will contain the ValidationError with error code "500," the name "InvalidEntityTypeCode," and the message "EntityType with EntityTypeCode code doesn't exist."
+
+It is recommended that each error message be processed, the input be corrected, and the request be retried at a later time. Also note that each request is first authenticated before further processing, so that if the token or the login credentials are not valid, only a "9000/InvalidLogin" error or a "9001/InvalidSession" error will be returned in the response. For more information about login errors, please see the WSDL documentation for the Login Web Service.
+
+For the create and update operations, all parameters are required in all cases. 
+
+MatterOnSelect Web Service - Parameters and Validation Rules
+
+Here are the parameters of for the create and update operations and associated validation rules.
+
+=========
+Field: entityTypeCode
+Description: makes the entityType's record identifier: entityTypeCode
+---
+Constraint: in create and update call, must refer to an existing entityType
+Violation: input value refer to an unexisting entityType
+Error: 2005/InvalidEntityTypeCode
+---
+Field: matterUniqueID
+Description: Matter Unique Identifier
+---
+Constraint: required
+Violation: input value refer to an unexisting matter
+Error: 2011/InvalidMatterUniqueID</wsdl:documentation>
+  <wsdl:types>
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://matter.ws.chromeriver.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:complexType name="Payload">
+        <xs:sequence/>
+      </xs:complexType>
+      <xs:complexType name="MatterOnSelect">
+        <xs:complexContent>
+          <xs:extension base="tns:Payload">
+            <xs:sequence>
+              <xs:element name="matterUniqueID" type="xs:string"/>
+              <xs:element name="entityTypeCode" type="xs:string"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="loginCredentials">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="token" type="xs:string"/>
+          <xs:element minOccurs="0" name="user" type="tns:userLoginInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="userLoginInfo">
+        <xs:sequence>
+          <xs:element name="companyId" type="xs:string"/>
+          <xs:element name="userId" type="xs:string"/>
+          <xs:element name="password" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="MessageEnvelope">
+        <xs:sequence>
+          <xs:element name="statusCode" type="tns:returnStatusCode"/>
+          <xs:element minOccurs="0" name="sessionId" type="xs:string"/>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="validationError" type="tns:ValidationError"/>
+          <xs:element minOccurs="0" name="webServicePayload" type="tns:Payload"/>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="webServicePayloadList" nillable="true" type="tns:Payload"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ValidationError">
+        <xs:sequence>
+          <xs:element name="code" type="xs:string"/>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element minOccurs="0" name="message" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="MatterFilter">
+        <xs:complexContent>
+          <xs:extension base="tns:Payload">
+            <xs:sequence>
+              <xs:element name="matterUniqueID" type="xs:string"/>
+              <xs:element name="search1" type="xs:string"/>
+              <xs:element minOccurs="0" name="search2" type="xs:string"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="Matter">
+        <xs:complexContent>
+          <xs:extension base="tns:Payload">
+            <xs:sequence>
+              <xs:element name="matterNumber" type="xs:string"/>
+              <xs:element name="clientNumber" type="xs:string"/>
+              <xs:element name="clientName" type="xs:string"/>
+              <xs:element minOccurs="0" name="parentClientNumber" type="xs:string"/>
+              <xs:element minOccurs="0" name="matterName" type="xs:string"/>
+              <xs:element minOccurs="0" name="type" type="xs:string"/>
+              <xs:element default="true" minOccurs="0" name="routeIndependent" type="xs:boolean"/>
+              <xs:element minOccurs="0" name="closedDate" type="xs:string"/>
+              <xs:element minOccurs="0" name="GLAccount" type="xs:string"/>
+              <xs:element minOccurs="0" name="entity1" type="xs:string"/>
+              <xs:element minOccurs="0" name="entity2" type="xs:string"/>
+              <xs:element minOccurs="0" name="entity3" type="xs:string"/>
+              <xs:element minOccurs="0" name="languageCode" type="xs:string"/>
+              <xs:element minOccurs="0" name="currencyCode" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF1" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF2" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF3" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF4" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF1PersonUniqueID" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF2PersonUniqueID" type="xs:string"/>
+              <xs:element minOccurs="0" name="UDF3PersonUniqueID" type="xs:string"/>
+              <xs:element minOccurs="0" name="extraLineItemData1LegalValues" type="xs:string"/>
+              <xs:element minOccurs="0" name="onSelect1EntityTypeCode" type="xs:string"/>
+              <xs:element minOccurs="0" name="onSelect2EntityTypeCode" type="xs:string"/>
+              <xs:element minOccurs="0" name="isBillable" type="xs:boolean"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="MatterSearch">
+        <xs:complexContent>
+          <xs:extension base="tns:Payload">
+            <xs:sequence>
+              <xs:element default="" minOccurs="0" name="matterNumbers" type="xs:string"/>
+              <xs:element default="" minOccurs="0" name="hasClosedDate" type="xs:string"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:simpleType name="returnStatusCode">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="FAIL"/>
+          <xs:enumeration value="SUCCESS"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:element name="credentials" nillable="true" type="tns:loginCredentials"/>
+      <xs:element name="inMatterOnSelectUpdate" nillable="true" type="tns:MatterOnSelect"/>
+      <xs:element name="updateMatterOnSelectResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inMatterFilterUpdate" nillable="true" type="tns:MatterFilter"/>
+      <xs:element name="updateMatterFilterResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inMatterDelete" nillable="true" type="tns:Matter"/>
+      <xs:element name="deleteMatterResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inMatterUpdate" nillable="true" type="tns:Matter"/>
+      <xs:element name="updateResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inMatterCreate" nillable="true" type="tns:Matter"/>
+      <xs:element name="createResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inMatterOnSelectCreate" nillable="true" type="tns:MatterOnSelect"/>
+      <xs:element name="createMatterOnSelectResponse" nillable="true" type="tns:MessageEnvelope"/>
+      <xs:element name="inMatterSearch" nillable="true" type="tns:MatterSearch"/>
+      <xs:element name="getMattersResponse" nillable="true" type="tns:MessageEnvelope"/>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="createMatterOnSelect">
+    <wsdl:part element="tns:inMatterOnSelectCreate" name="inMatterOnSelectCreate"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createResponse">
+    <wsdl:part element="tns:createResponse" name="createResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createMatterOnSelectResponse">
+    <wsdl:part element="tns:createMatterOnSelectResponse" name="createMatterOnSelectResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateMatterOnSelectResponse">
+    <wsdl:part element="tns:updateMatterOnSelectResponse" name="updateMatterOnSelectResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateMatterFilterResponse">
+    <wsdl:part element="tns:updateMatterFilterResponse" name="updateMatterFilterResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateResponse">
+    <wsdl:part element="tns:updateResponse" name="updateResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateMatterOnSelect">
+    <wsdl:part element="tns:inMatterOnSelectUpdate" name="inMatterOnSelectUpdate"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getMatters">
+    <wsdl:part element="tns:inMatterSearch" name="inMatterSearch"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateMatterFilter">
+    <wsdl:part element="tns:inMatterFilterUpdate" name="inMatterFilterUpdate"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getMattersResponse">
+    <wsdl:part element="tns:getMattersResponse" name="getMattersResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="deleteMatterResponse">
+    <wsdl:part element="tns:deleteMatterResponse" name="deleteMatterResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="create">
+    <wsdl:part element="tns:inMatterCreate" name="inMatterCreate"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="deleteMatter">
+    <wsdl:part element="tns:inMatterDelete" name="inMatterDelete"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="update">
+    <wsdl:part element="tns:inMatterUpdate" name="inMatterUpdate"></wsdl:part>
+    <wsdl:part element="tns:credentials" name="credentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="MatterService">
+    <wsdl:operation name="updateMatterOnSelect">
+      <wsdl:input message="tns:updateMatterOnSelect" name="updateMatterOnSelect"></wsdl:input>
+      <wsdl:output message="tns:updateMatterOnSelectResponse" name="updateMatterOnSelectResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateMatterFilter">
+      <wsdl:input message="tns:updateMatterFilter" name="updateMatterFilter"></wsdl:input>
+      <wsdl:output message="tns:updateMatterFilterResponse" name="updateMatterFilterResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="deleteMatter">
+      <wsdl:input message="tns:deleteMatter" name="deleteMatter"></wsdl:input>
+      <wsdl:output message="tns:deleteMatterResponse" name="deleteMatterResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="update">
+      <wsdl:input message="tns:update" name="update"></wsdl:input>
+      <wsdl:output message="tns:updateResponse" name="updateResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="create">
+      <wsdl:input message="tns:create" name="create"></wsdl:input>
+      <wsdl:output message="tns:createResponse" name="createResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createMatterOnSelect">
+      <wsdl:input message="tns:createMatterOnSelect" name="createMatterOnSelect"></wsdl:input>
+      <wsdl:output message="tns:createMatterOnSelectResponse" name="createMatterOnSelectResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getMatters">
+      <wsdl:input message="tns:getMatters" name="getMatters"></wsdl:input>
+      <wsdl:output message="tns:getMattersResponse" name="getMattersResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="MatterServiceSoapBinding" type="tns:MatterService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="updateMatterOnSelect">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="updateMatterOnSelect">
+        <soap:header message="tns:updateMatterOnSelect" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inMatterOnSelectUpdate" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="updateMatterOnSelectResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateMatterFilter">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="updateMatterFilter">
+        <soap:header message="tns:updateMatterFilter" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inMatterFilterUpdate" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="updateMatterFilterResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="deleteMatter">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="deleteMatter">
+        <soap:header message="tns:deleteMatter" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inMatterDelete" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="deleteMatterResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="update">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="update">
+        <soap:header message="tns:update" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inMatterUpdate" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="updateResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="create">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="create">
+        <soap:header message="tns:create" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inMatterCreate" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createMatterOnSelect">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createMatterOnSelect">
+        <soap:header message="tns:createMatterOnSelect" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inMatterOnSelectCreate" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createMatterOnSelectResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getMatters">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getMatters">
+        <soap:header message="tns:getMatters" part="credentials" use="literal"></soap:header>
+        <soap:body parts="inMatterSearch" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getMattersResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="MatterService">
+    <wsdl:port binding="tns:MatterServiceSoapBinding" name="MatterServicePort">
+      <soap:address location="https://staging-api.chromeriver.com/ws_MatterV1"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>https://staging-api.chromeriver.com/ws_MatterV1</con:endpoint></con:endpoints><con:operation id="b750fad7-1c60-4f16-8bc0-2ebd09debb82" isOneWay="false" action="" name="create" bindingOperationName="create" type="Request-Response" outputName="createResponse" inputName="create" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="85a8eee3-257c-4f9b-95c3-c16a0feb40f1" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterCreate>
+         <matterNumber>?</matterNumber>
+         <clientNumber>?</clientNumber>
+         <clientName>?</clientName>
+         <!--Optional:-->
+         <parentClientNumber>?</parentClientNumber>
+         <!--Optional:-->
+         <matterName>?</matterName>
+         <!--Optional:-->
+         <type>?</type>
+         <!--Optional:-->
+         <routeIndependent>true</routeIndependent>
+         <!--Optional:-->
+         <closedDate>?</closedDate>
+         <!--Optional:-->
+         <GLAccount>?</GLAccount>
+         <!--Optional:-->
+         <entity1>?</entity1>
+         <!--Optional:-->
+         <entity2>?</entity2>
+         <!--Optional:-->
+         <entity3>?</entity3>
+         <!--Optional:-->
+         <languageCode>?</languageCode>
+         <!--Optional:-->
+         <currencyCode>?</currencyCode>
+         <!--Optional:-->
+         <UDF1>?</UDF1>
+         <!--Optional:-->
+         <UDF2>?</UDF2>
+         <!--Optional:-->
+         <UDF3>?</UDF3>
+         <!--Optional:-->
+         <UDF4>?</UDF4>
+         <!--Optional:-->
+         <UDF1PersonUniqueID>?</UDF1PersonUniqueID>
+         <!--Optional:-->
+         <UDF2PersonUniqueID>?</UDF2PersonUniqueID>
+         <!--Optional:-->
+         <UDF3PersonUniqueID>?</UDF3PersonUniqueID>
+         <!--Optional:-->
+         <extraLineItemData1LegalValues>?</extraLineItemData1LegalValues>
+         <!--Optional:-->
+         <onSelect1EntityTypeCode>?</onSelect1EntityTypeCode>
+      </mat:inMatterCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/create"/></con:call></con:operation><con:operation id="a0fc3d56-bd17-42eb-bdc5-1a5d830eeb6e" isOneWay="false" action="" name="createMatterOnSelect" bindingOperationName="createMatterOnSelect" type="Request-Response" outputName="createMatterOnSelectResponse" inputName="createMatterOnSelect" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="afaa6cb3-3440-40a8-8da5-2b37cb514338" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterOnSelectCreate>
+         <matterUniqueID>?</matterUniqueID>
+         <entityTypeCode>?</entityTypeCode>
+      </mat:inMatterOnSelectCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/createMatterOnSelect"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation id="4c6da33c-8f61-4153-ab7b-9a4ad7c5fb1e" isOneWay="false" action="" name="deleteMatter" bindingOperationName="deleteMatter" type="Request-Response" outputName="deleteMatterResponse" inputName="deleteMatter" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="136ca0fe-46d0-48f1-9a08-d3e7d1717590" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterDelete>
+         <matterNumber>?</matterNumber>
+         <clientNumber>?</clientNumber>
+         <clientName>?</clientName>
+         <!--Optional:-->
+         <parentClientNumber>?</parentClientNumber>
+         <!--Optional:-->
+         <matterName>?</matterName>
+         <!--Optional:-->
+         <type>?</type>
+         <!--Optional:-->
+         <routeIndependent>true</routeIndependent>
+         <!--Optional:-->
+         <closedDate>?</closedDate>
+         <!--Optional:-->
+         <GLAccount>?</GLAccount>
+         <!--Optional:-->
+         <entity1>?</entity1>
+         <!--Optional:-->
+         <entity2>?</entity2>
+         <!--Optional:-->
+         <entity3>?</entity3>
+         <!--Optional:-->
+         <languageCode>?</languageCode>
+         <!--Optional:-->
+         <currencyCode>?</currencyCode>
+         <!--Optional:-->
+         <UDF1>?</UDF1>
+         <!--Optional:-->
+         <UDF2>?</UDF2>
+         <!--Optional:-->
+         <UDF3>?</UDF3>
+         <!--Optional:-->
+         <UDF4>?</UDF4>
+         <!--Optional:-->
+         <UDF1PersonUniqueID>?</UDF1PersonUniqueID>
+         <!--Optional:-->
+         <UDF2PersonUniqueID>?</UDF2PersonUniqueID>
+         <!--Optional:-->
+         <UDF3PersonUniqueID>?</UDF3PersonUniqueID>
+         <!--Optional:-->
+         <extraLineItemData1LegalValues>?</extraLineItemData1LegalValues>
+         <!--Optional:-->
+         <onSelect1EntityTypeCode>?</onSelect1EntityTypeCode>
+      </mat:inMatterDelete>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/deleteMatter"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation id="4209b388-bdba-4e52-ba6e-8a190a694e73" isOneWay="false" action="" name="update" bindingOperationName="update" type="Request-Response" outputName="updateResponse" inputName="update" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="79a90b0a-7f91-44f3-9f3e-d02c40f06ec9" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterUpdate>
+         <matterNumber>?</matterNumber>
+         <clientNumber>?</clientNumber>
+         <clientName>?</clientName>
+         <!--Optional:-->
+         <parentClientNumber>?</parentClientNumber>
+         <!--Optional:-->
+         <matterName>?</matterName>
+         <!--Optional:-->
+         <type>?</type>
+         <!--Optional:-->
+         <routeIndependent>true</routeIndependent>
+         <!--Optional:-->
+         <closedDate>?</closedDate>
+         <!--Optional:-->
+         <GLAccount>?</GLAccount>
+         <!--Optional:-->
+         <entity1>?</entity1>
+         <!--Optional:-->
+         <entity2>?</entity2>
+         <!--Optional:-->
+         <entity3>?</entity3>
+         <!--Optional:-->
+         <languageCode>?</languageCode>
+         <!--Optional:-->
+         <currencyCode>?</currencyCode>
+         <!--Optional:-->
+         <UDF1>?</UDF1>
+         <!--Optional:-->
+         <UDF2>?</UDF2>
+         <!--Optional:-->
+         <UDF3>?</UDF3>
+         <!--Optional:-->
+         <UDF4>?</UDF4>
+         <!--Optional:-->
+         <UDF1PersonUniqueID>?</UDF1PersonUniqueID>
+         <!--Optional:-->
+         <UDF2PersonUniqueID>?</UDF2PersonUniqueID>
+         <!--Optional:-->
+         <UDF3PersonUniqueID>?</UDF3PersonUniqueID>
+         <!--Optional:-->
+         <extraLineItemData1LegalValues>?</extraLineItemData1LegalValues>
+         <!--Optional:-->
+         <onSelect1EntityTypeCode>?</onSelect1EntityTypeCode>
+      </mat:inMatterUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/update"/></con:call></con:operation><con:operation id="96dd7911-7e7e-4be8-b9ba-3cd06540ea90" isOneWay="false" action="" name="updateMatterFilter" bindingOperationName="updateMatterFilter" type="Request-Response" outputName="updateMatterFilterResponse" inputName="updateMatterFilter" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="d6313c1c-0ed9-423d-9206-584bcf721273" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterFilterUpdate>
+         <matterUniqueID>?</matterUniqueID>
+         <search1>?</search1>
+         <!--Optional:-->
+         <search2>?</search2>
+      </mat:inMatterFilterUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/updateMatterFilter"/></con:call></con:operation><con:operation id="d5af5efb-ef1c-4d54-8ea9-e11172be381b" isOneWay="false" action="" name="updateMatterOnSelect" bindingOperationName="updateMatterOnSelect" type="Request-Response" outputName="updateMatterOnSelectResponse" inputName="updateMatterOnSelect" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="6c3dccfe-bee2-40b2-87ab-a64d84a9b543" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterOnSelectUpdate>
+         <matterUniqueID>?</matterUniqueID>
+         <entityTypeCode>?</entityTypeCode>
+      </mat:inMatterOnSelectUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/updateMatterOnSelect"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation id="e847446b-05bb-47ee-b97e-4e78cfaafa5e" isOneWay="false" action="" name="getMatters" bindingOperationName="getMatters" type="Request-Response" outputName="getMattersResponse" inputName="getMatters" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="5e61ddab-89bb-436b-8cad-88ef2c6d135e" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">\r
+   <soapenv:Header>\r
+      <mat:credentials>\r
+         <!--Optional:-->\r
+         <token>?</token>\r
+         <!--Optional:-->\r
+         <user>\r
+            <companyId>?</companyId>\r
+            <userId>?</userId>\r
+            <password>?</password>\r
+         </user>\r
+      </mat:credentials>\r
+   </soapenv:Header>\r
+   <soapenv:Body>\r
+      <mat:inMatterSearch>\r
+         <!--Optional:-->\r
+         <matterNumbers/>\r
+         <!--Optional:-->\r
+         <hasClosedDate/>\r
+      </mat:inMatterSearch>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/getMatters"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:interface xsi:type="con:WsdlInterface" id="1aea35cd-9ae0-42c0-8e4f-daf39628dc88" wsaVersion="NONE" name="LoginServiceSoapBinding" type="wsdl" bindingName="{http://login.ws.chromeriver.com/}LoginServiceSoapBinding" soapVersion="1_1" anonymous="optional" definition="https://staging-api.chromeriver.com/ws_LoginV1?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="https://staging-api.chromeriver.com/ws_LoginV1?wsdl"><con:part><con:url>https://staging-api.chromeriver.com/ws_LoginV1?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="LoginService" targetNamespace="http://login.ws.chromeriver.com/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://login.ws.chromeriver.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:documentation>The Chrome River Login Web Service fulfills requests from our customers to log in to our Web Services platform.
+
+To get started with Chrome River Web Services, please submit a Chrome River Help Desk ticket. Our Implementation team will work with you to get everything set up and running.
+
+To access this service, use this Web Services Description Language (WSDL) file to generate the required client proxy classes: https://api.chromeriver.com/ws_LoginV1?wsdl
+
+Please also read this documentation to understand what it does and how to properly prepare requests.
+
+Logging In
+
+Each request to access a Chrome River Web Service must be authenticated via either login credentials or a session token. The Login Web Service may be used to submit the user's login information in a request consisting of companyID, userID, and password. The user will receive a token to submit with subsequent requests to other Chrome River Web Services, eliminating the need to provide the login information again. 
+
+While it is also possible to submit login information directly via the header of every Chrome River Web Service, it is recommended that customers use the Login Web Service first to obtain a session token, and then submit this token in each subsequent request to the other services.
+
+Chrome River Login Web Service Overview
+
+Only one operation is exposed via the Login Web Service: createSession. The purpose of this operation is to submit login credentials and get in response a session token used to access other Chrome River Web Services. The token will renew each time it is used in a request. It will expire after 30 minutes of inactivity, at which point a new token must be acquired by resubmitting the login credentials to this service.
+
+Each call to the createSession operation requires the LoginCredentials input object, which contains two parameters: token and user. This object is actually a shared input across all Chrome River Web Services. In services other than the Login Service, the token parameter is used to submit the session ID along with the rest of the request. In the Login Service, use the user parameter to set the required login credentials: companyID, userID, and password. 
+
+The service responds to a request with the MessageEnvelope object. In the event of a successful outcome, the envelope will contain the statusCode "ReturnStatusCode.SUCCESS," along with a session token in the sessionID field. In the event of a failed outcome, the envelope will contain the statusCode "ReturnStatusCode.FAIL," along with a list of ValidationError objects detailing why the request was not successful. Each ValidationError contains three pieces of information: the error code, the name of the error code, and a brief message explaining the error.
+
+In the Login Service there are two possible error scenarios: 
+
+1. Invalid Login
+=====================
+Description: The credentials provided do not match a valid record in our system.
+Error Code: 9000
+Error Name: InvalidLogin
+Error Message: Invalid login information
+Resolution: Double-check that the companyID, userID, and password match those provided to you previously by Chrome River.
+
+2. Invalid Session
+=====================
+Description: The token provided is not valid or has expired.
+Error Code: 9001
+Error Name: InvalidSession
+Error Message: No session, or session no longer valid.
+Resolution: Log in again with full credentials to obtain a new and valid session token.
+
+For more information about this and other Chrome River Web Services, please contact us at support@chromeriver.com.</wsdl:documentation>
+  <wsdl:types>
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://login.ws.chromeriver.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:complexType name="loginCredentials">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="token" type="xs:string"/>
+          <xs:element minOccurs="0" name="user" type="tns:userLoginInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="userLoginInfo">
+        <xs:sequence>
+          <xs:element name="companyId" type="xs:string"/>
+          <xs:element name="userId" type="xs:string"/>
+          <xs:element name="password" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="MessageEnvelope">
+        <xs:sequence>
+          <xs:element name="statusCode" type="tns:returnStatusCode"/>
+          <xs:element minOccurs="0" name="sessionId" type="xs:string"/>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="validationError" type="tns:ValidationError"/>
+          <xs:element minOccurs="0" name="webServicePayload" type="tns:Payload"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ValidationError">
+        <xs:sequence>
+          <xs:element name="code" type="xs:string"/>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element minOccurs="0" name="message" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Payload">
+        <xs:sequence/>
+      </xs:complexType>
+      <xs:simpleType name="returnStatusCode">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="FAIL"/>
+          <xs:enumeration value="SUCCESS"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:element name="loginCredentials" nillable="true" type="tns:loginCredentials"/>
+      <xs:element name="createSessionResponse" nillable="true" type="tns:MessageEnvelope"/>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="createSessionResponse">
+    <wsdl:part element="tns:createSessionResponse" name="createSessionResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createSession">
+    <wsdl:part element="tns:loginCredentials" name="loginCredentials"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="Login">
+    <wsdl:operation name="createSession">
+      <wsdl:input message="tns:createSession" name="createSession"></wsdl:input>
+      <wsdl:output message="tns:createSessionResponse" name="createSessionResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="LoginServiceSoapBinding" type="tns:Login">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="createSession">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createSession">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createSessionResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="LoginService">
+    <wsdl:port binding="tns:LoginServiceSoapBinding" name="LoginPort">
+      <soap:address location="https://staging-api.chromeriver.com/ws_LoginV1"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>https://staging-api.chromeriver.com/ws_LoginV1</con:endpoint></con:endpoints><con:operation id="59ed970b-3e9b-4d50-a3f6-3d5c0cb92f55" isOneWay="false" action="" name="createSession" bindingOperationName="createSession" type="Request-Response" outputName="createSessionResponse" inputName="createSession" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="04145085-d696-4194-bc99-df7d4317c662" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://staging-api.chromeriver.com/ws_LoginV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:log="http://login.ws.chromeriver.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <log:loginCredentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </log:loginCredentials>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://login.ws.chromeriver.com/Login/createSession"/></con:call></con:operation></con:interface><con:testSuite name="MatterWS_Suite" id="f606d44d-ef40-4bf9-8206-4cd66a594770"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Login_Case" searchProperties="true" id="7ac0fe27-320a-49e1-9c60-b802af121d67"><con:settings/><con:testStep type="groovy" name="getLoginCredentials" id="fbe5978a-98ca-47f0-938c-78469322b72e"><con:settings/><con:config><script>import soapUI.*
+
+def baseHost = com.eviware.soapui.SoapUI.globalProperties.getPropertyValue("basehost");
+
+if(baseHost == "staging-api.chromeriver.com"){
+	stagingPassword = testRunner.testCase.testSuite.project.getPropertyValue("StagingPassword");
+	testRunner.testCase.testSuite.project.setPropertyValue( "baseHost", "staging-api.chromeriver.com");
+	testRunner.testCase.testSuite.project.setPropertyValue( "Password", stagingPassword);
+} else if(baseHost == "qa-api.chromeriver.com"){
+	QAPassword = testRunner.testCase.testSuite.project.getPropertyValue("QAPassword");
+	testRunner.testCase.testSuite.project.setPropertyValue( "baseHost", "qa-api.chromeriver.com");
+	testRunner.testCase.testSuite.project.setPropertyValue( "Password", QAPassword);
+} else if(baseHost == "api.chromeriver.com"){
+	ProductionPassword = testRunner.testCase.testSuite.project.getPropertyValue("ProductionPassword");
+	testRunner.testCase.testSuite.project.setPropertyValue( "baseHost", "api.chromeriver.com");
+	testRunner.testCase.testSuite.project.setPropertyValue( "Password", ProductionPassword);
+} else {
+	testRunner.cancel( "Invalid Host : " + baseHost ) 
+}
+
+
+// create MatterUniqueID that does not exist in db
+def MatterUniqueIDThatDoesNotExist = "soapui111111"
+
+testRunner.testCase.testSuite.project.setPropertyValue( "MuidDoesNotExist", MatterUniqueIDThatDoesNotExist )
+
+// create MatterUniqueID that does exist in db
+def MatterUniqueIDThatDoesExist = "10121985"
+testRunner.testCase.testSuite.project.setPropertyValue( "MuidDoesExist", MatterUniqueIDThatDoesExist )
+
+//create EntityTypeCode that does not exist in db
+def EntityTypeCodeThatDoesNotExist = "111"
+testRunner.testCase.testSuite.project.setPropertyValue( "TypeCodeDoesNotExist", EntityTypeCodeThatDoesNotExist ) 
+
+//create EntityTypeCode that does exist in db
+def EntityTypeCodeThatDoesExist = "OFF"
+testRunner.testCase.testSuite.project.setPropertyValue( "TypeCodeDoesExist", EntityTypeCodeThatDoesExist ) </script></con:config></con:testStep><con:testStep type="request" name="LoginRequest" id="748b0a30-94f6-4ee5-84b0-2fc034e4bb93"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>LoginServiceSoapBinding</con:interface><con:operation>createSession</con:operation><con:request name="LoginRequest" id="51ee5cab-add4-48bd-867c-dc337e88efc9"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_LoginV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:log="http://login.ws.chromeriver.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <log:createSession>
+         <user>
+            <companyId>${#Project#CompanyID}</companyId>
+            <userId>${#Project#UserName}</userId>
+            <password>${#Project#Password}</password>
+         </user>
+      </log:createSession>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="9aae2222-6db8-4f92-b4c1-641f6e1e0222"/><con:assertion type="SOAP Fault Assertion" id="78a84aaa-ef4d-46df-b187-cb5b404854db" name="Not SOAP Fault"/><con:assertion type="XPath Match" id="0a1d9310-8f8f-412e-8fda-1e1a4701f56e" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="transfer" name="Property Transfer" id="527a998c-4899-4ded-8f96-abb55f443515"><con:settings/><con:config xsi:type="con:PropertyTransfersStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:transfers setNullOnMissingSource="true" transferTextContent="true" failOnError="true" ignoreEmpty="false" transferToAll="false" entitize="false" transferChildNodes="false"><con:name>SessionID</con:name><con:sourceType>Response</con:sourceType><con:sourceStep>LoginRequest</con:sourceStep><con:sourcePath>//sessionId</con:sourcePath><con:targetType>SessionID</con:targetType><con:targetStep>#Project#</con:targetStep><con:upgraded>true</con:upgraded></con:transfers></con:config></con:testStep><con:properties><con:property><con:name>SessionID</con:name><con:value>81a26ce0-6e84-4593-8111-894b5bca40d2</con:value></con:property><con:property><con:name>URL</con:name><con:value>staging-api</con:value></con:property></con:properties></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="CreateMatter_Case" searchProperties="true" id="97e7da65-2868-426a-95b3-18e4088160b4"><con:settings/><con:testStep type="groovy" name="TestData-Matter" id="36013b2f-d7ea-4b2e-be49-74a552c8ab83"><con:settings/><con:config><script>import soapUI.*
+import java.text.SimpleDateFormat
+
+//get new MatterID 
+def today = new Date()
+newMatterNumber = new SimpleDateFormat("MMddHHmmssSS");
+//newMatterNameGUID = new SimpleDateFormat("mmssSS");
+
+//set the matterNumber Properties with the new info returned from SoapUITestData
+testRunner.testCase.testSuite.project.setPropertyValue( "matterNumber", "WS_" + newMatterNumber.format(today));
+testRunner.testCase.testSuite.project.setPropertyValue( "matterName", "WS_" + newMatterNumber.format(today));
+testRunner.testCase.testSuite.project.setPropertyValue( "matterNumber_Full", "WS_" + newMatterNumber.format(today) + "_Full");
+testRunner.testCase.testSuite.project.setPropertyValue( "matterNumber_Full2", "WS_" + newMatterNumber.format(today) + "_Full2");
+
+String addedMatter = testRunner.testCase.testSuite.project.getPropertyValue("matterNumber");
+String addedClientNumber = testRunner.testCase.testSuite.project.getPropertyValue("clientNumber");
+
+//set the matterNumber Properties with the new info returned from SoapUITestData
+testRunner.testCase.testSuite.project.setPropertyValue( "matterUniqueID", addedMatter + "_" + addedClientNumber);
+//testRunner.testCase.testSuite.project.setPropertyValue( "clientName", "Regular Routing" + newMatterNameGUID.format(today));</script></con:config></con:testStep><con:testStep type="request" name="Create Matter -- No Value" id="d48ecc4e-d44f-4221-9d84-c537eab668de"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>create</con:operation><con:request name="Create Matter -- No Value" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="72b8c284-7aa2-48f8-a14f-1dacacc95bf1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterCreate>
+         <matterNumber></matterNumber>
+         <clientNumber></clientNumber>
+         <clientName></clientName>
+      </mat:inMatterCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="c6fa0acc-ce9c-4578-a2a9-1f2597f5ed98"/><con:assertion type="XPath Match" name="Status Code" id="7052ebf0-0b06-45a2-aab9-597b231218c5"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="1ccba41f-7c42-4b12-abc0-e3b51a09d554" name="XPath: Matter number message"><con:configuration><path>//validationError/message</path><content>Matter number may not be empty.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="1ccba41f-7c42-4b12-abc0-e3b51a09d554" name="XPath: Client number message"><con:configuration><path>//validationError/message</path><content>Client number may not be empty.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="1ccba41f-7c42-4b12-abc0-e3b51a09d554" name="XPath: Client name message"><con:configuration><path>//validationError/message</path><content>Client name may not be empty.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="bbc50327-1a28-426d-a178-3844a5eb7837" name="XPath: Error Code"><con:configuration><path>//validationError	/code</path><content>1004</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="c96dcc34-fc06-43ed-827b-c8c2ef3b12a3" name="XPath: Error Name"><con:configuration><path>//validationError/name</path><content>EmptyField</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/create"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="Create Matter -- Valid" id="b92154b4-2123-4742-9f05-b7df7d68c03f"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>create</con:operation><con:request name="Create Matter -- Valid" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="72b8c284-7aa2-48f8-a14f-1dacacc95bf1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;entry key="SOAPAction" value="TM_CR_LOGIN" xmlns="http://eviware.com/soapui/config"/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:create>
+         <matterNumber>${#Project#matterNumber}</matterNumber>
+         <clientNumber>${#Project#clientNumber}</clientNumber>
+         <clientName>${#Project#clientName}</clientName>
+         <!--Optional:-->
+         <parentClientNumber>${#Project#parentClientNumber}</parentClientNumber>
+         <!--Optional:-->
+         <matterName>${#Project#matterName}</matterName>
+         <!--Optional:-->
+         <type>${#Project#type}</type>
+         <!--Optional:-->
+         <routeIndependent>${#Project#routeIndependent}</routeIndependent>
+         <!--Optional:-->
+         <closedDate>${#Project#closedDate}</closedDate>
+         <!--Optional:-->
+         <GLAccount>${#Project#GLAccount}</GLAccount>
+         <!--Optional:-->
+         <entity1>${#Project#entity1}</entity1>
+         <!--Optional:-->
+         <entity2>${#Project#entity2}</entity2>
+         <!--Optional:-->
+         <entity3>${#Project#entity3}</entity3>
+         <!--Optional:-->
+         <languageCode>${#Project#languageCode}</languageCode>
+         <!--Optional:-->
+         <currencyCode>${#Project#currencyCode}</currencyCode>
+         <!--Optional:-->
+         <UDF1>${#Project#UDF1}</UDF1>
+         <!--Optional:-->
+         <UDF2>${#Project#UDF2}</UDF2>
+         <!--Optional:-->
+         <UDF3>${#Project#UDF3}</UDF3>
+         <!--Optional:-->
+         <UDF4>${#Project#UDF4}</UDF4>
+         <!--Optional:-->
+         <UDF1PersonUniqueID>${#Project#UDF1PersonUniqueID}</UDF1PersonUniqueID>
+         <!--Optional:-->
+         <UDF2PersonUniqueID>${#Project#UDF2PersonUniqueID}</UDF2PersonUniqueID>
+         <!--Optional:-->
+         <UDF3PersonUniqueID>${#Project#UDF3PersonUniqueID}</UDF3PersonUniqueID>
+         <!--Optional:-->
+         <extraLineItemData1LegalValues>${#Project#extraLineItemData1LegalValues}</extraLineItemData1LegalValues>
+         <!--Optional:-->
+         <onSelect1EntityTypeCode></onSelect1EntityTypeCode>
+      </mat:create>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="c6fa0acc-ce9c-4578-a2a9-1f2597f5ed98"/><con:assertion type="XPath Match" name="Status Code" id="7052ebf0-0b06-45a2-aab9-597b231218c5"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/create"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="Create Matter -- Full Data" id="b0f7bb67-5940-4c8e-9342-1a7e2957e661"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>create</con:operation><con:request name="Create Matter -- Full Data" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="72b8c284-7aa2-48f8-a14f-1dacacc95bf1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterCreate>
+         <matterNumber>${#Project#matterNumber_Full}</matterNumber>
+         <clientNumber>${#Project#clientNumber}</clientNumber>
+         <clientName>${#Project#clientName}</clientName>
+         <!--Optional:-->
+         <parentClientNumber>${#Project#parentClientNumber}</parentClientNumber>
+         <!--Optional:-->
+         <matterName>${#Project#matterName}</matterName>
+         <!--Optional:-->
+         <type>${#Project#type}</type>
+         <!--Optional:-->
+         <routeIndependent>${#Project#routeIndependent}</routeIndependent>
+         <!--Optional:-->
+         <closedDate>${#Project#closedDate}</closedDate>
+         <!--Optional:-->
+         <GLAccount>${#Project#GLAccount}</GLAccount>
+         <!--Optional:-->
+         <entity1>${#Project#entity1}</entity1>
+         <!--Optional:-->
+         <entity2>${#Project#entity2}</entity2>
+         <!--Optional:-->
+         <entity3>${#Project#entity3}</entity3>
+         <!--Optional:-->
+         <languageCode>${#Project#languageCode}</languageCode>
+         <!--Optional:-->
+         <currencyCode>${#Project#currencyCode}</currencyCode>
+         <!--Optional:-->
+         <UDF1>${#Project#UDF1}</UDF1>
+         <!--Optional:-->
+         <UDF2>${#Project#UDF2}</UDF2>
+         <!--Optional:-->
+         <UDF3>${#Project#UDF3}</UDF3>
+         <!--Optional:-->
+         <UDF4>${#Project#UDF4}</UDF4>
+         <!--Optional:-->
+         <UDF1PersonUniqueID>${#Project#UDF1PersonUniqueID}</UDF1PersonUniqueID>
+         <!--Optional:-->
+         <UDF2PersonUniqueID>${#Project#UDF2PersonUniqueID}</UDF2PersonUniqueID>
+         <!--Optional:-->
+         <UDF3PersonUniqueID>${#Project#UDF3PersonUniqueID}</UDF3PersonUniqueID>
+         <!--Optional:-->
+         <extraLineItemData1LegalValues></extraLineItemData1LegalValues>
+         <!--Optional:-->
+         <onSelect1EntityTypeCode>${#Project#onSelect1EntityTypeCode}</onSelect1EntityTypeCode>
+      </mat:inMatterCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="c6fa0acc-ce9c-4578-a2a9-1f2597f5ed98"/><con:assertion type="XPath Match" name="Status Code" id="7052ebf0-0b06-45a2-aab9-597b231218c5"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/create"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="Create Matter -- Invalid" id="61f3cf68-c274-4bc5-aabd-f348ee4cc516"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>create</con:operation><con:request name="Create Matter -- Invalid" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="72b8c284-7aa2-48f8-a14f-1dacacc95bf1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterCreate>
+         <matterNumber>${#Project#matterNumber}Invalid</matterNumber>
+         <clientNumber>${#Project#clientNumber}</clientNumber>
+         <clientName>${#Project#clientName}</clientName>
+         <!--Optional:-->
+         <parentClientNumber>${#Project#parentClientNumber}</parentClientNumber>
+         <!--Optional:-->
+         <matterName>${#Project#matterName}</matterName>
+         <!--Optional:-->
+         <type>${#Project#type}</type>
+         <!--Optional:-->
+         <routeIndependent>${#Project#routeIndependent}</routeIndependent>
+         <!--Optional:-->
+         <closedDate>2016-12-12</closedDate>
+         <!--Optional:-->
+         <GLAccount>${#Project#GLAccount}</GLAccount>
+         <!--Optional:-->
+         <entity1>123</entity1>
+         <!--Optional:-->
+         <entity2>456</entity2>
+         <!--Optional:-->
+         <entity3>789</entity3>
+         <!--Optional:-->
+         <languageCode>ENGLISH</languageCode>
+         <!--Optional:-->
+         <currencyCode>C</currencyCode>
+         <!--Optional:-->
+         <UDF1></UDF1>
+         <!--Optional:-->
+         <UDF2></UDF2>
+         <!--Optional:-->
+         <UDF3></UDF3>
+         <!--Optional:-->
+         <UDF4></UDF4>
+         <!--Optional:-->
+         <UDF1PersonUniqueID>0</UDF1PersonUniqueID>
+         <!--Optional:-->
+         <UDF2PersonUniqueID>0</UDF2PersonUniqueID>
+         <!--Optional:-->
+         <UDF3PersonUniqueID>0</UDF3PersonUniqueID>
+         <!--Optional:-->
+         <extraLineItemData1LegalValues></extraLineItemData1LegalValues>
+         <!--Optional:-->
+         <onSelect1EntityTypeCode></onSelect1EntityTypeCode>
+      </mat:inMatterCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="c6fa0acc-ce9c-4578-a2a9-1f2597f5ed98"/><con:assertion type="XPath Match" name="Status Code" id="7052ebf0-0b06-45a2-aab9-597b231218c5"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="4d9ff52a-97e0-47f6-8d1b-13b04a1be47a" name="XPath Match"><con:configuration><path>//validationError/code</path><content>1003</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="0a234c04-7ced-4b9a-87e7-83e86e3c6fad" name="XPath: Error Name1"><con:configuration><path>//validationError/name</path><content>InvalidDate</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="0a234c04-7ced-4b9a-87e7-83e86e3c6fad" name="XPath: Error Message1"><con:configuration><path>//validationError/message</path><content>Invalid closedDate specified: 2016-12-12. Valid format: MM/dd/yyyy</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="4d9ff52a-97e0-47f6-8d1b-13b04a1be47a" name="XPath: Error Code2"><con:configuration><path>//validationError/code</path><content>2002</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="0a234c04-7ced-4b9a-87e7-83e86e3c6fad" name="XPath: Error Name2"><con:configuration><path>//validationError/name</path><content>InvalidLanguageCode</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="0a234c04-7ced-4b9a-87e7-83e86e3c6fad" name="XPath: Error Message2"><con:configuration><path>//validationError/message</path><content>Invalid languageCode specified. Use either ISO 639-1 (2-letter code) or ISO 639-2 (3-letter code) (Default: en).</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="4d9ff52a-97e0-47f6-8d1b-13b04a1be47a" name="XPath: Error Code3"><con:configuration><path>//validationError/code</path><content>2003</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="0a234c04-7ced-4b9a-87e7-83e86e3c6fad" name="XPath: Error Name3"><con:configuration><path>//validationError/name</path><content>InvalidPersonCode</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="0a234c04-7ced-4b9a-87e7-83e86e3c6fad" name="XPath: Error Message3"><con:configuration><path>//validationError/message</path><content>Invalid UDF1PersonUniqueID specified.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="0a234c04-7ced-4b9a-87e7-83e86e3c6fad" name="XPath: Error Message4"><con:configuration><path>//validationError/message</path><content>Invalid UDF2PersonUniqueID specified.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="0a234c04-7ced-4b9a-87e7-83e86e3c6fad" name="XPath: Error Message5"><con:configuration><path>//validationError/message</path><content>Invalid UDF3PersonUniqueID specified.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/create"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="Create Matter -- Invalid Data" id="64b258c1-309d-4dc0-98b9-f97fdb4a899b"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>create</con:operation><con:request name="Create Matter -- Invalid Data" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="817d1d16-d634-4345-91d8-ecec42a88fdc"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterCreate>
+       <matterNumber>${#Project#matterNumber}Invalid</matterNumber>
+         <clientNumber>${#Project#clientNumber}</clientNumber>
+         <clientName>${#Project#clientName}</clientName>
+         <!--Optional:-->
+         <parentClientNumber>${#Project#parentClientNumber}</parentClientNumber>
+         <!--Optional:-->
+         <matterName>${#Project#matterNumber_Empty}</matterName>
+         <!--Optional:-->
+         <type>${#Project#type}</type>
+         <!--Optional:-->
+         <routeIndependent>${#Project#routeIndependent}</routeIndependent>
+         <!--Optional:-->
+         <closedDate></closedDate>
+         <!--Optional:-->
+         <GLAccount>${#Project#GLAccount}</GLAccount>
+         <!--Optional:-->
+         <entity1>${#Project#entity1}</entity1>
+         <!--Optional:-->
+         <entity2></entity2>
+         <!--Optional:-->
+         <entity3></entity3>
+         <!--Optional:-->
+         <languageCode></languageCode>
+         <!--Optional:-->
+         <currencyCode>${#Project#currencyCode}</currencyCode>
+         <!--Optional:-->
+         <UDF1></UDF1>
+         <!--Optional:-->
+         <UDF2></UDF2>
+         <!--Optional:-->
+         <UDF3></UDF3>
+         <!--Optional:-->
+         <UDF4></UDF4>
+         <!--Optional:-->
+         <UDF1PersonUniqueID></UDF1PersonUniqueID>
+         <!--Optional:-->
+         <UDF2PersonUniqueID></UDF2PersonUniqueID>
+         <!--Optional:-->
+         <UDF3PersonUniqueID></UDF3PersonUniqueID>
+         <!--Optional:-->
+         <extraLineItemData1LegalValues>${#Project#extraLineItemData1LegalValues}</extraLineItemData1LegalValues>
+         <!--Optional:-->
+         <onSelect1EntityTypeCode>${#Project#onSelect1EntityTypeCode}</onSelect1EntityTypeCode>
+      </mat:inMatterCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="4f84a422-9ec7-4e9e-b6c2-497bc61c86d4"/><con:assertion type="XPath Match" name="Status Code" id="246e936a-49e9-4942-be25-1acfdbb7eda4"><con:configuration><path>//statusCode</path><content>FAIL</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="f211bc51-6995-4d62-965e-b0b1254557cd" name="XPath Match"><con:configuration><path>//validationError/code</path><content>1000</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="f211bc51-6995-4d62-965e-b0b1254557cd" name="XPath Match1"><con:configuration><path>//validationError/name</path><content>InvalidInput</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="XPath Match" id="f211bc51-6995-4d62-965e-b0b1254557cd" name="XPath Match2"><con:configuration><path>//validationError/message</path><content>extraLineItemData1LegalValues and onSelect1EntityTypeCode cannot both be present.</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/create"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties><con:property><con:name>Description</con:name><con:value>Tests related to the Create functionality in the Matter Web Service</con:value></con:property></con:properties></con:testCase><con:testCase id="cd40c5dd-020c-4fd4-ab56-1d164e5b741f" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="CreateMatterOnSelect_Case" searchProperties="true"><con:settings/><con:testStep type="request" id="cfd7d253-3e2d-4d4b-ac8c-d5f2455d6fc2" name="Create MatterOnSelect"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>createMatterOnSelect</con:operation><con:request name="Create MatterOnSelect" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="ac755e6b-64c3-4d8b-a672-cb20159a301c"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:createMatterOnSelect>
+         <matterUniqueID>${#Project#matterUniqueID}</matterUniqueID>
+         <entityTypeCode>TEA</entityTypeCode>
+      </mat:createMatterOnSelect>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="aeabd2f7-beba-48fc-bd93-be9849598dae" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="f3f36a8d-77ea-444e-a1be-495166c3c960" name="Not SOAP Fault"/><con:assertion type="XPath Match" id="8db095f6-1eb6-4499-adc6-66a05986c5cf" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/createMatterOnSelect"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="031f0d06-b0e1-41e2-bcff-d04cdbcae3c8" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Get Matters - Valid" searchProperties="true"><con:settings/><con:testStep type="request" id="5572990b-3d60-4230-828f-47fdd0d32334" name="Get Matters - Valid"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>getMatters</con:operation><con:request name="Get Matters - Valid" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="0649785c-f2f6-4b79-929d-ef048674b66c"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">\r
+   <soapenv:Header>\r
+      <mat:credentials>\r
+         <!--Optional:-->\r
+         <token>?</token>\r
+         <!--Optional:-->\r
+         <user>\r
+            <companyId>?</companyId>\r
+            <userId>?</userId>\r
+            <password>?</password>\r
+         </user>\r
+      </mat:credentials>\r
+   </soapenv:Header>\r
+   <soapenv:Body>\r
+      <mat:inMatterSearch>\r
+         <!--Optional:-->\r
+         <matterNumbers/>\r
+         <!--Optional:-->\r
+         <hasClosedDate/>\r
+      </mat:inMatterSearch>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fa1c2324-ad42-443d-aaed-4e5c6d4a1d3e" name="SOAP Response"/><con:assertion type="Schema Compliance" id="f8bc27ce-45d7-4b25-97b5-d6c379b462cc" name="Schema Compliance"><con:configuration/></con:assertion><con:assertion type="SOAP Fault Assertion" id="eb96846c-7db2-4725-ae5d-63aef17038fe" name="Not SOAP Fault"/><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/getMatters"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="4bde915f-3827-4832-8260-496cb597507d" name="Get Matters - Full"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>getMatters</con:operation><con:request name="Get Matters - Full" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="b6e00ef0-8a4b-4a81-ba58-23f66cb57fdc"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">\r
+   <soapenv:Header>\r
+      <mat:credentials>\r
+         <!--Optional:-->\r
+         <token>?</token>\r
+         <!--Optional:-->\r
+         <user>\r
+            <companyId>?</companyId>\r
+            <userId>?</userId>\r
+            <password>?</password>\r
+         </user>\r
+      </mat:credentials>\r
+   </soapenv:Header>\r
+   <soapenv:Body>\r
+      <mat:inMatterSearch>\r
+         <!--Optional:-->\r
+         <matterNumbers/>\r
+         <!--Optional:-->\r
+         <hasClosedDate/>\r
+      </mat:inMatterSearch>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="68f708ee-5b4b-4b6e-844a-3df43b93feb4" name="SOAP Response"/><con:assertion type="Schema Compliance" id="ebe1f431-afd6-427f-872b-5f91df557ca4" name="Schema Compliance" disabled="true"><con:configuration/></con:assertion><con:assertion type="SOAP Fault Assertion" id="367b5c13-dd3c-46ad-b870-94b397c29df7" name="Not SOAP Fault"/><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/getMatters"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="962abb12-28a3-4c62-9cc1-a60ac8d6eeca" name="Get Matters MatterOnSelect"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>getMatters</con:operation><con:request name="Get Matters MatterOnSelect" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="b6e00ef0-8a4b-4a81-ba58-23f66cb57fdc"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">\r
+   <soapenv:Header>\r
+      <mat:credentials>\r
+         <!--Optional:-->\r
+         <token>${#Project#SessionID}</token>\r
+         <!--Optional:-->\r
+         <user>\r
+            <companyId>?</companyId>\r
+            <userId>?</userId>\r
+            <password>?</password>\r
+         </user>\r
+      </mat:credentials>\r
+   </soapenv:Header>\r
+   <soapenv:Body>\r
+      <mat:getMatters>\r
+         <!--Optional:-->\r
+         <matterNumbers></matterNumbers>\r
+         <!--Optional:-->\r
+         <hasClosedDate></hasClosedDate>\r
+      </mat:getMatters>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="68f708ee-5b4b-4b6e-844a-3df43b93feb4" name="SOAP Response"/><con:assertion type="Schema Compliance" id="ebe1f431-afd6-427f-872b-5f91df557ca4" name="Schema Compliance"><con:configuration/></con:assertion><con:assertion type="SOAP Fault Assertion" id="367b5c13-dd3c-46ad-b870-94b397c29df7" name="Not SOAP Fault"/><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/getMatters"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="02fad899-c144-4d4e-9165-49f604254b04" name="Get Matters - No Data"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>getMatters</con:operation><con:request name="Get Matters - No Data" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="0649785c-f2f6-4b79-929d-ef048674b66c"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">\r
+   <soapenv:Header>\r
+      <mat:credentials>\r
+         <!--Optional:-->\r
+         <token>${#Project#SessionID}</token>\r
+         <!--Optional:-->\r
+         <user>\r
+            <companyId>?</companyId>\r
+            <userId>?</userId>\r
+            <password>?</password>\r
+         </user>\r
+      </mat:credentials>\r
+   </soapenv:Header>\r
+   <soapenv:Body>\r
+      <mat:getMatters>\r
+         <!--Optional:-->\r
+         <matterNumbers/>\r
+         <!--Optional:-->\r
+         <hasClosedDate/>\r
+      </mat:getMatters>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fa1c2324-ad42-443d-aaed-4e5c6d4a1d3e" name="SOAP Response"/><con:assertion type="Schema Compliance" id="f8bc27ce-45d7-4b25-97b5-d6c379b462cc" name="Schema Compliance"><con:configuration/></con:assertion><con:assertion type="SOAP Fault Assertion" id="eb96846c-7db2-4725-ae5d-63aef17038fe" name="Not SOAP Fault"/><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/getMatters"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="a2e15dd5-c733-423c-bf76-f3566cdef22e" name="Get Matters - Invalid Data"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>getMatters</con:operation><con:request name="Get Matters - Invalid Data" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="0649785c-f2f6-4b79-929d-ef048674b66c"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">\r
+   <soapenv:Header>\r
+      <mat:credentials>\r
+         <!--Optional:-->\r
+         <token>${#Project#SessionID}</token>\r
+         <!--Optional:-->\r
+         <user>\r
+            <companyId>?</companyId>\r
+            <userId>?</userId>\r
+            <password>?</password>\r
+         </user>\r
+      </mat:credentials>\r
+   </soapenv:Header>\r
+   <soapenv:Body>\r
+      <mat:inMatterSearch>\r
+         <!--Optional:-->\r
+         <matterNumbers>Invalid</matterNumbers>\r
+         <!--Optional:-->\r
+         <hasClosedDate>Invalid</hasClosedDate>\r
+      </mat:inMatterSearch>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fa1c2324-ad42-443d-aaed-4e5c6d4a1d3e" name="SOAP Response"/><con:assertion type="Schema Compliance" id="f8bc27ce-45d7-4b25-97b5-d6c379b462cc" name="Schema Compliance"><con:configuration/></con:assertion><con:assertion type="SOAP Fault Assertion" id="eb96846c-7db2-4725-ae5d-63aef17038fe" name="Not SOAP Fault"/><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/getMatters"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="UpdateMatter_Case" searchProperties="true" id="7248ba42-7aad-40ca-8cb0-3f6b19d4a211"><con:settings/><con:testStep type="groovy" name="TestData-UpdateMatter" id="f03b1185-fec4-4365-9b4f-33867bd904ac"><con:settings/><con:config><script>import soapUI.*
+import java.text.SimpleDateFormat
+
+//get new MatterID 
+def today = new Date()
+newMatterNameGUID = new SimpleDateFormat("mmssSS");
+
+
+testRunner.testCase.testSuite.project.setPropertyValue( "clientName", "Regular Routing" + newMatterNameGUID.format(today));
+testRunner.testCase.testSuite.project.setPropertyValue("UpdateEntity1","");
+testRunner.testCase.testSuite.project.setPropertyValue("UpdateEntity1v2","");</script></con:config></con:testStep><con:testStep type="request" name="updateMatter" id="5b0fb50d-9c45-4898-9145-68f32bcdfdd1"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>update</con:operation><con:request name="updateMatter" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="57b0bf63-dfcf-4fd6-9532-05ce9315a66a"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:update>
+         <matterNumber>${#Project#MatterNumber}</matterNumber>
+         <clientNumber>${#Project#clientNumber}</clientNumber>
+         <clientName>${#Project#clientName}</clientName>
+         <entity1>${#Project#UpdateEntity1}</entity1> 
+      </mat:update>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="25ca446f-199c-4de0-aab0-59604a0b738e"/><con:assertion type="XPath Match" name="Status Code" id="7353f100-4d5e-4afe-8645-f2ccaac61ae9"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/update"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateMatter_EmptyFields" id="d5266dbf-542b-4beb-8afc-088fbd5fd0f4"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>update</con:operation><con:request name="updateMatter_EmptyFields" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="3c0af320-bafa-4e91-b032-c5305ebb4d1a"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterUpdate>
+         <matterNumber>${#Project#matterNumber_Full}</matterNumber>
+         <clientNumber>${#Project#clientNumber}</clientNumber>
+         <clientName>${#Project#clientName}</clientName>
+         <!--Optional:-->
+         <parentClientNumber></parentClientNumber>
+         <!--Optional:-->
+         <matterName></matterName>
+         <!--Optional:-->
+         <type></type>
+         <!--Optional:-->
+         <routeIndependent></routeIndependent>
+         <!--Optional:-->
+         <closedDate></closedDate>
+         <!--Optional:-->
+         <GLAccount></GLAccount>
+         <!--Optional:-->
+         <entity1>${#Project#UpdateEntity1v2}</entity1>
+         <!--Optional:-->
+         <entity2></entity2>
+         <!--Optional:-->
+         <entity3></entity3>
+         <!--Optional:-->
+         <languageCode></languageCode>
+         <!--Optional:-->
+         <currencyCode></currencyCode>
+         <!--Optional:-->
+         <UDF1></UDF1>
+         <!--Optional:-->
+         <UDF2></UDF2>
+         <!--Optional:-->
+         <UDF3></UDF3>
+         <!--Optional:-->
+         <UDF4></UDF4>
+         <!--Optional:-->
+         <UDF1PersonUniqueID></UDF1PersonUniqueID>
+         <!--Optional:-->
+         <UDF2PersonUniqueID></UDF2PersonUniqueID>
+         <!--Optional:-->
+         <UDF3PersonUniqueID></UDF3PersonUniqueID>
+         <!--Optional:-->
+         <extraLineItemData1LegalValues></extraLineItemData1LegalValues>
+         <!--Optional:-->
+         <onSelect1EntityTypeCode></onSelect1EntityTypeCode>
+      </mat:inMatterUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="0bfb12fd-7c5c-4b51-bec9-d743596aac66"/><con:assertion type="XPath Match" name="Status Code" id="3c0186a2-f121-429e-ab50-c2f1d4a16c00"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/update"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties><con:property><con:name>Description</con:name><con:value>Tests related to the Update functionality in the Matter Web Service</con:value></con:property></con:properties></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="UpdateMatterFilter_Case" searchProperties="true" id="151b59eb-176a-4220-940d-cbc545f3af70"><con:settings/><con:testStep type="groovy" name="TestData-UpdateMatterFilter" id="3c11de84-188a-4b2a-9a96-e274df35060f"><con:settings/><con:config><script>import soapUI.*
+import java.text.SimpleDateFormat
+
+//get new MatterID 
+def today = new Date()
+newMatterNameGUID = new SimpleDateFormat("mmssSS");
+
+String addedMatter = testRunner.testCase.testSuite.project.getPropertyValue("matterNumber");
+String addedclientNumber = testRunner.testCase.testSuite.project.getPropertyValue("clientNumber");
+
+//set the matterNumber Properties with the new info returned from SoapUITestData
+testRunner.testCase.testSuite.project.setPropertyValue( "MatterUniqueID", addedMatter + "_" + addedclientNumber);
+testRunner.testCase.testSuite.project.setPropertyValue( "MatterUniqueID_Full", addedMatter+"_Full_"+addedclientNumber);
+testRunner.testCase.testSuite.project.setPropertyValue( "MatterSearch01", "Test" + newMatterNameGUID.format(today) + "01");
+testRunner.testCase.testSuite.project.setPropertyValue( "MatterSearch02", "Test" + newMatterNameGUID.format(today) + "02");
+
+</script></con:config></con:testStep><con:testStep type="request" name="updateMatterFilter" id="513b529a-9ae2-4b96-9409-24ad219ec0ca"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>updateMatterFilter</con:operation><con:request name="updateMatterFilter" id="3d55c578-7f6a-4c71-bbe7-fa958e78315a"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:updateMatterFilter>
+         <matterUniqueID>${#Project#MatterUniqueID}</matterUniqueID>
+         <search1>${#Project#MatterSearch01}</search1>
+         <!--Optional:-->
+         <search2>${#Project#MatterSearch02}</search2>
+      </mat:updateMatterFilter>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="645234bc-a892-45e1-a8da-661862b57e3f"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://matter.ws.chromeriver.com/MatterService/updateMatterFilter" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="updateMatterFilter_EmptyFields" id="aa86e384-d093-49cc-9c95-6dc2d591de47"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>updateMatterFilter</con:operation><con:request name="updateMatterFilter_EmptyFields" id="40ea186f-31cf-4b8f-9696-2c59dfbe04f7"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterFilterUpdate>
+         <matterUniqueID>${#Project#MatterUniqueID_Full}</matterUniqueID>
+         <search1>${#Project#MatterSearch01}</search1>
+         <!--Optional:-->
+         <search2></search2>
+      </mat:inMatterFilterUpdate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="XPath Match" name="XPath Match" id="c95d54b1-8aef-474b-a3bb-931c765ca185"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="http://matter.ws.chromeriver.com/MatterService/updateMatterFilter" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties><con:property><con:name>Description</con:name><con:value>Tests related to the Updating of Matter Filters functionality in the Matter Web Service</con:value></con:property></con:properties></con:testCase><con:testCase id="4b9f0eba-53ac-4381-9e41-67e0ac5ff3e9" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="UpdateMatterOnSelect" searchProperties="true"><con:settings/><con:testStep type="request" id="2a4274e9-4d41-4bbf-af2b-1f541826933a" name="updateMatterOnSelect"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>updateMatterOnSelect</con:operation><con:request name="updateMatterOnSelect" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="3f2f1f5a-09dd-493c-a94f-5a84be3e4eeb"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:updateMatterOnSelect>
+         <matterUniqueID>${#Project#matterUniqueID}</matterUniqueID>
+         <entityTypeCode>TEA</entityTypeCode>
+      </mat:updateMatterOnSelect>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="2219d755-5b28-4593-9e4c-460ca2b6a8b1" name="SOAP Response"/><con:assertion type="Schema Compliance" id="cb8da489-5252-4f02-bcb8-628be5f7c208" name="Schema Compliance"><con:configuration/></con:assertion><con:assertion type="SOAP Fault Assertion" id="65013e3a-8aa4-4eb6-ab93-88c8fd5a54d8" name="Not SOAP Fault"/><con:assertion type="XPath Match" id="5c5f2ba2-c2e2-48d0-8cec-949234f03202" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://matter.ws.chromeriver.com/MatterService/updateMatterOnSelect"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="ValidateMatterUniqueIDViolation" searchProperties="true" id="2fdb2f2d-04a7-47a5-b9f8-9a711acbe7c6"><con:description/><con:settings/><con:testStep type="request" name="TestRequestB" id="10c7e5e9-69f4-441f-99c8-e0fea11b62a0"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>createMatterOnSelect</con:operation><con:request name="TestRequestB" id="208e36c7-7c18-4989-9bc0-a24823f75fd5"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId></companyId>
+            <userId></userId>
+            <password></password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterOnSelectCreate>
+         <matterUniqueID>?</matterUniqueID>
+         <entityTypeCode>?</entityTypeCode>
+      </mat:inMatterOnSelectCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="Simple NotContains" name="Not Contains" id="ae0020b1-8ca6-4e89-b4af-a8635c3c7f3a"><con:configuration><token>Invalid login information.</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:assertion type="GroovyScriptAssertion" name="Script Assertion AssertInvalidMatterUniqID" id="a9a71700-864d-43ef-b896-eb7e8095f88d"><con:configuration><scriptText>def groovyUtils = new com.eviware.soapui.support.GroovyUtils( context )
+def requsetHolder = groovyUtils.getXmlHolder( messageExchange.requestContent )
+def responseHolder = groovyUtils.getXmlHolder( messageExchange.responseContent )
+
+def InvalidMatterUniqId = responseHolder.getNodeValue("//ns2:createMatterOnSelectResponse/validationError[2]/code")
+assert InvalidMatterUniqId == "2011"
+
+//def statuscode = responseHolder.getNodeValue("//ns2:createMatterOnSelectResponse/statusCode")
+//assert statuscode == "FAIL"
+//log.info statuscode
+</scriptText></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="ValidateEntityTypeCodeViolation" searchProperties="true" id="2a6b0af1-8f9c-4473-aa79-a617874985d8"><con:description>Constraint: in create and update call, must refer to an existing entityType
+Violation: input value refer to an unexisting entityType
+Error: 2005/InvalidEntityTypeCode</con:description><con:settings/><con:testStep type="request" name="Test Request" id="8798f533-6563-4aad-9595-adfa773a6bf1"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>createMatterOnSelect</con:operation><con:request name="Test Request" id="2706c3d8-4c7b-4d55-9cef-44a3d99902ad"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>${#Project#CompanyID}</companyId>
+            <userId>${#Project#Username}</userId>
+            <password>${#Project#Password}</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterOnSelectCreate>
+         <matterUniqueID>?</matterUniqueID>
+         <entityTypeCode>?</entityTypeCode>
+      </mat:inMatterOnSelectCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="Simple NotContains" name="Not Contains" id="f9cdc74b-92fa-4025-a9a6-dd598636eebc"><con:configuration><token>Invalid login information.</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:assertion type="GroovyScriptAssertion" name="Script Assertion InvalidEntityTypeCode" id="023295a8-ba61-44bb-9d3a-649da8341290"><con:configuration><scriptText>def groovyUtils = new com.eviware.soapui.support.GroovyUtils( context )
+def requsetHolder = groovyUtils.getXmlHolder( messageExchange.requestContent )
+def responseHolder = groovyUtils.getXmlHolder( messageExchange.responseContent )
+
+def InvalidEntityTypeCode = responseHolder.getNodeValue("//ns2:createMatterOnSelectResponse/validationError[1]/code")
+assert InvalidEntityTypeCode == "2005"</scriptText></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="ValidateMatterUniqueIDDoesNotExist" searchProperties="true" id="a411a63d-cb16-447c-aaba-8ef5bb9fa41d"><con:description/><con:settings/><con:testStep type="request" name="MatterOnSelectRequest" id="17a3ed02-d506-4694-847e-f1f0f1a966b3"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>createMatterOnSelect</con:operation><con:request name="MatterOnSelectRequest" id="7a25d072-667f-47d9-abaf-0f89ad46c33d"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>${#Project#CompanyID}</companyId>
+            <userId>${#Project#Username}</userId>
+            <password>${#Project#Password}</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterOnSelectCreate>
+         <matterUniqueID>${#Project#MuidDoesNotExist}</matterUniqueID>
+         <entityTypeCode>OFF</entityTypeCode>
+      </mat:inMatterOnSelectCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="Simple NotContains" name="Not Contains" id="a696d0fb-7e22-4ff9-98a9-f93507dbe2a2"><con:configuration><token>Invalid login information.</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:assertion type="GroovyScriptAssertion" name="Script Assertion AssertMatterOnSelectDoesNotExist" id="f908a63b-9197-4077-91f6-6660137f6a4e"><con:configuration><scriptText>def groovyUtils = new com.eviware.soapui.support.GroovyUtils( context )
+def requsetHolder = groovyUtils.getXmlHolder( messageExchange.requestContent )
+def responseHolder = groovyUtils.getXmlHolder( messageExchange.responseContent )
+
+def MatterOnSelectError = responseHolder.getNodeValue("//ns2:createMatterOnSelectResponse/validationError[1]/message")
+assert MatterOnSelectError == "Matter with 'soapui111111' unique ID doesn't exist"</scriptText></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="ValidateLoginCredentials" searchProperties="true" id="1ec57666-b2f6-48ed-bfbf-7b7ed18aa92f"><con:settings/><con:testStep type="request" name="TestRequest" id="23358027-3720-49fb-995e-207415af1c7f"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>createMatterOnSelect</con:operation><con:request name="TestRequest" id="f78f1dea-2baa-43d3-83f2-b87bb1e87bb3"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>${#Project#CompanyID}</companyId>
+            <userId>${#Project#Username}</userId>
+            <password>${#Project#Password}</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterOnSelectCreate>
+         <matterUniqueID>?</matterUniqueID>
+         <entityTypeCode>?</entityTypeCode>
+      </mat:inMatterOnSelectCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="Simple NotContains" name="Not Contains" id="fab56d9a-3c9a-405d-9c0a-75dde484482c"><con:configuration><token>Invalid login information.</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:assertion type="GroovyScriptAssertion" name="Script Assertion" id="d23b9dcc-779c-4e28-ae7b-3c697042a6cf"><con:configuration><scriptText>def groovyUtils = new com.eviware.soapui.support.GroovyUtils( context )
+def records = new XmlSlurper()
+def holder = groovyUtils.getXmlHolder("TestRequest#Response")
+log.info holder
+//need to go into Response and validate xpath but not working
+//def SessionID = holder['//mat:credentials/token']
+</scriptText></con:configuration></con:assertion><con:assertion type="Simple Contains" name="Contains" id="d4794f7e-d4fc-4639-a516-a9da12a9e955"><con:configuration><token>2011</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="ValidateEntityTypeCodeDoesNotExist" searchProperties="true" id="cfeef8e9-c8dd-4cf5-8427-acaedb664673"><con:description/><con:settings/><con:testStep type="request" name="MatterOnSelectRequest" id="75533e5e-f8ac-416f-afda-cb9a1550931e"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>createMatterOnSelect</con:operation><con:request name="MatterOnSelectRequest" id="b87d2411-f68d-4aa9-bfa7-d81e759b0146"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>${#Project#CompanyID}</companyId>
+            <userId>${#Project#Username}</userId>
+            <password>${#Project#Password}</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterOnSelectCreate>
+         <matterUniqueID>${#Project#MuidDoesExist}</matterUniqueID>
+         <entityTypeCode>${#Project#TypeCodeDoesNotExist}</entityTypeCode>
+      </mat:inMatterOnSelectCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="Simple NotContains" name="Not Contains" id="1a22ed0a-77f8-4956-97ff-5b8dba83f3dd"><con:configuration><token>Invalid login information.</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:assertion type="GroovyScriptAssertion" name="Script Assertion AssertEntityTypeDoesNotExist" id="f75dd463-ecd8-42ce-9cc3-4ae6787130f2"><con:configuration><scriptText>def groovyUtils = new com.eviware.soapui.support.GroovyUtils( context )
+def requsetHolder = groovyUtils.getXmlHolder( messageExchange.requestContent )
+def responseHolder = groovyUtils.getXmlHolder( messageExchange.responseContent )
+
+def EntityTypeDoesNotExist = responseHolder.getNodeValue("//ns2:createMatterOnSelectResponse/validationError/message")
+//info.log EntityTypeDoesNotExist.size()
+assert EntityTypeDoesNotExist == "EntityType with '111' code doesn't exist"</scriptText></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="ValidateMatterEntityAlreadyExists" searchProperties="true" id="e7768f1a-bdf4-4554-861d-c6f399262cf2"><con:description/><con:settings/><con:testStep type="request" name="MatterOnSelectRequest" id="880f04d5-be77-4eec-b04f-b9618a680a46"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>createMatterOnSelect</con:operation><con:request name="MatterOnSelectRequest" id="5d678212-2e88-4b7d-95f4-faa8407f00f2"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>${#Project#CompanyID}</companyId>
+            <userId>${#Project#Username}</userId>
+            <password>${#Project#Password}</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterOnSelectCreate>
+         <matterUniqueID>${#Project#matterUniqueID}</matterUniqueID>
+         <entityTypeCode>${#Project#TypeCodeDoesExist}</entityTypeCode>
+      </mat:inMatterOnSelectCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="Simple NotContains" name="Not Contains" id="be950cfc-033c-4f3c-82a5-d89cfc34875b"><con:configuration><token>Invalid login information.</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:assertion type="GroovyScriptAssertion" name="Script Assertion AssertEntityTypeDoesNotExist" id="d91a34b2-cc56-4287-99ef-a3f8920465d9"><con:configuration><scriptText>def groovyUtils = new com.eviware.soapui.support.GroovyUtils( context )
+def requsetHolder = groovyUtils.getXmlHolder( messageExchange.requestContent )
+def responseHolder = groovyUtils.getXmlHolder( messageExchange.responseContent )
+
+def ObjectExists = responseHolder.getNodeValue("//ns2:createMatterOnSelectResponse/validationError/name")
+assert ObjectExists == "ObjectExists"</scriptText></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="ValidateEntityTypeCodeDoesExist" searchProperties="true" id="c73156c4-e388-4297-b213-b5ea460731a4"><con:description/><con:settings/><con:testStep type="request" name="MatterOnSelectRequest" id="6d577e48-f17f-42b3-9ff2-256eb97b1ac3"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>createMatterOnSelect</con:operation><con:request name="MatterOnSelectRequest" id="ebe19a23-d711-4302-be08-f6b5f3c0c923"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>${#Project#CompanyID}</companyId>
+            <userId>${#Project#Username}</userId>
+            <password>${#Project#Password}</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterOnSelectCreate>
+         <matterUniqueID>${#Project#matterUniqueID}</matterUniqueID>
+         <entityTypeCode>${#Project#TypeCodeDoesExist}</entityTypeCode>
+      </mat:inMatterOnSelectCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="Simple NotContains" name="Not Contains" id="3c5e4c86-45b5-4b01-955f-1ef626665291"><con:configuration><token>Invalid login information.</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:assertion type="GroovyScriptAssertion" name="Script Assertion AssertEntityTypeDoesNotExist" id="697d7be7-eb2c-42cc-a83c-40cc3bbe3e18"><con:configuration><scriptText>def groovyUtils = new com.eviware.soapui.support.GroovyUtils( context )
+def requsetHolder = groovyUtils.getXmlHolder( messageExchange.requestContent )
+def responseHolder = groovyUtils.getXmlHolder( messageExchange.responseContent )
+
+def EntityTypeDoesExist = responseHolder.getNodeValue("//ns2:createMatterOnSelectResponse/statusCode")
+//info.log EntityTypeDoesNotExist.size()
+assert EntityTypeDoesExist == "FAIL"
+
+def ValidationError = responseHolder.getNodeValue("//ns2:createMatterOnSelectResponse/validationError/name")
+assert ValidationError == "ObjectExists"</scriptText></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="ValidateMatterUniqueIDDoesExist" searchProperties="true" id="46efb080-d513-4570-a285-76ee1a2d80a9"><con:description/><con:settings/><con:testStep type="request" name="MatterOnSelectRequest" id="7ff43fd4-1964-461c-be9b-142dfcd0e4df"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>createMatterOnSelect</con:operation><con:request name="MatterOnSelectRequest" id="5d51a1b1-8f6f-43ee-bf9d-1afe0f8fc924"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>?</token>
+         <!--Optional:-->
+         <user>
+            <companyId>${#Project#CompanyID}</companyId>
+            <userId>${#Project#Username}</userId>
+            <password>${#Project#Password}</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterOnSelectCreate>
+         <matterUniqueID>${#Project#matterUniqueID}</matterUniqueID>
+         <entityTypeCode>TEA</entityTypeCode>
+      </mat:inMatterOnSelectCreate>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="Simple NotContains" name="Not Contains" id="4f6ea091-a412-4219-b901-7f1e021e8759"><con:configuration><token>Invalid login information.</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:assertion type="GroovyScriptAssertion" name="Script Assertion AssertMatterOnSelectDoesExist" id="d8822a33-7768-4948-8c2d-f26670b156ea"><con:configuration><scriptText>def groovyUtils = new com.eviware.soapui.support.GroovyUtils( context )
+def requsetHolder = groovyUtils.getXmlHolder( messageExchange.requestContent )
+def responseHolder = groovyUtils.getXmlHolder( messageExchange.responseContent )
+
+def MatterOnSelectError = responseHolder.getNodeValue("//ns2:createMatterOnSelectResponse/validationError[2]/message")
+//info.log MatterOnSelectError.size()
+assert null == MatterOnSelectError</scriptText></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DeleteMatter_Case" searchProperties="true" id="a2fdb4ae-a55a-4fe8-9866-0585295c960e"><con:settings/><con:testStep type="request" name="delete Matter" id="16b8c17a-17e1-4a20-ae90-9d85131c2707"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>deleteMatter</con:operation><con:request name="delete Matter" id="24c15973-384a-4a09-a138-9ad239be2d32"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:deleteMatter>
+         <matterNumber>${#Project#matterNumber}</matterNumber>
+         <clientNumber>${#Project#clientNumber}</clientNumber>
+         <clientName>${#Project#clientName}</clientName>
+      </mat:deleteMatter>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="4aa11a92-7ce9-4135-82c8-e8290c38a004"/><con:assertion type="XPath Match" id="a11219fe-25d3-4fa6-8b60-a267c849543e" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" name="delete Matter Full" id="efad4e0e-f274-427b-ac49-658c0e6edee6"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>MatterServiceSoapBinding</con:interface><con:operation>deleteMatter</con:operation><con:request name="delete Matter Full" id="24c15973-384a-4a09-a138-9ad239be2d32"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://${#Project#baseHost}/ws_MatterV1</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mat="http://matter.ws.chromeriver.com/">
+   <soapenv:Header>
+      <mat:credentials>
+         <!--Optional:-->
+         <token>${#Project#SessionID}</token>
+         <!--Optional:-->
+         <user>
+            <companyId>?</companyId>
+            <userId>?</userId>
+            <password>?</password>
+         </user>
+      </mat:credentials>
+   </soapenv:Header>
+   <soapenv:Body>
+      <mat:inMatterDelete>
+         <matterNumber>${#Project#matterNumber_Full}</matterNumber>
+         <clientNumber>${#Project#clientNumber}</clientNumber>
+         <clientName>${#Project#clientName}</clientName>
+      </mat:inMatterDelete>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="4aa11a92-7ce9-4135-82c8-e8290c38a004"/><con:assertion type="XPath Match" id="9bf43c70-3715-450d-853a-a23a613ad6da" name="XPath Match"><con:configuration><path>//statusCode</path><content>SUCCESS</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties><con:property><con:name>Description</con:name><con:value>Tests related to the Create functionality in the Matter Web Service</con:value></con:property></con:properties></con:testCase><con:properties/></con:testSuite><con:properties><con:property><con:name>UserName</con:name><con:value>pbjtest</con:value></con:property><con:property><con:name>Password</con:name><con:value>1river1</con:value></con:property><con:property><con:name>CompanyID</con:name><con:value>www.pbj.com</con:value></con:property><con:property><con:name>StagingPassword</con:name><con:value>1river1</con:value></con:property><con:property><con:name>QAPassword</con:name><con:value>DTFVOg46xWOcyYG</con:value></con:property><con:property><con:name>ProductionPassword</con:name><con:value>1river1</con:value></con:property><con:property><con:name>SessionID</con:name><con:value>f4e6ca91-c7fd-4d80-afe7-4a5346bbfc42</con:value></con:property><con:property><con:name>matterNumber</con:name><con:value>WS_0630155422486</con:value></con:property><con:property><con:name>MatterNumber_Empty</con:name><con:value>WS_1217161559729_Empty</con:value></con:property><con:property><con:name>clientNumber</con:name><con:value>1883799</con:value></con:property><con:property><con:name>clientName</con:name><con:value>Regular Routing5426635</con:value></con:property><con:property><con:name>parentClientNumber</con:name><con:value>NULL</con:value></con:property><con:property><con:name>matterName</con:name><con:value>WS_0630155422486</con:value></con:property><con:property><con:name>type</con:name><con:value>B</con:value></con:property><con:property><con:name>routeIndependent</con:name><con:value>1</con:value></con:property><con:property><con:name>closedDate</con:name><con:value>01/02/2015</con:value></con:property><con:property><con:name>GLAccount</con:name><con:value>GL_WS_TEST</con:value></con:property><con:property><con:name>entity1</con:name><con:value>FIN</con:value></con:property><con:property><con:name>entity2</con:name><con:value>MGMT</con:value></con:property><con:property><con:name>entity3</con:name><con:value>100</con:value></con:property><con:property><con:name>languageCode</con:name><con:value>en</con:value></con:property><con:property><con:name>currencyCode</con:name><con:value>USD</con:value></con:property><con:property><con:name>UDF1</con:name><con:value>A</con:value></con:property><con:property><con:name>UDF2</con:name><con:value>B</con:value></con:property><con:property><con:name>UDF3</con:name><con:value>C</con:value></con:property><con:property><con:name>UDF4</con:name><con:value>D</con:value></con:property><con:property><con:name>UDF1PersonUniqueID</con:name><con:value>eowner</con:value></con:property><con:property><con:name>UDF2PersonUniqueID</con:name><con:value>abecknell</con:value></con:property><con:property><con:name>UDF3PersonUniqueID</con:name><con:value>traveluser</con:value></con:property><con:property><con:name>extraLineItemData1LegalValues</con:name><con:value>BKK,SEA,HKG,MCI,LAX</con:value></con:property><con:property><con:name>onSelect1EntityTypeCode</con:name><con:value>TEA</con:value></con:property><con:property><con:name>matterUniqueID</con:name><con:value>WS_0630155422486_1883799</con:value></con:property><con:property><con:name>UpdateEntity1</con:name><con:value/></con:property><con:property><con:name>UpdateEntity1v2</con:name><con:value/></con:property><con:property><con:name>MatterUniqueID_Empty</con:name><con:value>WS_1217173942511_Empty_1883799</con:value></con:property><con:property><con:name>MatterSearch01</con:name><con:value>Test542712501</con:value></con:property><con:property><con:name>MatterSearch02</con:name><con:value>Test542712502</con:value></con:property><con:property><con:name>matterNumber_Full</con:name><con:value>WS_0630155422486_Full</con:value></con:property><con:property><con:name>matterNumber_Full2</con:name><con:value>WS_0630155422486_Full2</con:value></con:property><con:property><con:name>MatterUniqueID_Full</con:name><con:value>WS_0630155422486_Full_1883799</con:value></con:property><con:property><con:name>MuidDoesNotExist</con:name><con:value>soapui111111</con:value></con:property><con:property><con:name>MuidDoesExist</con:name><con:value>10121985</con:value></con:property><con:property><con:name>TypeCodeDoesNotExist</con:name><con:value>111</con:value></con:property><con:property><con:name>TypeCodeDoesExist</con:name><con:value>OFF</con:value></con:property><con:property><con:name>baseHost</con:name><con:value>api.chromeriver.com</con:value></con:property></con:properties><con:wssContainer/><con:oAuth2ProfileContainer/><con:sensitiveInformation/></con:soapui-project>

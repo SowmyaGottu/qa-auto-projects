@@ -1,0 +1,111 @@
+*** Keywords ***
+
+Verify Platinum URL
+    [Arguments]  ${OVERRIDE}=None
+    Wait Until Page Contains Element  //*[@id="Main"]                             25 Seconds
+    #Sleep   15 Seconds
+    ${CurrentUrl}=  Get Location
+    ${Check}=  Fetch From Right  ${CurrentUrl}  v=
+    # Validates URL to reach Platinum App
+    Run Keyword If    '${OVERRIDE}' == 'PROD'  Should Be Equal  ${CurrentUrl}  https://www.chromeriver.com/expense/app.jsp?v=${Check}
+    ...    ELSE IF    '${OVERRIDE}' == 'QA'    Should Be Equal  ${CurrentUrl}  https://qa.chromeriver.com/expense/app.jsp?v=${Check}
+    ...    ELSE IF    '${OVERRIDE}' == 'STAG'  Should Be Equal  ${CurrentUrl}  https://staging.chromeriver.com/expense/app.jsp?v=${Check}
+    ...    ELSE IF    '${ENV}' == 'PROD'  Should Be Equal  ${CurrentUrl}  https://www.chromeriver.com/expense/app.jsp?v=${Check}
+    ...    ELSE IF    '${ENV}' == 'QA'    Should Be Equal  ${CurrentUrl}  https://qa.chromeriver.com/expense/app.jsp?v=${Check}
+    ...    ELSE                           Should Be Equal  ${CurrentUrl}  https://staging.chromeriver.com/expense/app.jsp?v=${Check}
+    Sleep     60   Seconds
+    ## Image Verification
+    # Try 0
+    ${Needle}=  StringJoin  ${CURDIR}${/}  ..${/}Images${/}Advanced.png
+    ${Result}=  Platinum Image Verification  ${Needle}
+    # Try 1
+    ${Needle}=  Run Keyword If  '${Result}' == 'False'  StringJoin  ${CURDIR}${/}  ..${/}Images${/}UnsubmittedExpenses.png
+    ...       ELSE  Set Variable  ${Needle}
+    ${Result}=  Run Keyword If  '${Result}' == 'False'  Platinum Image Verification  ${Needle}
+    ...       ELSE  Set Variable  ${Result}
+    # Try 2
+    ${Needle}=  Run Keyword If  '${Result}' == 'False'  StringJoin  ${CURDIR}${/}  ..${/}Images${/}Details.png
+    ...       ELSE  Set Variable  ${Needle}
+    ${Result}=  Run Keyword If  '${Result}' == 'False'  Platinum Image Verification  ${Needle}
+    ...       ELSE  Set Variable  ${Result}
+    Should Be True  ${Result}
+
+Platinum Image Verification
+    [Arguments]  ${Needle}=None
+    ${fileName}=  Generate Random String
+    Capture Page Screenshot  ..${/}TempImages${/}${fileName}.png
+    ${fullPath}=  StringJoin  ${CURDIR}${/}  ..${/}TempImages${/}${fileName}.png
+    ${Result}=  Verify Dashboard Icon  ${fullPath}  ${Needle}
+    Run Keyword If  '${Result}' == 'False'  Log To Console  ${Needle}:${fullPath}
+    [Return]  ${Result}
+
+Validate Platinum Session in Mercury
+    [Arguments]  ${JSESSIONID}  ${CR_SESSION_TOKEN}
+    Open Browser  http://apollo.staging.pool.chromeriver.com/mercury/login?ui=hg  ${BROWSER}
+    Sleep     10   Seconds
+    Add Cookie  JSESSIONID  ${JSESSIONID}
+    Add Cookie  cr_session_token_staging  ${CR_SESSION_TOKEN}
+    Go To   http://apollo.staging.pool.chromeriver.com/apollo/dashboardSummary/
+    Sleep     10   Seconds
+    Page Should Not Contain  "statusCode" : "FAIL"
+    Sleep     2   Seconds
+    Close Browser
+
+Verify Failed Platinum Page
+    [Arguments]  ${OVERRIDE}=None
+    Wait Until Page Contains Element  //*[@id="Main"]                             25 Seconds
+    #Sleep   15 Seconds
+    ${CurrentUrl}=  Get Location
+    ${Check}=  Fetch From Right  ${CurrentUrl}  v=
+    # Validates URL to reach Platinum App
+    Run Keyword If    '${OVERRIDE}' == 'PROD'  Should Be Equal  ${CurrentUrl}  https://www.chromeriver.com/expense/app.jsp?v=${Check}
+    ...    ELSE IF    '${OVERRIDE}' == 'QA'    Should Be Equal  ${CurrentUrl}  https://qa.chromeriver.com/expense/app.jsp?v=${Check}
+    ...    ELSE IF    '${OVERRIDE}' == 'STAG'  Should Be Equal  ${CurrentUrl}  https://staging.chromeriver.com/expense/app.jsp?v=${Check}
+    ...    ELSE IF    '${ENV}' == 'PROD'  Should Be Equal  ${CurrentUrl}  https://www.chromeriver.com/expense/app.jsp?v=${Check}
+    ...    ELSE IF    '${ENV}' == 'QA'    Should Be Equal  ${CurrentUrl}  https://qa.chromeriver.com/expense/app.jsp?v=${Check}
+    ...    ELSE                           Should Be Equal  ${CurrentUrl}  https://staging.chromeriver.com/expense/app.jsp?v=${Check}
+    Sleep     60   Seconds
+    ## Image Verification
+    # Try 0
+    ${Needle}=  StringJoin  ${CURDIR}${/}  ..${/}Images${/}Failed_Message.png
+    ${Result}=  Platinum Image Verification  ${Needle}
+    # Try 1
+    ${Needle}=  Run Keyword If  '${Result}' == 'False'  StringJoin  ${CURDIR}${/}  ..${/}Images${/}Failed_Message.png
+    ...       ELSE  Set Variable  ${Needle}
+    ${Result}=  Run Keyword If  '${Result}' == 'False'  Platinum Image Verification  ${Needle}
+    ...       ELSE  Set Variable  ${Result}
+    # Try 2
+    ${Needle}=  Run Keyword If  '${Result}' == 'False'  StringJoin  ${CURDIR}${/}  ..${/}Images${/}Failed_Message.png
+    ...       ELSE  Set Variable  ${Needle}
+    ${Result}=  Run Keyword If  '${Result}' == 'False'  Platinum Image Verification  ${Needle}
+    ...       ELSE  Set Variable  ${Result}
+    Should Be True  ${Result}
+
+Test Cookie Code
+    #Wait Until Page Contains Element                //*[@src="ExpenseEntryModule.swf?v="]        60 Seconds
+    #Sleep     10  Seconds
+    #${Cookie}=  Get Cookies
+    #Log To Console  ${Cookie}
+    #${CR_SESSION_TOKEN}=  Get Cookie Value  cr_session_token_staging
+    #${JSESSIONID}=  Get Cookie Value  JSESSIONID
+    #Log To Console  ${fullpath}
+    #Verify_Dashboard_Icon  ${fullpath}
+    #Sleep     2    Seconds
+    #Close Browser
+    #Validate Platinum Session in Mercury  ${JSESSIONID}  ${CR_SESSION_TOKEN}
+
+Verify Mercury Dashboard
+    Wait Until Page Contains Element                                              //div[@data-qa='expensesDashboardPanel']             25 Seconds
+    Sleep     2   Seconds
+
+Verify Failed OneLogin Message
+    Wait Until Page Contains Element                //*[@id="errors"]/div[contains(text(),"Invalid username or password")]        25 Seconds
+    Sleep     2   Seconds
+
+Verify Failed Mercury Message
+    Wait Until Page Contains Element                //*[@id="errors"]/span[contains(text(),"Incorrect UserID, CompanyID or Password")]      25 Seconds
+    Sleep     2   Seconds
+
+Verify Restricted Mercury Message
+    Wait Until Page Contains Element                //h2[@data-qa='accessRestrictedHeader']      25 Seconds
+    Sleep     2   Seconds

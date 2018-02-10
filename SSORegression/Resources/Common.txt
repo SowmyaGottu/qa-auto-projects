@@ -1,0 +1,58 @@
+*** Keywords ***
+
+Open New Browser
+    [Arguments]  ${FullPath}  ${BROWSER}
+    #Log To Console   ${FullPath}
+    Run Keyword If    '${BROWSER}' == 'ie'    Open InternetExplorer       ${FullPath}
+    ...  ELSE IF      '${BROWSER}' == 'gc'    Open Chrome                 ${FullPath}
+    ...  ELSE                                 Open Firefox                ${FullPath}
+    Set Window Size  916  791
+
+Open Chrome
+    [Arguments]  ${Path}
+    Open Browser    ${Path}     browser=chrome
+
+Open Firefox
+    [Arguments]  ${Path}
+    Open Browser    ${Path}     browser=firefox
+
+Open InternetExplorer
+    [Arguments]  ${Path}
+    Open Browser    ${Path}     browser=ie    desired_capabilities=ignoreProtectedModeSettings:true,initialBrowserUrl=${Path}
+
+Get Local File Path
+    Return From Keyword  file:///${CURDIR}${/}..${/}TestFiles${/}${${ENV}_SSO_File}
+
+OneLogin App
+    [Arguments]  ${UserName}  ${Password}
+    Wait Until Page Contains Element                    //*[@id="user_email"]                           25 Seconds
+    Input Text                                          //*[@id="user_email"]                           ${UserName}
+    Input Text                                          //*[@id="user_password"]                        ${Password}
+    Click Element                                       //*[@id="user_submit"]
+
+Mercury App
+    [Arguments]  ${UserName}  ${Password}  ${CompanyID}
+    Wait Until Page Contains Element                    //*[@id="username"]     25 Seconds
+    Input Text                                          //*[@id="username"]     ${UserName}
+    Input Text                                          //*[@id="password"]     ${Password}
+    Input Text                                          //*[@id="companyId"]    ${CompanyID}
+    #Press Key                                          //*[@id="password"]     \\13
+    Click Element                                       //*[@name="Login"]
+
+Local Page
+    [Arguments]  ${UserName}  ${Password}  ${CompanyID}
+    Wait Until Page Contains Element                    //*[@name="username"]     25 Seconds
+    Input Text                                          //*[@name="username"]     ${UserName}
+    Input Text                                          //*[@name="password"]     ${Password}
+    Input Text                                          //*[@name="companyId"]    ${CompanyID}
+    #Press Key                                          //*[@id="password"]     \\13
+    Click Element                                       //*[@id="Login"]
+
+SSO Simulation Page
+    [Arguments]  ${UserName}  ${Password}  ${CompanyID}
+    Wait Until Page Contains Element                    //*[@name="username"]     25 Seconds
+    Input Text                                          //*[@name="username"]     ${UserName}
+    Input Text                                          //*[@name="password"]     ${Password}
+    Input Text                                          //*[@name="companyId"]    ${CompanyID}
+    Sleep     10   Seconds
+    Click Element                                       //*[@name="login"]

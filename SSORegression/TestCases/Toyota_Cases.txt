@@ -1,0 +1,137 @@
+*** Settings ***
+Documentation  Toyota SAML Test Cases
+Test Teardown     Close Browser
+Resource  ../Resources/Resource.txt
+
+*** Test Cases ***
+Toyota SAML Java Get Url OneLogin Platinum Email Pass Case
+    [Documentation]  Verify Login
+    [Tags]  Toyota  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  MS_JAVA  GET  URL  ONELOGIN  PLATINUM  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${BLT_Saml_PlatinumUserEmail}  ${BLT_Saml_PlatinumPassword}
+        Verify Platinum URL
+
+Toyota Saml Java Get Url OneLogin Platinum Email Fail Case
+    [Documentation]  Verify Login
+    [Tags]  Toyota  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  MS_JAVA  GET  URL  ONELOGIN  PLATINUM  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${BLT_Saml_PlatinumUserEmail}  ${BLT_Saml_PlatinumPassword_Bad}
+        Verify Failed OneLogin Message
+
+Toyota Saml Java Get Url OneLogin Platinum UniqueId Pass Case
+    [Documentation]  Verify Login
+    [Tags]  Toyota  SAML  UniqueId
+        #Set Global Variable    ${BROWSER}    ff
+        ${Path}=  Intial Setup  ${ENV}  SAML  MS_JAVA  GET  URL  ONELOGIN  PLATINUM  UNIQUEID  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${BLT_Saml_PlatinumUserEmail}  ${BLT_Saml_PlatinumPassword}
+        Verify Platinum URL
+
+Toyota Saml Java Get Url OneLogin Platinum UniqueId Fail Case
+    [Documentation]  Verify Login
+    [Tags]  Toyota  SAML  UniqueId
+        ${Path}=  Intial Setup  ${ENV}  SAML  MS_JAVA  GET  URL  ONELOGIN  PLATINUM  UNIQUEID  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${BLT_Saml_PlatinumUserEmail}  ${BLT_Saml_PlatinumPassword_Bad}
+        Verify Failed OneLogin Message
+
+Toyota SAML Java Post Url OneLogin Platinum Email Pass Case
+    [Documentation]  Verify Login
+    [Tags]  Toyota  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  MS_JAVA  POST  URL  ONELOGIN  PLATINUM  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${BLT_Saml_PlatinumUserEmail}  ${BLT_Saml_PlatinumPassword}
+        Verify Platinum URL
+
+Toyota Saml Java Post Url OneLogin Platinum Email Fail Case
+    [Documentation]  Verify Login
+    [Tags]  Toyota  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  MS_JAVA  POST  URL  ONELOGIN  PLATINUM  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${BLT_Saml_PlatinumUserEmail}  ${BLT_Saml_PlatinumPassword_Bad}
+        Verify Failed OneLogin Message
+
+Toyota Saml Java Post Url OneLogin Platinum UniqueId Pass Case
+    [Documentation]  Verify Login
+    [Tags]  Toyota  SAML  UniqueId
+        #Set Global Variable    ${BROWSER}    ff
+        ${Path}=  Intial Setup  ${ENV}  SAML  MS_JAVA  POST  URL  ONELOGIN  PLATINUM  UNIQUEID  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${BLT_Saml_PlatinumUserEmail}  ${BLT_Saml_PlatinumPassword}
+        Verify Platinum URL
+
+Toyota Saml Java Post Url OneLogin Platinum UniqueId Fail Case
+    [Documentation]  Verify Login
+    [Tags]  Toyota  SAML  UniqueId
+        ${Path}=  Intial Setup  ${ENV}  SAML  MS_JAVA  POST  URL  ONELOGIN  PLATINUM  UNIQUEID  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${BLT_Saml_PlatinumUserEmail}  ${BLT_Saml_PlatinumPassword_Bad}
+        Verify Failed OneLogin Message
+
+Toyota SAML Java Get Url OneLogin Mercury Email Pass Case
+    [Documentation]  Verify Login
+    [Tags]  Toyota  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  MS_JAVA  GET  URL  ONELOGIN  MERCURY  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${BLT_Saml_MercuryUserEmail}  ${BLT_Saml_MercuryPassword}
+        Verify Mercury Dashboard
+
+Toyota Saml Java Get Url OneLogin Mercury Email Fail Case
+    [Documentation]  Verify Login
+    [Tags]  Toyota  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  MS_JAVA  GET  URL  ONELOGIN  MERCURY  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${BLT_Saml_MercuryUserEmail}  ${BLT_Saml_MercuryPassword_Bad}
+        Verify Failed OneLogin Message
+
+Toyota Saml Java Get Url OneLogin Mercury UniqueId Pass Case
+    [Documentation]  Verify Login
+    [Tags]  Toyota  SAML  UniqueId
+        #Set Global Variable    ${BROWSER}    ff
+        ${Path}=  Intial Setup  ${ENV}  SAML  MS_JAVA  GET  URL  ONELOGIN  MERCURY  UNIQUEID  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${BLT_Saml_MercuryUserEmail}  ${BLT_Saml_MercuryPassword}
+        Verify Mercury Dashboard
+
+Toyota Saml Java Get Url OneLogin Mercury UniqueId Fail Case
+    [Documentation]  Verify Login
+    [Tags]  Toyota  SAML  UniqueId
+        ${Path}=  Intial Setup  ${ENV}  SAML  MS_JAVA  GET  URL  ONELOGIN  MERCURY  UNIQUEID  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${BLT_Saml_MercuryUserEmail}  ${BLT_Saml_MercuryPassword_Bad}
+        Verify Failed OneLogin Message
+
+Toyota SAML Java Post Url OneLogin Mercury Email Pass Case
+    [Documentation]  Verify Login
+    [Tags]  Toyota  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  MS_JAVA  POST  URL  ONELOGIN  MERCURY  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${BLT_Saml_MercuryUserEmail}  ${BLT_Saml_MercuryPassword}
+        Verify Mercury Dashboard
+
+Toyota Saml Java Post Url OneLogin Mercury Email Fail Case
+    [Documentation]  Verify Login
+    [Tags]  Toyota  SAML  Email
+        ${Path}=  Intial Setup  ${ENV}  SAML  MS_JAVA  POST  URL  ONELOGIN  MERCURY  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${BLT_Saml_MercuryUserEmail}  ${BLT_Saml_MercuryPassword_Bad}
+        Verify Failed OneLogin Message
+
+Toyota Saml Java Post Url OneLogin Mercury UniqueId Pass Case
+    [Documentation]  Verify Login
+    [Tags]  Toyota  SAML  UniqueId
+        #Set Global Variable    ${BROWSER}    ff
+        ${Path}=  Intial Setup  ${ENV}  SAML  MS_JAVA  POST  URL  ONELOGIN  MERCURY  UNIQUEID  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${BLT_Saml_MercuryUserEmail}  ${BLT_Saml_MercuryPassword}
+        Verify Mercury Dashboard
+
+Toyota Saml Java Post Url OneLogin Mercury UniqueId Fail Case
+    [Documentation]  Verify Login
+    [Tags]  Toyota  SAML  UniqueId
+        ${Path}=  Intial Setup  ${ENV}  SAML  MS_JAVA  POST  URL  ONELOGIN  MERCURY  UNIQUEID  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${BLT_Saml_MercuryUserEmail}  ${BLT_Saml_MercuryPassword_Bad}
+        Verify Failed OneLogin Message

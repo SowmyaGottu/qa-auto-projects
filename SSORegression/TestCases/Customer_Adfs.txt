@@ -1,0 +1,98 @@
+*** Settings ***
+Documentation    Saml SSO Test Cases
+Test Teardown     Close Browser
+Resource  ../Resources/Resource.txt
+
+*** Test Cases ***
+# Customer Adfs
+
+Saml Java Url CustomerAdfs Platinum Email Pass Case
+      [Documentation]  Verify Login Customer: 42 Only PROD
+      [Tags]  SAML  ADFS  Email
+            #Run Keyword If  '${ENV}' == 'STAG'    Open FireFox  https://fwwebso.fenwick.com/adfs/ls/idpinitiatedsignon.aspx?loginToRp=https://staging-app.chromeriver.com/login/sso/saml?CompanyID=fenwick.com
+            #Run Keyword If  '${ENV}' == 'QA'      Open FireFox  https://fwwebso.fenwick.com/adfs/ls/idpinitiatedsignon.aspx?loginToRp=https://qa-app.chromeriver.com/login/sso/saml?CompanyID=fenwick.com
+            #Run Keyword If  '${ENV}' == 'PROD'
+            ${Path}=  Set Variable  https://fwwebso.fenwick.com/adfs/ls/idpinitiatedsignon.aspx?loginToRp=https://app.chromeriver.com/login/sso/saml?CompanyID=fenwick.com
+            Open New Browser  ${Path}  ${BROWSER}
+            Wait Until Page Contains Element  //*[@id="submitButton"]  25 Seconds
+            Input Text                                                                    //*[@id="userNameInput"]                        ssochrome@fenwick.com
+            Input Text                                                                    //*[@id="passwordInput"]                        Chr0m#R!v3rSS0
+            Click Element                                                                 //*[@id="submitButton"]
+            Verify Platinum URL  PROD
+
+Saml Java Url CustomerAdfs Platinum UniqueId Pass Case
+
+Saml Java Url CustomerAdfs Platinum Email Fail Case
+      [Documentation]  Verify Login Customer: 42 Only PROD
+      [Tags]  SAML  ADFS  Email
+            ${Path}=  Set Variable  https://fwwebso.fenwick.com/adfs/ls/idpinitiatedsignon.aspx?loginToRp=https://app.chromeriver.com/login/sso/saml?CompanyID=fenwick.com
+            Open New Browser  ${Path}  ${BROWSER}
+            Wait Until Page Contains Element  //*[@id="submitButton"]  25 Seconds
+            Input Text                                                                    //*[@id="userNameInput"]                        ssochrome@fenwick.com
+            Input Text                                                                    //*[@id="passwordInput"]                        WrongPassword
+            Click Element                                                                 //*[@id="submitButton"]
+            Wait Until Page Contains Element  //*[@id="errorText"]
+            Wait Until Page Contains Element  //*[@id="error"]/label[contains(text(), "Incorrect user ID or password. Type the correct user ID and password, and try again.")]
+            Sleep     2   Seconds
+
+Saml Java Url CustomerAdfs Platinum UniqueId Fail Case
+
+Saml Java Url CustomerAdfs Mercury Email Pass Case
+
+Saml Java Url CustomerAdfs Mercury UniqueId Pass Case
+
+Saml Java Url CustomerAdfs Mercury Email Fail Case
+
+Saml Java Url CustomerAdfs Mercury UniqueId Fail Case
+
+Saml Java Pt Url CustomerAdfs Platinum Email Pass Case
+
+Saml Java Pt Url CustomerAdfs Platinum UniqueId Pass Case
+
+Saml Java Pt Url CustomerAdfs Platinum Email Fail Case
+
+Saml Java Pt Url CustomerAdfs Platinum UniqueId Fail Case
+
+Saml Java Hg Url CustomerAdfs Mercury Email Pass Case
+
+Saml Java Hg Url CustomerAdfs Mercury UniqueId Pass Case
+
+Saml Java Hg Url CustomerAdfs Mercury Email Fail Case
+
+Saml Java Hg Url CustomerAdfs Mercury UniqueId Fail Case
+
+Saml Php Url CustomerAdfs Platinum Pass Case
+      [Documentation]  Verify Login Customer: 42 Only PROD
+      [Tags]  SAML  ADFS  Email
+            #Run Keyword If  '${ENV}' == 'STAG'    Open FireFox  https://fwwebso.fenwick.com/adfs/ls/idpinitiatedsignon.aspx?loginToRp=https://staging-app.chromeriver.com/login/sso/saml?CompanyID=fenwick.com
+            #Run Keyword If  '${ENV}' == 'QA'      Open FireFox  https://fwwebso.fenwick.com/adfs/ls/idpinitiatedsignon.aspx?loginToRp=https://qa-app.chromeriver.com/login/sso/saml?CompanyID=fenwick.com
+            #Run Keyword If  '${ENV}' == 'PROD'
+            ${Path}=  Set Variable  http://chromeriver.kwm.com
+            Open New Browser  ${Path}  ${BROWSER}
+            Wait Until Page Contains Element  //*[@id="submitButton"]  25 Seconds
+            Input Text                                                                    //*[@id="userNameInput"]                        hktest@hk.kwm.com
+            Input Text                                                                    //*[@id="passwordInput"]                        KWMkwm123
+            Click Element                                                                 //*[@id="submitButton"]
+            Verify Platinum URL  PROD
+            Close Browser
+
+Saml Php Url CustomerAdfs Platinum Fail Case
+      [Documentation]  Verify Login Customer: 42 Only PROD
+      [Tags]  SAML  ADFS  Email
+            #Run Keyword If  '${ENV}' == 'STAG'    Open FireFox  https://fwwebso.fenwick.com/adfs/ls/idpinitiatedsignon.aspx?loginToRp=https://staging-app.chromeriver.com/login/sso/saml?CompanyID=fenwick.com
+            #Run Keyword If  '${ENV}' == 'QA'      Open FireFox  https://fwwebso.fenwick.com/adfs/ls/idpinitiatedsignon.aspx?loginToRp=https://qa-app.chromeriver.com/login/sso/saml?CompanyID=fenwick.com
+            #Run Keyword If  '${ENV}' == 'PROD'
+            ${Path}=  Set Variable  http://chromeriver.kwm.com
+            Open New Browser  ${Path}  ${BROWSER}
+            Wait Until Page Contains Element  //*[@id="submitButton"]  25 Seconds
+            Input Text                                                                    //*[@id="userNameInput"]                        hktest@hk.kwm.com
+            Input Text                                                                    //*[@id="passwordInput"]                        WrongPassword
+            Click Element                                                                 //*[@id="submitButton"]
+            Wait Until Page Contains Element  //*[@id="errorText"]
+            Wait Until Page Contains Element  //*[@id="error"]/label[contains(text(), "Incorrect user ID or password. Type the correct user ID and password, and try again.")]
+            Sleep     2   Seconds
+            Close Browser
+
+Saml Php Url CustomerAdfs Mercury Pass Case
+
+Saml Php Url CustomerAdfs Mercury Fail Case
