@@ -1,0 +1,141 @@
+{
+  "id": "5c8e07ec-fc80-dcb5-9435-2a3e4d81dfc4",
+  "name": "C1-PROD",
+  "values": [
+    {
+      "key": "env",
+      "value": "prod",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "cluster",
+      "value": "",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "image-key",
+      "value": "cr-butler-images-expense-prod/cust5/2017/06/05/010018241688/185423480/highres/file185423480.jpg",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "traxo-cred",
+      "value": "crTraxoProd:EKPpLK8GyzJIYcv73v",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "logged-in-user-id",
+      "value": "akram",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "pa-report-id",
+      "value": "010000180523",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "ex-report-id",
+      "value": "010014277868",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "ex-report-id0",
+      "value": "010024696549",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "ex-report-id1",
+      "value": "010024704414",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "ex-report-id2",
+      "value": "010024699121",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "pa-report-id1",
+      "value": "010000051617",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "pa-report-id2",
+      "value": "010000019854",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "pa-report-id3",
+      "value": "010000157979",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "api-host",
+      "value": "api",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "voucherInvoice",
+      "value": "1941176808102303",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "ex-rep-id0",
+      "value": "010023991672",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "ex-report-id3",
+      "value": "010024903756",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "ex-report-lineitem-id0",
+      "value": "187D2CF9-5C5D-0AB5-1BEA-6E55FC86484D",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "traxo_client_id",
+      "value": "047c36a0",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "traxo_client_secret",
+      "value": "41b124350d9f9b16b3e16b2cec4f267d",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "cr_apollo_cookie",
+      "value": "965e41ec-0397-46f8-8a9e-f69c79544d52",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "amex-company-name",
+      "value": "amexexternalid904",
+      "enabled": true,
+      "type": "text"
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2018-05-21T22:24:20.516Z",
+  "_postman_exported_using": "Postman/6.1.2"
+}

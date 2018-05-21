@@ -1,0 +1,2331 @@
+{
+	"info": {
+		"_postman_id": "d639bba6-c327-ba8e-1273-39d253d1d5fd",
+		"name": "Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Amex RTN",
+			"description": "",
+			"item": [
+				{
+					"name": "Amex Reqeust",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Request>\n   <Username>AmericanExpressRTA</Username>\n   <Password>k$TBzG?@$Xe!</Password>\n   <CardAuthorization>\n      <MerchantState>CA</MerchantState>\n      <TransactionDate>2017-08-18</TransactionDate>\n      <MerchantID>VLRYN_XGUE</MerchantID>\n      <Description>Swords shields and armors</Description>\n      <CardholderLastName>Grover</CardholderLastName>\n      <MerchantPostalCode>90036</MerchantPostalCode>\n      <TransactionID>CRQAPOST8IK28YKO</TransactionID>\n      <MerchantCity>VALYRIA</MerchantCity>\n      <MerchantStreetAddress>636 CENTRAL BAY</MerchantStreetAddress>\n      <MerchantName>Valyrian Steel XGUE</MerchantName>\n      <MerchantLegalName>VALYRIAN STEEL XGUE LTD</MerchantLegalName>\n      <EmbossedName>AMEX EMBOSSED NAME</EmbossedName>\n      <CardAccountNumber>341787322584079</CardAccountNumber>\n      <TransactionCrnCode>USD</TransactionCrnCode>\n      <TransactionType>ATH</TransactionType>\n      <EmployeeID>chromeriver</EmployeeID>\n      <CompanyName>{{amex-company-name}}</CompanyName>\n      <BusinessUnit>10</BusinessUnit>\n      <MCC>7082</MCC>\n      <TransactionAmount>218.54</TransactionAmount>\n      <LastSegment>4079</LastSegment>\n      <CardholderFirstName>Grover</CardholderFirstName>\n      <RequestID>170818170720093</RequestID>\n      <MerchantCtryCode>USA</MerchantCtryCode>\n   </CardAuthorization>\n</Request>"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/amex-card-authorization?debug=true",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"amex-card-authorization"
+							],
+							"query": [
+								{
+									"key": "debug",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "API Docs",
+			"description": "",
+			"item": [
+				{
+					"name": "Expense API - Docs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/expenseapi-docs",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"expenseapi-docs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PreApproval API - Docs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/preapprovalapi-docs",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"preapprovalapi-docs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Receipts API - Docs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/receiptapi-docs",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"receiptapi-docs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Allocation API - Docs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/allocationapi-docs",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"allocationapi-docs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Entity API - Docs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/entityapi-docs",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"entityapi-docs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Person API - Docs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/personapi-docs",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"personapi-docs"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AWS S3",
+			"description": "",
+			"item": [
+				{
+					"name": "Traxo Service",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customerId",
+								"value": "5",
+								"disabled": true
+							},
+							{
+								"key": "x-api-key",
+								"value": "81f17c25-7635-427c-b482-85ab5ea6a09c",
+								"disabled": true
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"parentFeedCode\": \"Email Memo InProgress\",\n    \"feedCode\": \"Traxo Email Memo\",\n    \"transactions\": [{\n            \"currencyCodeOriginal\": \"USD\",\n            \"amountOriginal\": 497.76,\n            \"isDisableRowButton\": 0,\n            \"exchangeRate\": 0,\n            \"children\": [{\n                    \"isAmountDisabled\": 1,\n                    \"isNeededReceipt\": 0,\n                    \"isCurrencyDisabled\": 1,\n                    \"appendToDescription\": null,\n                    \"description\": \"RT351\",\n                    \"isPersonal\": 0,\n                    \"transactionDate\": \"03072016\",\n                    \"vendorName\": \"Sheraton Minneapolis West\",\n                    \"currencyCodeSpent\": \"USD\",\n                    \"vatAmount\": 0,\n                    \"defaultExpenseType\": null,\n                    \"expenseMapping\": \"FEE\",\n                    \"isDeletable\": 0,\n                    \"currencyCodeOriginal\": \"USD\",\n                    \"amountOriginal\": 116,\n                    \"exchangeRate\": 0,\n                    \"vatPercentage\": null,\n                    \"name\": \"Preferred Accounts\",\n                    \"isFirmPaid\": 0,\n                    \"extraText\": null,\n                    \"transactionUniqueId\": \"675277182058334538-1\",\n                    \"amountSpent\": 116\n                }, {\n                    \"isAmountDisabled\": 1,\n                    \"isNeededReceipt\": 0,\n                    \"isCurrencyDisabled\": 1,\n                    \"appendToDescription\": null,\n                    \"description\": \"RT351\",\n                    \"isPersonal\": 0,\n                    \"transactionDate\": \"03072016\",\n                    \"vendorName\": \"Sheraton Minneapolis West\",\n                    \"currencyCodeSpent\": \"USD\",\n                    \"vatAmount\": 0,\n                    \"defaultExpenseType\": null,\n                    \"expenseMapping\": \"TAX\",\n                    \"isDeletable\": 0,\n                    \"currencyCodeOriginal\": \"USD\",\n                    \"amountOriginal\": 8.44,\n                    \"exchangeRate\": 0,\n                    \"vatPercentage\": null,\n                    \"name\": \"State Tax\",\n                    \"isFirmPaid\": 0,\n                    \"extraText\": null,\n                    \"transactionUniqueId\": \"675277182058334538-2\",\n                    \"amountSpent\": 8.44\n                }, {\n                    \"isAmountDisabled\": 1,\n                    \"isNeededReceipt\": 0,\n                    \"isCurrencyDisabled\": 1,\n                    \"appendToDescription\": null,\n                    \"description\": \"RT351\",\n                    \"isPersonal\": 0,\n                    \"transactionDate\": \"03082016\",\n                    \"vendorName\": \"Sheraton Minneapolis West\",\n                    \"currencyCodeSpent\": \"USD\",\n                    \"vatAmount\": 0,\n                    \"defaultExpenseType\": null,\n                    \"expenseMapping\": \"FEE\",\n                    \"isDeletable\": 0,\n                    \"currencyCodeOriginal\": \"USD\",\n                    \"amountOriginal\": 116,\n                    \"exchangeRate\": 0,\n                    \"vatPercentage\": null,\n                    \"name\": \"Preferred Accounts\",\n                    \"isFirmPaid\": 0,\n                    \"extraText\": null,\n                    \"transactionUniqueId\": \"675277182058334538-3\",\n                    \"amountSpent\": 116\n                }, {\n                    \"isAmountDisabled\": 1,\n                    \"isNeededReceipt\": 0,\n                    \"isCurrencyDisabled\": 1,\n                    \"appendToDescription\": null,\n                    \"description\": \"RT351\",\n                    \"isPersonal\": 0,\n                    \"transactionDate\": \"03082016\",\n                    \"vendorName\": \"Sheraton Minneapolis West\",\n                    \"currencyCodeSpent\": \"USD\",\n                    \"vatAmount\": 0,\n                    \"defaultExpenseType\": null,\n                    \"expenseMapping\": \"TAX\",\n                    \"isDeletable\": 0,\n                    \"currencyCodeOriginal\": \"USD\",\n                    \"amountOriginal\": 8.44,\n                    \"exchangeRate\": 0,\n                    \"vatPercentage\": null,\n                    \"name\": \"State Tax\",\n                    \"isFirmPaid\": 0,\n                    \"extraText\": null,\n                    \"transactionUniqueId\": \"675277182058334538-4\",\n                    \"amountSpent\": 8.44\n                }, {\n                    \"isAmountDisabled\": 1,\n                    \"isNeededReceipt\": 0,\n                    \"isCurrencyDisabled\": 1,\n                    \"appendToDescription\": null,\n                    \"description\": \"RT351\",\n                    \"isPersonal\": 0,\n                    \"transactionDate\": \"03092016\",\n                    \"vendorName\": \"Sheraton Minneapolis West\",\n                    \"currencyCodeSpent\": \"USD\",\n                    \"vatAmount\": 0,\n                    \"defaultExpenseType\": null,\n                    \"expenseMapping\": \"FEE\",\n                    \"isDeletable\": 0,\n                    \"currencyCodeOriginal\": \"USD\",\n                    \"amountOriginal\": 116,\n                    \"exchangeRate\": 0,\n                    \"vatPercentage\": null,\n                    \"name\": \"Preferred Accounts\",\n                    \"isFirmPaid\": 0,\n                    \"extraText\": null,\n                    \"transactionUniqueId\": \"675277182058334538-5\",\n                    \"amountSpent\": 116\n                }, {\n                    \"isAmountDisabled\": 1,\n                    \"isNeededReceipt\": 0,\n                    \"isCurrencyDisabled\": 1,\n                    \"appendToDescription\": null,\n                    \"description\": \"RT351\",\n                    \"isPersonal\": 0,\n                    \"transactionDate\": \"03092016\",\n                    \"vendorName\": \"Sheraton Minneapolis West\",\n                    \"currencyCodeSpent\": \"USD\",\n                    \"vatAmount\": 0,\n                    \"defaultExpenseType\": null,\n                    \"expenseMapping\": \"TAX\",\n                    \"isDeletable\": 0,\n                    \"currencyCodeOriginal\": \"USD\",\n                    \"amountOriginal\": 8.44,\n                    \"exchangeRate\": 0,\n                    \"vatPercentage\": null,\n                    \"name\": \"State Tax\",\n                    \"isFirmPaid\": 0,\n                    \"extraText\": null,\n                    \"transactionUniqueId\": \"675277182058334538-6\",\n                    \"amountSpent\": 8.44\n                }, {\n                    \"isAmountDisabled\": 1,\n                    \"isNeededReceipt\": 0,\n                    \"isCurrencyDisabled\": 1,\n                    \"appendToDescription\": null,\n                    \"description\": \"RT351\",\n                    \"isPersonal\": 0,\n                    \"transactionDate\": \"03102016\",\n                    \"vendorName\": \"Sheraton Minneapolis West\",\n                    \"currencyCodeSpent\": \"USD\",\n                    \"vatAmount\": 0,\n                    \"defaultExpenseType\": null,\n                    \"expenseMapping\": \"FEE\",\n                    \"isDeletable\": 0,\n                    \"currencyCodeOriginal\": \"USD\",\n                    \"amountOriginal\": 116,\n                    \"exchangeRate\": 0,\n                    \"vatPercentage\": null,\n                    \"name\": \"Preferred Accounts\",\n                    \"isFirmPaid\": 0,\n                    \"extraText\": null,\n                    \"transactionUniqueId\": \"675277182058334538-7\",\n                    \"amountSpent\": 116\n                }, {\n                    \"isAmountDisabled\": 1,\n                    \"isNeededReceipt\": 0,\n                    \"isCurrencyDisabled\": 1,\n                    \"appendToDescription\": null,\n                    \"description\": \"RT351\",\n                    \"isPersonal\": 0,\n                    \"transactionDate\": \"03102016\",\n                    \"vendorName\": \"Sheraton Minneapolis West\",\n                    \"currencyCodeSpent\": \"USD\",\n                    \"vatAmount\": 0,\n                    \"defaultExpenseType\": null,\n                    \"expenseMapping\": \"TAX\",\n                    \"isDeletable\": 0,\n                    \"currencyCodeOriginal\": \"USD\",\n                    \"amountOriginal\": 8.44,\n                    \"exchangeRate\": 0,\n                    \"vatPercentage\": null,\n                    \"name\": \"State Tax\",\n                    \"isFirmPaid\": 0,\n                    \"extraText\": null,\n                    \"transactionUniqueId\": \"675277182058334538-8\",\n                    \"amountSpent\": 8.44\n                }\n            ],\n            \"currencyCodeSpent\": \"USD\",\n            \"transactionUniqueId\": \"675277182058334538\",\n            \"email\": \"khaledtm@gmail.com\",\n            \"amountSpent\": 497.76\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "https://{{traxo-cred}}@{{cluster}}service.chromeriver.com/aws/s3?partnerId=traxo",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"auth": {
+								"user": "{{traxo-cred}}"
+							},
+							"path": [
+								"aws",
+								"s3"
+							],
+							"query": [
+								{
+									"key": "partnerId",
+									"value": "traxo"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Service - Egencia",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "partner-id",
+								"value": "egencia"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"TestMode\":\"Postman\",\n  \"Person\":\"Kabul Grover\",\n  \"data\" : {\n    \"Test1\":\"Data1\",\n    \"Test2\":\"Data2\"\n  }\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/aws/s3",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"aws",
+								"s3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Allocations",
+			"description": "",
+			"item": [
+				{
+					"name": "Service - v1 Allocations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/allocations?allocation-number=1000-001&client-number=0001",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"allocations"
+							],
+							"query": [
+								{
+									"key": "allocation-number",
+									"value": "1000-001"
+								},
+								{
+									"key": "client-number",
+									"value": "0001"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "v2 Allocations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v2/allocations?allocation-number=1000-001",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v2",
+								"allocations"
+							],
+							"query": [
+								{
+									"key": "allocation-number",
+									"value": "1000-001"
+								},
+								{
+									"key": "client-number",
+									"value": "0001",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "v2 Allocations",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"allocationNumber\": \"kg_1000_002\",\n    \"allocationName\": \"APi Tests Matter\",\n    \"clientNumber\": \"kg_101\",\n    \"clientName\": \"Autoapprove\",\n    \"parentClientNumber\": \"\",\n    \"type\": \"B\",\n    \"routeIndependent\": true,\n    \"startDate\": \"2017-10-18T18:46:19Z\",\n    \"closedDate\": \"2017-11-18T18:46:19Z\",\n    \"glAccount\": \"test GL\",\n    \"allocationEntities\": [\n      {\n        \"name\": \"entity1\",\n        \"value\": \"CON\"\n      }\n    ],\n    \"locale\": \"en\",\n    \"currency\": \"USD\",\n    \"onSelect1EntityTypeCode\": \"TEA\",\n    \"onSelect2EntityTypeCode\": \"PRO\",\n    \"extraLineItemData1LegalValues\": null,\n    \"filterTerms1\": [\n      \"OFF_A\",\n      \"OFF_B\"\n    ],\n    \"filterTerms2\": [\n      \"DeptA\",\n      \"DeptB\"\n    ],\n    \"udaPersons\": [\n      {\n        \"name\": \"person1\",\n        \"personUniqueId\": \"cw_super\"\n      },\n      {\n        \"name\": \"person2\",\n        \"personUniqueId\": \"jd_normal\"\n      },\n      {\n        \"name\": \"person3\",\n        \"personUniqueId\": \"jd_super\"\n      }\n    ],\n    \"udas\": [\n      {\n        \"name\": \"UDF1\",\n        \"value\": \"A\"\n      },\n      {\n        \"name\": \"UDF2\",\n        \"value\": \"B\"\n      },\n      {\n        \"name\": \"UDF3\",\n        \"value\": \"C\"\n      },\n      {\n        \"name\": \"UDF4\",\n        \"value\": \"D\"\n      },\n      {\n        \"name\": \"Miles\",\n        \"value\": \"123\"\n      }\n    ]\n  }\n]  "
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v2/allocations",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v2",
+								"allocations"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Customers",
+			"description": "",
+			"item": []
+		},
+		{
+			"name": "Expense Reports",
+			"description": "",
+			"item": [
+				{
+					"name": "Expense Reports",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"ex-rep-id0\", data[0].reportId);",
+									"",
+									"",
+									"pm.test(pm.info.requestName +\" : \"+ \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"console.log(pm);",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "{{logged-in-user-id}}"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/expense-reports?",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"expense-reports"
+							],
+							"query": [
+								{
+									"key": "debug",
+									"value": "true",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Expense Approvals",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"ex-report-id0\", data[0].reportId);",
+									"postman.setEnvironmentVariable(\"ex-report-id1\", data[1].reportId);",
+									"postman.setEnvironmentVariable(\"ex-report-id2\", data[2].reportId);",
+									"postman.setEnvironmentVariable(\"ex-report-id3\", data[3].reportId);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "{{logged-in-user-id}}"
+							},
+							{
+								"key": "customerId",
+								"value": "5",
+								"disabled": true
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"note\": \"Approved via Postman\"\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/expense-report-approvals",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"expense-report-approvals"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Expense Approval GetDetails",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"//console.log(data.lineItems[0].id)",
+									"postman.setEnvironmentVariable(\"ex-report-lineitem-id0\", data.lineItems[0].id);",
+									"//postman.setEnvironmentVariable(\"ex-report-lineitem-id1\", data.lineItems[1].id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "{{logged-in-user-id}}"
+							},
+							{
+								"key": "customerId",
+								"value": "5",
+								"disabled": true
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"note\": \"Approved via Postman\"\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/expense-report-approvals/{{ex-report-id3}}",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"expense-report-approvals",
+								"{{ex-report-id3}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Expense Approvals Count",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "{{logged-in-user-id}}"
+							},
+							{
+								"key": "customerId",
+								"value": "5",
+								"disabled": true
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"note\": \"Approved via Postman\"\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/expense-report-approvals/count",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"expense-report-approvals",
+								"count"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Expense Report Header",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Report-Id is present\", function () {",
+									"    pm.response.to.have.header(\"Report-Id\");",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "jd_normal"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"reportName\": \"Kabul Postman Tests {{$timestamp}}\",\n  \"currencyCode\": \"USD\",\n  \"transactionGroupId\": \"72244\"\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/expense-reports",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"expense-reports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Expense Line Item Reassign",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "{{logged-in-user-id}}"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"assignedRoleName\": \"Part Of\",\n  \"assignedEntityCode\": \"Firmwide\",\n  \"assignedEntityTypeCode\": \"Firmwide\",\n  \"note\": \"test reassign to Part Of Firmwide\"\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/expense-reports/{{ex-report-id3}}/line-items/{{ex-report-lineitem-id0}}/reassign",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"expense-reports",
+								"{{ex-report-id3}}",
+								"line-items",
+								"{{ex-report-lineitem-id0}}",
+								"reassign"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Expense Line Item Reassign (User)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "{{logged-in-user-id}}"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"assignedUser\": \"svance\",\n  \"note\": \"Returned via Postman #3\"\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/expense-reports/{{ex-report-id3}}/line-items/{{ex-report-lineitem-id0}}/reassign",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"expense-reports",
+								"{{ex-report-id3}}",
+								"line-items",
+								"{{ex-report-lineitem-id0}}",
+								"reassign"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Expense Approve ",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "{{logged-in-user-id}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"note\": \"Approved via Postman\"\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/expense-reports/{{ex-report-id0}}/approve",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"expense-reports",
+								"{{ex-report-id0}}",
+								"approve"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Expense Return",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "{{logged-in-user-id}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"note\": \"Returned via Postman\"\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/expense-reports/{{ex-report-id1}}/return",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"expense-reports",
+								"{{ex-report-id1}}",
+								"return"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Expense Reassign",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "{{logged-in-user-id}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n     \"assignedUser\": \"svance\",\n     \"note\": \"Reassigned by Postman\"\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/expense-reports/{{ex-report-id2}}/reassign",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"expense-reports",
+								"{{ex-report-id2}}",
+								"reassign"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Persons",
+			"description": "",
+			"item": [
+				{
+					"name": "GET Persons",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/persons?username=kgrover",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"persons"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "kgrover"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Person V2 (Hades)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ \n   { \n      \"firstName\":\"Test\",\n      \"lastName\":\"Jira1\",\n      \"username\":\"Test_Jira1\",\n      \"personUniqueId\":\"test_jira1\",\n      \"reportsToPersonUniqueId\":\"kgrover\",\n      \"reportsToPersonName\":\"Kabul Grover\",\n      \"primaryEmailAddress\":\"test_jira5@customer.com\",\n      \"alternateEmailAddresses\":[ \n         \"noonecares112233@gmail.com\"\n      ],\n      \"status\":\"ACTIVE\",\n      \"title\":\"Associate\",\n      \"primaryCurrency\":\"USD\",\n      \"UDF1\":\"N\",\n      \"UDF2\":\"N\",\n      \"UDF3\":\"N\",\n      \"alternateCurrencies\":[ \n         { \n            \"type\":\"OTHER\",\n            \"code\":\"EUR\"\n         },\n         { \n            \"type\":\"ALT\",\n            \"code\":\"GBP\"\n         }\n      ],\n      \"udas\": [\n         \n      ],\n      \"vendorCode1\":\"\",\n      \"vendorCode2\":\"\",\n      \"dateFormat\":\"DD/MM/YYYY\",\n      \"numberFormat\":\"###,###.00\",\n      \"defaultMosaic\":\"Primary\",\n      \"vatLocation\":\"US\",\n      \"adminAccess\":false,\n      \"copyingItems\":true,\n      \"superDelegate\":false,\n      \"locale\":\"en\",\n      \"personEntities\":[ \n         { \n            \"roleName\":\"Part Of\",\n            \"entityTypeCode\":\"AUDIT_RISK_LEVEL\",\n            \"entityCode\":\"100\"\n         },\n         { \n            \"roleName\":\"Part Of\",\n            \"entityTypeCode\":\"DEPT\",\n            \"entityCode\":\"ENG\"\n         },\n         { \n            \"roleName\":\"Part Of\",\n            \"entityTypeCode\":\"RGE\",\n            \"entityCode\":\"INVMGT\"\n         }\n      ],\n      \"analyticsModules\":null,\n      \"analyticsUserType\":null,\n      \"analyticsView\":null\n   }\n]"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v2/persons",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v2",
+								"persons"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Pre Approval Reports",
+			"description": "",
+			"item": [
+				{
+					"name": "PreApproval Reports",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"pa-report-id\", data[0].reportId);",
+									"postman.setEnvironmentVariable(\"pa-report-id1\", data[1].reportId);",
+									"postman.setEnvironmentVariable(\"pa-report-id2\", data[2].reportId);",
+									"postman.setEnvironmentVariable(\"pa-report-id3\", data[3].reportId);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customerCode",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "{{logged-in-user-id}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"note\": \"Approved via Postman\"\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/preapproval-report-approvals",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"preapproval-report-approvals"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PreApproval Approval for Exports",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customerCode",
+								"value": "{{customer-code}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/preapproval-report-approved",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"preapproval-report-approved"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PreApproval Approval GetDetails",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "{{logged-in-user-id}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/preapproval-report-approvals/{{pa-report-id}}",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"preapproval-report-approvals",
+								"{{pa-report-id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PreApproval Approval Count",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "{{logged-in-user-id}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/preapproval-report-approvals/count",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"preapproval-report-approvals",
+								"count"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PreApproavl Approve",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "{{logged-in-user-id}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"note\": \"Approved via Postman\"\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/preapproval-reports/{{pa-report-id}}/approve",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"preapproval-reports",
+								"{{pa-report-id}}",
+								"approve"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PreApproval Return",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "customerCode",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "{{logged-in-user-id}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"note\": \"Returned via Postman #3\"\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/preapproval-reports/{{pa-report-id1}}/return",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"preapproval-reports",
+								"{{pa-report-id1}}",
+								"return"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PreApproval Reassign",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "customerCode",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "{{logged-in-user-id}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"assignedUser\": \"svance\",\n  \"note\": \"Returned via Postman #3\"\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/preapproval-reports/{{pa-report-id2}}/reassign",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"preapproval-reports",
+								"{{pa-report-id2}}",
+								"reassign"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PreApproval Reassign (Role)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "customerCode",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "{{logged-in-user-id}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"assignedRoleName\": \"Part Of\",\n  \"assignedEntityCode\": \"Firmwide\",\n  \"assignedEntityTypeCode\": \"Firmwide\",\n  \"note\": \"test reassign to Part Of Firmwide\"\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/preapproval-reports/{{pa-report-id3}}/reassign",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"preapproval-reports",
+								"{{pa-report-id3}}",
+								"reassign"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Receipts",
+			"description": "",
+			"item": [
+				{
+					"name": "Service - Receipts",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "image-key",
+								"value": "{{image-key}}"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/receipts",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"receipts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Receipts",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"description": "",
+									"type": "file",
+									"src": "3.pdf"
+								},
+								{
+									"key": "transaction",
+									"value": "{\n\"personUniqueId\": \"kgrover\",\n\"personEmail\": \"kgrover5@chromewallet.com\",\n\"amount\": 11.00,\n\"currency\": \"USD\",\n\"transactionDate\": \"2017-08-20\",\n\"merchantName\":\"Kabul TEST VENDOR\",\n\"expenseCode\": \"Airfare\",\n\"pnr\": \"TEST123\",\n\"uniqueReference\": \"KILL123\",\n\"confirmationNumber\": \"AIR123\",\n\"ticketNumber\":\"DELTA456\"\n}",
+									"description": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/receipts",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"receipts"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Send Mail",
+			"description": "",
+			"item": [
+				{
+					"name": "Service - Sendmail",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customerCode",
+								"value": "{{customer-code}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"typePreference\":\"html\", \"from\":\"noreply@chromeriver.com\", \"tos\":[\"kgrover5@chromewallet.com\"], \"subject\":\"Chrome River Cvent Filtered Events Notification\", \"templateTitle\":\"Cvent filtered Allocation(s) for:\", \"templateHeader\":\"CVENT FILTERED EVENTS NOTIFICATION\", \"customerCode\":\"ABC\", \"customerName\":\"customer Name\", \"customerStatus\":\"LIVE\", \"fileName\":\"Chrome River Khalid fileName\", \"total\":\"2\" }"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/sendemail?customerId=361&locale=US&templateName=talend_notification",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"sendemail"
+							],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "361"
+								},
+								{
+									"key": "locale",
+									"value": "US"
+								},
+								{
+									"key": "templateName",
+									"value": "talend_notification"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Trips",
+			"description": "",
+			"item": [
+				{
+					"name": "GET Trips Summary",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "{{logged-in-user-id}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/trip-reports-summary",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"trip-reports-summary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Trips",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "jd_normal"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/trips",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"trips"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Trips Ids",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "logged-in-user-id",
+								"value": "th_normal_5"
+							},
+							{
+								"key": "feed-code",
+								"value": "TravelDataCR"
+							},
+							{
+								"key": "reference-number",
+								"value": "2017092600224566924917"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/trips/id",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"trips",
+								"id"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Exports",
+			"description": "",
+			"item": [
+				{
+					"name": "Exports",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"export-id0\", data.exportIds[0]);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/exports",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"exports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Expense Exports",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "02c671ed-e4b1-4997-9215-fa5bb5d77c18",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customer-code",
+								"value": "GBJN"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/external-expense-exports/{{expense-export-id}}",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"external-expense-exports",
+								"{{expense-export-id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Expense Exports ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "export-id",
+								"value": "CR-SAP-STAG16304064-prod-2017-11-03-182903"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"note\": \"Approved via Postman\"\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/exports",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"exports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Expense Exports ID Status",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "export-id",
+								"value": "note"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\":\"transferred\",\n  \"code\":\"SAP_G200\",\n  \"description\":\"PASSED\"\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/export-status",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"export-status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pre Approval Exports",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1315c382-973a-48d7-bbf2-95e7d8a36f4b",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Content-Type is present\", function () {",
+									"    pm.response.to.have.header(\"export-id\");",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/preapproval-exports",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"preapproval-exports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pre-Approval Exports ID ",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "export-id",
+								"value": "inboundemailprocessorhttps://www.getpostman.com/collections/fc0f1bfc72f1417f471f",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"note\": \"Approved via Postman\"\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/preapproval-exports/4ad5baa8-d85c-40c2-a681-976180d24ca5",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"preapproval-exports",
+								"4ad5baa8-d85c-40c2-a681-976180d24ca5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Expense Export Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0e46f830-dcbc-4556-9da6-f1a69066618b",
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"expense-export-id\", responseBody);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "customer-code",
+								"value": "GBJN"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/external-expense-exports/export-request",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"external-expense-exports",
+								"export-request"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Expense Export Close Reqeust",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "customer-code",
+								"value": "GBJN"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/external-expense-exports/{{expense-export-id}}/close-export-request",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"external-expense-exports",
+								"{{expense-export-id}}",
+								"close-export-request"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Entities",
+			"description": "",
+			"item": [
+				{
+					"name": "Create / Update Entities",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "customer-id",
+								"value": "5",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ \n  {\n  \"entityCode\": \"LAX\",  \n  \"entityTypeCode\": \"DEPT\",   \n  \"extraData1\": \"6\",\n  \"extraData2\": \"\", \n  \"extraData3\": \"\",\n  \"extraData4\": \"\",\n  \"extraData5\": \"\",\n        \"sortOrder\": \"\",\n        \"status\": \"ACT\",\n        \"entityNames\":  [ \n              {\n               \"locale\": \"en\", \n               \"name\": \"Los Angeles\"\n              }\n         ]\n  },\n  {\n  \"entityCode\": \"BOS\",  \n  \"entityTypeCode\": \"DEPT\",   \n  \"extraData1\": \"6\",\n  \"extraData2\": \"\", \n  \"extraData3\": \"\",\n  \"extraData4\": \"\",\n  \"extraData5\": \"\",\n        \"sortOrder\": \"\",\n        \"entityNames\":  [ \n              {\n               \"locale\": \"en\", \n               \"name\": \"Boston\"\n              }\n         ]\n  }\n  \n]"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/entities",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"entities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Entities",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "customer-id",
+								"value": "5",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/entities",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"entities"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Booking",
+			"description": "",
+			"item": [
+				{
+					"name": "POST Booking",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							},
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "partner-id",
+								"value": "sabre"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"3c26dea9-430f-4d04-8741-6a2540df1aed\",\n  \"bookingInfo\": [{\n    \"itineraryRef\": {\n      \"createDatetimeUTC\": \"2017-11-30T15:09:25\",\n      \"pnrLocator\": \"WTATDR\",\n      \"numberOfTravelers\": 1,\n      \"additionalInfo\": {\n        \"getThereTripID\": \"1512031888.98013\",\n        \"isGetThereBooking\": true,\n        \"initialBookTimeUTC\": \"2017-11-30T15:09:25\",\n        \"itineraryStatus\": \"ACTIVE\"\n      }\n    },\n    \"reservationItems\": {\n      \"flight\": {\n        \"flightItems\": [{\n          \"departureAirport\": {\n            \"code\": \"DFW\",\n            \"name\": \"Dallas/Ft Worth International\"\n          },\n          \"departureDate\": \"2017-12-21\",\n          \"departureTime\": \"05:15\",\n          \"departureCityName\": \"Dallas/Ft Worth\",\n          \"departureState\": {\n            \"code\": \"TX\",\n            \"name\": \"Texas\"\n          },\n          \"departureCountry\": {\n            \"code\": \"US\",\n            \"name\": \"USA\"\n          },\n          \"arrivalAirport\": {\n            \"code\": \"ORD\",\n            \"name\": \"O Hare International\"\n          },\n          \"arrivalDate\": \"2017-12-21\",\n          \"arrivalTime\": \"07:42\",\n          \"arrivalCityName\": \"Chicago\",\n          \"arrivalState\": {\n            \"code\": \"IL\",\n            \"name\": \"Illinois\"\n          },\n          \"arrivalCountry\": {\n            \"code\": \"US\",\n            \"name\": \"USA\"\n          },\n          \"flightNumber\": \"90\",\n          \"marketingAirline\": {\n            \"code\": \"AA\",\n            \"name\": \"American\"\n          },\n          \"aircraftType\": \"738\",\n          \"airlineReferenceNumber\": \"WTATDR\",\n          \"reservationBookingCode\": \"B\",\n          \"fareBasisCode\": \"OVALZNB3\",\n          \"fareClass\": \"Coach\",\n          \"travelPolicyViolations\": []\n        },\n        {\n          \"departureAirport\": {\n            \"code\": \"ORD\",\n            \"name\": \"O Hare International\"\n          },\n          \"departureDate\": \"2017-12-28\",\n          \"departureTime\": \"09:40\",\n          \"departureCityName\": \"Chicago\",\n          \"departureState\": {\n            \"code\": \"IL\",\n            \"name\": \"Illinois\"\n          },\n          \"departureCountry\": {\n            \"code\": \"US\",\n            \"name\": \"USA\"\n          },\n          \"arrivalAirport\": {\n            \"code\": \"DFW\",\n            \"name\": \"Dallas/Ft Worth International\"\n          },\n          \"arrivalDate\": \"2017-12-28\",\n          \"arrivalTime\": \"12:15\",\n          \"arrivalCityName\": \"Dallas/Ft Worth\",\n          \"arrivalState\": {\n            \"code\": \"TX\",\n            \"name\": \"Texas\"\n          },\n          \"arrivalCountry\": {\n            \"code\": \"US\",\n            \"name\": \"USA\"\n          },\n          \"flightNumber\": \"1336\",\n          \"marketingAirline\": {\n            \"code\": \"AA\",\n            \"name\": \"American\"\n          },\n          \"aircraftType\": \"S80\",\n          \"airlineReferenceNumber\": \"WTATDR\",\n          \"reservationBookingCode\": \"B\",\n          \"fareBasisCode\": \"OVALZNB3\",\n          \"fareClass\": \"Coach\",\n          \"travelPolicyViolations\": []\n        }],\n        \"farePricing\": {\n          \"baseFare\": {\n            \"amount\": 66.98,\n            \"currencyCode\": \"USD\"\n          },\n          \"taxes\": {\n            \"amount\": 33.42,\n            \"currencyCode\": \"USD\"\n          },\n          \"totalFare\": {\n            \"amount\": 100.40,\n            \"currencyCode\": \"USD\"\n          },\n          \"lowerFare\": {\n            \"amount\": 100.40,\n            \"currencyCode\": \"USD\"\n          }\n        }\n      },\n      \"vehicle\": {\n        \"vehicleItems\": [{\n          \"confirmationNumber\": \"H501B0106A4\",\n          \"pickUpDate\": \"2017-12-21\",\n          \"pickUpTime\": \"08:00\",\n          \"dropOffDate\": \"2017-12-28\",\n          \"dropOffTime\": \"09:00\",\n          \"vendor\": {\n            \"code\": \"ZE\",\n            \"name\": \"Hertz\"\n          },\n          \"pickUpLocation\": {\n            \"code\": \"ORD\",\n            \"name\": \"Chicago\"\n          },\n          \"pickUpCity\": {\n            \"code\": \"ORD\",\n            \"name\": \"Chicago\"\n          },\n          \"pickUpState\": {\n            \"code\": \"IL\",\n            \"name\": \"Illinois\"\n          },\n          \"pickUpCountry\": {\n            \"code\": \"US\",\n            \"name\": \"USA\"\n          },\n          \"dropOffLocation\": {\n            \"code\": \"ORD\",\n            \"name\": \"Chicago\"\n          },\n          \"dropOffCity\": {\n            \"code\": \"ORD\",\n            \"name\": \"Chicago\"\n          },\n          \"dropOffState\": {\n            \"code\": \"IL\",\n            \"name\": \"Illinois\"\n          },\n          \"dropOffCountry\": {\n            \"code\": \"US\",\n            \"name\": \"USA\"\n          },\n          \"equipmentType\": \"ECAR\",\n          \"pricing\": {\n            \"weeklyRate\": {\n              \"amount\": 256.79,\n              \"currencyCode\": \"USD\"\n            },\n            \"approximateTotal\": {\n              \"amount\": 448.91,\n              \"currencyCode\": \"USD\"\n            }\n          },\n          \"travelPolicyViolations\": []\n        }]\n      },\n      \"hotel\": {\n        \"hotelItems\": [{\n          \"confirmationNumber\": \"70291117\",\n          \"checkInDate\": \"2017-12-21\",\n          \"checkInTime\": \"16:00\",\n          \"checkOutDate\": \"2017-12-28\",\n          \"checkOutTime\": \"12:00\",\n          \"roomTypeCode\": \"REGD00\",\n          \"numberOfRooms\": 1,\n          \"hotel\": {\n            \"code\": \"15709\",\n            \"name\": \"Chicago Marriott Suites Ohare\"\n          },\n          \"hotelChain\": {\n            \"code\": \"MC\",\n            \"name\": \"Marriott Hotels\"\n          },\n          \"address\": {\n            \"addressLine\": [\"6155 N RIVER RD\"],\n            \"countryCode\": \"US\",\n            \"cityCode\": \"ORD\",\n            \"cityName\": \"Rosemont\",\n            \"state\": \"Illinois\",\n            \"zipCode\": \"60018\"\n          },\n          \"businessPhoneNumber\": \"1-847-6964400\",\n          \"pricing\": {\n            \"base\": {\n              \"amount\": 149.00,\n              \"currencyCode\": \"USD\"\n            },\n            \"averageNightlyRate\": {\n              \"amount\": 147.06,\n              \"currencyCode\": \"USD\"\n            },\n            \"sumOfNightlyRate\": {\n              \"amount\": 903.00,\n              \"currencyCode\": \"USD\"\n            },\n            \"totalTaxes\": {\n              \"amount\": 126.42,\n              \"currencyCode\": \"USD\"\n            },\n            \"total\": {\n              \"amount\": 1029.42,\n              \"currencyCode\": \"USD\"\n            }\n          },\n          \"travelPolicyViolations\": []\n        }]\n      }\n    },\n    \"customDataFields\": [{\n      \"key\": \"Trip Authorization\",\n      \"value\": \"CR test\"\n    }],\n    \"demandManagement\": [{\n      \"key\": \"Customer Name\",\n      \"value\": \"Chrome River meeting\"\n    },\n    {\n      \"key\": \"Trip Objective\",\n      \"value\": \"CV\"\n    }],\n    \"travelPolicyJustifications\": []\n  }],\n  \"customerInfo\": {\n    \"firstName\": \"Kabul\",\n    \"lastName\": \"Grover\",\n    \"employeeNumber\": \"kgrover\",\n    \"customerID\": \"INVALID\",\n    \"emailAddress\": \"kgrover5@chromewallet.com\"\n  },\n  \"tickets\": [],\n  \"emds\": []\n}"
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/booking",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"booking"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "BudgetApi",
+			"description": "",
+			"item": [
+				{
+					"name": "Final Liquidation Exports Export Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "12133fa5-c3dc-4723-927e-73fd09819a71",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/final-liquidation-exports",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"final-liquidation-exports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Encumbrance Exports",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/encumbrance-exports/export-request",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"encumbrance-exports",
+								"export-request"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Encumbrance Exports",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api-key}}"
+							},
+							{
+								"key": "customer-code",
+								"value": "{{customer-code}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "https://{{cluster}}service.chromeriver.com/v1/encumbrance-exports/4ad5baa8-d85c-40c2-a681-976180d24ca5",
+							"protocol": "https",
+							"host": [
+								"{{cluster}}service",
+								"chromeriver",
+								"com"
+							],
+							"path": [
+								"v1",
+								"encumbrance-exports",
+								"4ad5baa8-d85c-40c2-a681-976180d24ca5"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

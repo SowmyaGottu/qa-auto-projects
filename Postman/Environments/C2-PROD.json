@@ -1,0 +1,21 @@
+{
+  "id": "f0e953c0-311d-f7d1-5d2e-559338e1e0e4",
+  "name": "C2-PROD",
+  "values": [
+    {
+      "enabled": true,
+      "key": "env",
+      "value": "c2-prod",
+      "type": "text"
+    },
+    {
+      "enabled": true,
+      "key": "traxo-cred",
+      "value": "crTraxoC2-prod:3gkfhevEsTFuXAi3Ot",
+      "type": "text"
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2018-05-21T22:24:43.161Z",
+  "_postman_exported_using": "Postman/6.1.2"
+}

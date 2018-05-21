@@ -1,0 +1,123 @@
+{
+  "id": "761506cf-8761-5964-218f-d65b404d38ba",
+  "name": "C3-QA",
+  "values": [
+    {
+      "key": "env",
+      "value": "c3-qa",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "cluster",
+      "value": "qa-",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "image-key",
+      "value": "cr-butler-images-expense-c3-qa/cust584/2017/06/06/QA0000033824/15/highres/file15.jpg",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "customer-code",
+      "value": "1JZA",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "api-key",
+      "value": "Kabul-CCH-Test-Key",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "logged-in-user-id",
+      "value": "chromeriver",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "pa-report-id",
+      "value": "QA0000001430",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "ex-report-id",
+      "value": "QA0000035254",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "ex-report-id0",
+      "value": "QA0000204357",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "ex-report-id1",
+      "value": "QA0000240988",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "ex-report-id2",
+      "value": "QA0000265437",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "ex-report-id3",
+      "value": "QA0000265354",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "ex-report-lineitem-id0",
+      "value": "05063650-6AAC-4F16-7F8C-C5216B9EF4DF",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "ex-rep-id0",
+      "value": "QA0000258067",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "enabled": false,
+      "key": "customer-code",
+      "value": "B5XT",
+      "type": "text"
+    },
+    {
+      "key": "traxo_client_id",
+      "value": "abbd0b6c",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "traxo_client_secret",
+      "value": "a40af6411fe52c0b58c05de91e4da1b9",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "amex-company-name",
+      "value": "amexexternalid4",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "api-host",
+      "value": "qa-api.eu1",
+      "enabled": true,
+      "type": "text"
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2018-05-21T22:25:13.436Z",
+  "_postman_exported_using": "Postman/6.1.2"
+}
