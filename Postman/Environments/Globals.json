@@ -1,0 +1,27 @@
+{
+  "id": "125448e1-f197-42a9-8972-cf23814f68cd",
+  "values": [
+    {
+      "key": "env",
+      "value": "staging",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "customer-code",
+      "value": "CF7H",
+      "enabled": true,
+      "type": "text"
+    },
+    {
+      "key": "api-key",
+      "value": "qa_universal_api_key",
+      "enabled": true,
+      "type": "text"
+    }
+  ],
+  "name": "My Workspace Globals",
+  "_postman_variable_scope": "globals",
+  "_postman_exported_at": "2018-05-21T22:23:01.112Z",
+  "_postman_exported_using": "Postman/6.1.2"
+}
