@@ -14,7 +14,7 @@ SAML Java Url OneLogin Platinum Email Pass Case
 
 Saml Java Url OneLogin Platinum UniqueId Pass Case
     [Documentation]  Verify Login
-    [Tags]  SAML  UniqueId  TestMe
+    [Tags]  SAML  UniqueId
         #Set Global Variable    ${BROWSER}    ff
         ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  URL  ONELOGIN  PLATINUM  UNIQUEID  C1
         Open New Browser  ${Path}  ${BROWSER}
@@ -135,7 +135,7 @@ Saml Java Hg Url OneLogin Platinum UniqueId Fail Case
 
 Saml Php Url OneLogin Platinum Pass Case
     [Documentation]  Verify Login
-    [Tags]  SAML  Email
+    [Tags]  SAML  Email  Php
         ${Path}=  Intial Setup  ${ENV}  SAML  PHP  GET  URL  ONELOGIN  PLATINUM  EMAIL  C1
         Open New Browser  ${Path}  ${BROWSER}
         OneLogin App  ${CFA_Saml_PlatinumUserEmail}  ${CFA_Saml_PlatinumPassword}
@@ -143,7 +143,7 @@ Saml Php Url OneLogin Platinum Pass Case
 
 Saml Php Url OneLogin Platinum Fail Case
     [Documentation]  Verify Login
-    [Tags]  SAML  Email
+    [Tags]  SAML  Email  Php
         ${Path}=  Intial Setup  ${ENV}  SAML  PHP  GET  URL  ONELOGIN  PLATINUM  EMAIL  C1
         Open New Browser  ${Path}  ${BROWSER}
         OneLogin App  ${CFA_Saml_PlatinumUserEmail}  ${CFA_Saml_PlatinumPassword_Bad}
