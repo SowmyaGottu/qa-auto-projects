@@ -10,8 +10,14 @@ Verify Platinum URL
     Run Keyword If    '${OVERRIDE}' == 'PROD'  Should Be Equal  ${CurrentUrl}  https://www.chromeriver.com/expense/app.jsp?v=${Check}
     ...    ELSE IF    '${OVERRIDE}' == 'QA'    Should Be Equal  ${CurrentUrl}  https://qa.chromeriver.com/expense/app.jsp?v=${Check}
     ...    ELSE IF    '${OVERRIDE}' == 'STAG'  Should Be Equal  ${CurrentUrl}  https://staging.chromeriver.com/expense/app.jsp?v=${Check}
+    ...    ELSE IF    '${OVERRIDE}' == 'C4-STAG'  Should Be Equal  ${CurrentUrl}  https://staging-pt.us1.chromeriver.com/expense/app.jsp?v=${Check}
+    ...    ELSE IF    '${OVERRIDE}' == 'C4-SMOKE'  Should Be Equal  ${CurrentUrl}  https://smoek-pt.us1.chromeriver.com/expense/app.jsp?v=${Check}
+    ...    ELSE IF    '${OVERRIDE}' == 'C4-SOTER'  Should Be Equal  ${CurrentUrl}  https://soter-pt.us1.chromeriver.com/expense/app.jsp?v=${Check}
     ...    ELSE IF    '${ENV}' == 'PROD'  Should Be Equal  ${CurrentUrl}  https://www.chromeriver.com/expense/app.jsp?v=${Check}
     ...    ELSE IF    '${ENV}' == 'QA'    Should Be Equal  ${CurrentUrl}  https://qa.chromeriver.com/expense/app.jsp?v=${Check}
+    ...    ELSE IF    '${ENV}' == 'C4-STAG'    Should Be Equal  ${CurrentUrl}  https://staging-pt.us1.chromeriver.com/expense/app.jsp?v=${Check}
+    ...    ELSE IF    '${ENV}' == 'C4-SMOKE'    Should Be Equal  ${CurrentUrl}  https://smoke-pt.us1.chromeriver.com/expense/app.jsp?v=${Check}
+    ...    ELSE IF    '${ENV}' == 'C4-SOTER'    Should Be Equal  ${CurrentUrl}  https://soter-pt.us1.chromeriver.com/expense/app.jsp?v=${Check}
     ...    ELSE                           Should Be Equal  ${CurrentUrl}  https://staging.chromeriver.com/expense/app.jsp?v=${Check}
     Sleep     60   Seconds
     ## Image Verification
