@@ -6,6 +6,21 @@ def SetServerHost( Env, Interface):
             return "staging-app.chromeriver.com"
         else:
             return  "staging.chromeriver.com"
+    elif Env == 'C4-STAG':
+        if Interface == 'JAVA' or Interface == 'MS_JAVA':
+            return "staging-app.us1.chromeriver.com"
+        else:
+            return  "staging-pt.us1.chromeriver.com"
+    elif Env == 'C4-SMOKE':
+        if Interface == 'JAVA' or Interface == 'MS_JAVA':
+            return "smoke-app.us1.chromeriver.com"
+        else:
+            return  "smoke-pt.us1.chromeriver.com"
+    elif Env == 'C4-SOTER':
+        if Interface == 'JAVA' or Interface == 'MS_JAVA':
+            return "soter-app.us1.chromeriver.com"
+        else:
+            return  "soter-pt.us1.chromeriver.com"
     elif Env == 'QA':
         if Interface == 'JAVA' or Interface == 'MS_JAVA':
             return "qa-app.chromeriver.com"
