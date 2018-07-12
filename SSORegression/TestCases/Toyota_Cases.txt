@@ -89,7 +89,6 @@ Toyota Saml Java Get Url OneLogin Mercury Email Fail Case
 Toyota Saml Java Get Url OneLogin Mercury UniqueId Pass Case
     [Documentation]  Verify Login
     [Tags]  Toyota  SAML  UniqueId
-        #Set Global Variable    ${BROWSER}    ff
         ${Path}=  Intial Setup  ${ENV}  SAML  MS_JAVA  GET  URL  ONELOGIN  MERCURY  UNIQUEID  C1
         Open New Browser  ${Path}  ${BROWSER}
         OneLogin App  ${BLT_Saml_MercuryUserEmail}  ${BLT_Saml_MercuryPassword}

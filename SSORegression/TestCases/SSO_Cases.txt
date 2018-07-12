@@ -50,7 +50,7 @@ ChromeSso Php Url JennyEndpoint Platinum Pass Case
             Verify Platinum URL
 
 ChromeSso Php Url JennyEndpoint Platinum Fail Case
-      [Tags]  SSO  Php  kabulgrover
+      [Tags]  SSO  Php
             #Validate Platinum Session in Mercury  YMe5CnnF4gsBiKdKt+G6V7I4    06583576-3917-4c6d-84ee-dddccc9d8158
             ${Path}=  Intial Setup  ${ENV}  CR_SSO  PHP  GET  URL  ONELOGIN  MERCURY  EMAIL  C1
             Open New Browser  ${Path}  ${BROWSER}
