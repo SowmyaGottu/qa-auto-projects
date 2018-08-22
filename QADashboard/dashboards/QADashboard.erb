@@ -1,0 +1,33 @@
+<%
+WIDGETS_ROWS = parseQA()
+%>
+
+<script type='text/javascript'>
+$(function() {
+  // These settings override the defaults set in application.coffee. You can do this on a per dashboard basis.
+  //Dashing.gridsterLayout('[{"col":2,"row":1},{"col":1,"row":1},{"col":3,"row":1},{"col":2,"row":2},{"col":3,"row":2},{"col":1,"row":2},{"col":5,"row":1},{"col":4,"row":2},{"col":2,"row":3}]')
+  //Dashing.widget_base_dimensions = [300, 475]
+  Dashing.widget_base_dimensions = [200, 500]
+  Dashing.numColumns = 9
+});
+</script>
+<!--<div id="header" style="position:absolute; top:0px; left:10px; height:200px; right:0px;overflow:hidden;"></div>-->
+<% content_for :title do %>QA Release Dashboard<% end %>
+<div id="content" style="position:absolute; top:30px; bottom:30px; left:0px; right:0px; overflow:auto;">
+<div class="gridster">
+  <ul>
+    <% WIDGETS_ROWS.each do |row| %>
+       <li data-row="1" data-col="1" data-sizex="1" data-sizey="1">
+        <div data-id="<%=row%>" data-view="CircleCiList" data-unordered="false" data-title="<%=row%>" data-moreinfo="# of JIRAs assigned to QAs"></div>
+      </li>
+    <% end %>
+  </ul>
+</div>
+</div>
+<div id="footer" style="position:absolute; bottom:0px; left:10px; right:0px; overflow:hidden;">
+<span style="color:#A31F1F;">Red: Reopened</span>
+<span style="color:#B2B200;">Yellow: Ready For Testing</span>
+<span style="color:#006400;">Green: Ready For Prod</span>
+<span style="color:#47bbb3;">Blue: Resolved</span>
+<span style="color:#cd5c5c;">Rose: Other</span>
+</div>

@@ -1,0 +1,134 @@
+$value-color:              #FFF;
+$background-color:         #444;
+$background-error-color:   #A31F1F;
+$background-ready-color:   #B2B200;
+$background-passed-color:  #006400;
+$background-progress-color:  #cd5c5c;
+$background-pending-color: #47bbb3;
+
+$title-color:       rgba(255, 255, 255, 1);
+$label-color:       rgba(255, 255, 255, 1);
+
+.widget.widget-circle-ci-list{
+
+  background-color: $background-color;
+  padding: 0px;
+  vertical-align: top;
+
+  img.background {
+    width: 100% !important;
+    position: absolute;
+    left: 0;
+    top: 30px;
+    opacity: 0.05;
+  }
+
+  .title {
+    color: $title-color;
+  }
+
+  .mainDiv {
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  ::-webkit-scrollbar {
+   display: none;
+}
+
+  ol, ul {
+    margin: 0px;
+    text-align: left;
+    color: $label-color;
+  }
+
+  h1 {
+      /* margin-bottom: 12px; */
+      /* text-align: center; */
+      font-size: 22px;
+      font-weight: 400;
+  }
+
+  ol {
+    list-style-position: inside;
+  }
+
+  li {
+    margin-bottom: 5px;
+  }
+
+  .list-nostyle {
+  }
+
+  .items{
+    list-style: none;
+
+    li {
+      margin-top: 5px;
+
+      &.failed {
+        background-color: $background-error-color;
+      }
+
+      &.pending {
+        background-color: $background-pending-color;
+      }
+
+      &.progress {
+        background-color: $background-progress-color;
+      }
+
+      &.ready {
+        background-color: $background-ready-color;
+      }
+
+      &.passed {
+        background-color: $background-passed-color;
+      }
+
+      .label {
+        display: block;
+        color: $label-color;
+        font-size: 20px;
+        word-wrap: break-word;
+
+        &.repo {
+          float: left;
+          text-align: left;
+          padding: 5px 0px 5px 10px;
+        }
+
+        &.branch {
+          float: left;
+          text-align: left;
+          padding-top: 10px;
+          font-size: 14px;
+          padding: 11px 0px 5px 5px;
+        }
+      }
+
+      .avatar {
+        float: right;
+        text-align: right;
+        width: 40px;
+      }
+    }
+  }
+}
+
+// Header
+
+#header {
+  text-align: center;
+}
+
+// Footer
+
+#footer {
+  text-align: center;
+}
+
+#footer span {
+  padding-left: 50px;
+  padding-right: 50px
+}
