@@ -18,7 +18,8 @@ else
     password: "r3dr8nger",
     filterName: "36100", #ReleaseFilter 
     filterName1: "41000", #ReleaseFilter1
-    filterName2: "40801" #ReleaseFilter2
+    filterName2: "40801", #ReleaseFilter2
+    filterName3: "43501" #TalendJIRAs
   }
 end
 
@@ -133,6 +134,25 @@ def getIssues()
   a
 end
 
+def getIssues1()
+  _filter = getFilter(JIRA_USER_CONFIG[:jira_url], JIRA_USER_CONFIG[:username], JIRA_USER_CONFIG[:password], JIRA_USER_CONFIG[:filterName3])
+  _issues = getIssuesFromFilter(JIRA_USER_CONFIG[:jira_url], JIRA_USER_CONFIG[:username], JIRA_USER_CONFIG[:password], _filter, 0)
+  a = _issues['issues']
+  count = _issues['maxResults']
+  while _issues['maxResults'] < _issues['total']
+    _issues = getIssuesFromFilter(JIRA_USER_CONFIG[:jira_url], JIRA_USER_CONFIG[:username], JIRA_USER_CONFIG[:password], _filter, count)
+    count = _issues['startAt']
+    a = a + _issues['issues']
+    #print count
+    if _issues['startAt'] + _issues['maxResults'] > _issues['total']
+      break
+    else
+        count = _issues['startAt'] + _issues['maxResults']
+    end
+  end
+  a
+end
+
 def getQAs()
   _filter = getFilter(JIRA_USER_CONFIG[:jira_url], JIRA_USER_CONFIG[:username], JIRA_USER_CONFIG[:password], JIRA_USER_CONFIG[:filterName1])
   _issues = getQAFromFilter(JIRA_USER_CONFIG[:jira_url], JIRA_USER_CONFIG[:username], JIRA_USER_CONFIG[:password], _filter, 0)
@@ -154,6 +174,25 @@ end
 
 def getQAs2()
   _filter = getFilter(JIRA_USER_CONFIG[:jira_url], JIRA_USER_CONFIG[:username], JIRA_USER_CONFIG[:password], JIRA_USER_CONFIG[:filterName2])
+  _issues = getQAFromFilter(JIRA_USER_CONFIG[:jira_url], JIRA_USER_CONFIG[:username], JIRA_USER_CONFIG[:password], _filter, 0)
+  a = _issues['issues']
+  count = _issues['maxResults']
+  while _issues['maxResults'] < _issues['total']
+    _issues = getIssuesFromFilter(JIRA_USER_CONFIG[:jira_url], JIRA_USER_CONFIG[:username], JIRA_USER_CONFIG[:password], _filter, count)
+    count = _issues['startAt']
+    a = a + _issues['issues']
+    #print count
+    if _issues['startAt'] + _issues['maxResults'] > _issues['total']
+      break
+    else
+        count = _issues['startAt'] + _issues['maxResults']
+    end
+  end
+  a
+end
+
+def getQAs3()
+  _filter = getFilter(JIRA_USER_CONFIG[:jira_url], JIRA_USER_CONFIG[:username], JIRA_USER_CONFIG[:password], JIRA_USER_CONFIG[:filterName3])
   _issues = getQAFromFilter(JIRA_USER_CONFIG[:jira_url], JIRA_USER_CONFIG[:username], JIRA_USER_CONFIG[:password], _filter, 0)
   a = _issues['issues']
   count = _issues['maxResults']
@@ -194,6 +233,7 @@ end
 
 def parseIssues()
   issues = getIssues()
+  issues = issues + getIssues1()
   issuesArray = Array.new
   issueHash = Hash.new
 
@@ -208,10 +248,16 @@ def parseIssues()
     end
     
     if !(issue['fields']['customfield_10400']).nil?
-      issueHash['qa'] = issue['fields']['customfield_10400']['displayName']
+        if issue['fields']['project']['name'] == 'Synapse'
+            issueHash['qa'] = 'TAL-'+ issue['fields']['customfield_10400']['displayName']
+        else
+            issueHash['qa'] = issue['fields']['customfield_10400']['displayName']
+        end
     else
       if issue['fields']['project']['name'] == 'Chrome River Tools'
         issueHash['qa'] = 'T Unassigned'
+      elsif issue['fields']['project']['name'] == 'Synapse'
+        issueHash['qa'] = 'TAL-Unassigned'
       else
         issueHash['qa'] = 'Unassigned'
       end
@@ -250,6 +296,24 @@ def parseQA2()
       issuesArray.push issue['fields']['customfield_10400']['displayName']
     else
       issuesArray.push 'T Unassigned'
+    end
+    #issuesArray.push issueHash
+    #issueHash = Hash.new
+  end
+  issuesArray = issuesArray.uniq
+  issuesArray = issuesArray.sort
+end
+
+def parseQA3()
+  issues = getQAs3()
+  issuesArray = Array.new
+  #issueHash = Hash.new
+
+  issues.each do |issue|
+    if !(issue['fields']['customfield_10400']).nil?
+      issuesArray.push issue['fields']['customfield_10400']['displayName']
+    else
+      issuesArray.push 'Unassigned'
     end
     #issuesArray.push issueHash
     #issueHash = Hash.new
