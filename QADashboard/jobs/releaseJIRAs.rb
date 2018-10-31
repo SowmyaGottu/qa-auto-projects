@@ -19,7 +19,8 @@ else
     filterName: "36100", #ReleaseFilter 
     filterName1: "41000", #ReleaseFilter1
     filterName2: "40801", #ReleaseFilter2
-    filterName3: "43501" #TalendJIRAs
+    filterName3: "43501", #TalendJIRAs
+    filterName4: "43565"  #ReleaseFikter3
   }
 end
 
@@ -210,6 +211,25 @@ def getQAs3()
   a
 end
 
+def getQAs4()
+  _filter = getFilter(JIRA_USER_CONFIG[:jira_url], JIRA_USER_CONFIG[:username], JIRA_USER_CONFIG[:password], JIRA_USER_CONFIG[:filterName4])
+  _issues = getQAFromFilter(JIRA_USER_CONFIG[:jira_url], JIRA_USER_CONFIG[:username], JIRA_USER_CONFIG[:password], _filter, 0)
+  a = _issues['issues']
+  count = _issues['maxResults']
+  while _issues['maxResults'] < _issues['total']
+    _issues = getIssuesFromFilter(JIRA_USER_CONFIG[:jira_url], JIRA_USER_CONFIG[:username], JIRA_USER_CONFIG[:password], _filter, count)
+    count = _issues['startAt']
+    a = a + _issues['issues']
+    #print count
+    if _issues['startAt'] + _issues['maxResults'] > _issues['total']
+      break
+    else
+        count = _issues['startAt'] + _issues['maxResults']
+    end
+  end
+  a
+end
+
 def requestImage(d_url)
   username = JIRA_USER_CONFIG[:username]
   password = JIRA_USER_CONFIG[:password]
@@ -258,6 +278,8 @@ def parseIssues()
         issueHash['qa'] = 'T Unassigned'
       elsif issue['fields']['project']['name'] == 'Synapse'
         issueHash['qa'] = 'TAL-Unassigned'
+      elsif issue['fields']['project']['name'] == 'Mercury'
+        issueHash['qa'] = 'Unassigned (M)'
       else
         issueHash['qa'] = 'Unassigned'
       end
@@ -277,7 +299,7 @@ def parseQA()
     if !(issue['fields']['customfield_10400']).nil?
       issuesArray.push issue['fields']['customfield_10400']['displayName']
     else
-      issuesArray.push 'Unassigned'
+      issuesArray.push 'Unassigned (M)'
     end
     #issuesArray.push issueHash
     #issueHash = Hash.new
@@ -306,6 +328,24 @@ end
 
 def parseQA3()
   issues = getQAs3()
+  issuesArray = Array.new
+  #issueHash = Hash.new
+
+  issues.each do |issue|
+    if !(issue['fields']['customfield_10400']).nil?
+      issuesArray.push issue['fields']['customfield_10400']['displayName']
+    else
+      issuesArray.push 'Unassigned'
+    end
+    #issuesArray.push issueHash
+    #issueHash = Hash.new
+  end
+  issuesArray = issuesArray.uniq
+  issuesArray = issuesArray.sort
+end
+
+def parseQA4()
+  issues = getQAs4()
   issuesArray = Array.new
   #issueHash = Hash.new
 
