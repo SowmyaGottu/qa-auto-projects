@@ -1,0 +1,47 @@
+{
+	"info": {
+		"_postman_id": "8941b73e-5846-46b8-8862-3e16c81dee2f",
+		"name": "Poke API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Pokemon Types",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c8636beb-1cb5-47a1-9f48-696d50eb9ee1",
+						"exec": [
+							"var body = JSON.parse(responseBody);",
+							"tests[\"At least 1 Pokemon Type Is Returned\"] = body.count > 0;"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://pokeapi.co/api/v2/type",
+					"protocol": "https",
+					"host": [
+						"pokeapi",
+						"co"
+					],
+					"path": [
+						"api",
+						"v2",
+						"type"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
