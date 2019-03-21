@@ -1,0 +1,294 @@
+{
+	"info": {
+		"_postman_id": "7eec27be-c649-4f15-a8e9-f5c69ef0eb24",
+		"name": "QA Dashboard",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Update Boards",
+			"item": [
+				{
+					"name": "Update ReleaseFilter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "aa18c0dd-3087-4f5e-81cd-c5e804fa7151",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "r3dr8nger",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "qa.automation@chromewallet.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"ReleaseFilter\",\n    \"description\": \"Release Dashboard Filter\\r\\nAuthor: Kabul Grover\",\n    \"jql\": \"project in (\\\"Chrome River\\\", Mercury, Invoice, Infrastructure, \\\"Chrome River Tools\\\") AND fixVersion in ({{Release-Name}}) AND status not in (\\\"In Production\\\", Closed) AND \\\"Reopen Fix Version:\\\" in (\\\"Fix in this release\\\", EMPTY, Unknown)\",\n    \"favourite\": false\n}"
+						},
+						"url": {
+							"raw": "https://chromeriver.atlassian.net/rest/api/2/filter/:ReleaseFilter",
+							"protocol": "https",
+							"host": [
+								"chromeriver",
+								"atlassian",
+								"net"
+							],
+							"path": [
+								"rest",
+								"api",
+								"2",
+								"filter",
+								":ReleaseFilter"
+							],
+							"variable": [
+								{
+									"key": "ReleaseFilter",
+									"value": "43786"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update ReleaseFilter1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "aa18c0dd-3087-4f5e-81cd-c5e804fa7151",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "r3dr8nger",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "qa.automation@chromewallet.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"ReleaseFilter1\",\n    \"description\": \"Release Dashboard Filter\\r\\nAuthor: Kabul Grover\",\n    \"jql\": \"project in (Mercury) AND fixVersion in ({{Release-Name}}) AND status not in (\\\"In Production\\\", Closed) AND \\\"Reopen Fix Version:\\\" in (\\\"Fix in this release\\\", EMPTY, Unknown) ORDER BY key ASC\",\n    \"favourite\": false\n}"
+						},
+						"url": {
+							"raw": "https://chromeriver.atlassian.net/rest/api/2/filter/:ReleaseFilter",
+							"protocol": "https",
+							"host": [
+								"chromeriver",
+								"atlassian",
+								"net"
+							],
+							"path": [
+								"rest",
+								"api",
+								"2",
+								"filter",
+								":ReleaseFilter"
+							],
+							"variable": [
+								{
+									"key": "ReleaseFilter",
+									"value": "43788"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update ReleaseFilter2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "aa18c0dd-3087-4f5e-81cd-c5e804fa7151",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "r3dr8nger",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "qa.automation@chromewallet.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"ReleaseFilter2\",\n    \"description\": \"Release Dashboard Filter\\r\\nAuthor: Kabul Grover\",\n    \"jql\": \"project in (\\\"Chrome River Tools\\\") AND fixVersion in ({{Release-Name}}) AND status not in (\\\"In Production\\\", Closed) AND \\\"Reopen Fix Version:\\\" in (\\\"Fix in this release\\\", EMPTY, Unknown)\",\n    \"favourite\": false\n}"
+						},
+						"url": {
+							"raw": "https://chromeriver.atlassian.net/rest/api/2/filter/:ReleaseFilter",
+							"protocol": "https",
+							"host": [
+								"chromeriver",
+								"atlassian",
+								"net"
+							],
+							"path": [
+								"rest",
+								"api",
+								"2",
+								"filter",
+								":ReleaseFilter"
+							],
+							"variable": [
+								{
+									"key": "ReleaseFilter",
+									"value": "43789"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update ReleaseFilter3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "aa18c0dd-3087-4f5e-81cd-c5e804fa7151",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "r3dr8nger",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "qa.automation@chromewallet.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"ReleaseFilter3\",\n    \"description\": \"Release Dashboard Filter\\r\\nAuthor: Kabul Grover\",\n    \"jql\": \"project in (\\\"Chrome River\\\", Infrastructure, Invoice) AND fixVersion in ({{Release-Name}}) AND status not in (\\\"In Production\\\", Closed) AND \\\"Reopen Fix Version:\\\" in (\\\"Fix in this release\\\", EMPTY, Unknown)\",\n    \"favourite\": false\n}"
+						},
+						"url": {
+							"raw": "https://chromeriver.atlassian.net/rest/api/2/filter/:ReleaseFilter",
+							"protocol": "https",
+							"host": [
+								"chromeriver",
+								"atlassian",
+								"net"
+							],
+							"path": [
+								"rest",
+								"api",
+								"2",
+								"filter",
+								":ReleaseFilter"
+							],
+							"variable": [
+								{
+									"key": "ReleaseFilter",
+									"value": "43790"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
