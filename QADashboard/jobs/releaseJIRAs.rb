@@ -16,11 +16,11 @@ else
     jira_url: "https://chromeriver.atlassian.net",
     username: "qa.automation@chromewallet.com",
     password: "r3dr8nger",
-    filterName: "36100", #ReleaseFilter 
-    filterName1: "41000", #ReleaseFilter1
-    filterName2: "40801", #ReleaseFilter2
+    filterName: "43786", #ReleaseFilter
+    filterName1: "43788", #ReleaseFilter1
+    filterName2: "43789", #ReleaseFilter2
     filterName3: "43501", #TalendJIRAs
-    filterName4: "43565"  #ReleaseFikter3
+    filterName4: "43790"  #ReleaseFikter3
   }
 end
 
