@@ -1,0 +1,157 @@
+{
+	"info": {
+		"_postman_id": "596d53e2-cb48-4095-8232-1eb55cea78b0",
+		"name": "Launch Darkly",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "PostToSlack",
+			"item": [
+				{
+					"name": "Get feature flag",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "56bae300-0fa8-4ed2-975a-e382cca9e666",
+								"exec": [
+									"function callSlackHook(message) {",
+									"    // Example with a full fledged SDK Request",
+									"    const echoPostRequest = {",
+									"        url: 'https://hooks.slack.com/services/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',",
+									"        method: 'POST',",
+									"        header: 'Content-Type:application/json',",
+									"        body: {",
+									"            mode: 'raw',",
+									"            raw: JSON.stringify({",
+									"                text: \"\",",
+									"                attachments: [{",
+									"                    text: \"Launch Darkly Flags\",",
+									"                    fields: [{",
+									"                        \"title\": \"flag\",",
+									"                        \"value\": message[\"flag\"],",
+									"                        \"short\": false",
+									"                    }, {",
+									"                        \"title\": \"staging\",",
+									"                        \"value\": message[\"staging\"],",
+									"                        \"short\": true",
+									"                    }, {",
+									"                        \"title\": \"smoke\",",
+									"                        \"value\": message[\"smoke\"],",
+									"                        \"short\": true",
+									"                    }, {",
+									"                        \"title\": \"smoke\",",
+									"                        \"value\": message[\"soter\"],",
+									"                        \"short\": true",
+									"                    }, {",
+									"                        \"title\": \"qa\",",
+									"                        \"value\": message[\"qa\"],",
+									"                        \"short\": true",
+									"                    }, {",
+									"                        \"title\": \"prod\",",
+									"                        \"value\": message[\"prod\"],",
+									"                        \"short\": true",
+									"                    }],",
+									"                    \"color\": \"#F35A00\"",
+									"                }]",
+									"            })",
+									"        }",
+									"    };",
+									"    pm.sendRequest(echoPostRequest, function(err, res) {",
+									"        console.log(err ? err : res.text());",
+									"",
+									"        pm.test('response should be okay to process', function() {",
+									"            pm.expect(err).to.equal(null);",
+									"            pm.expect(res).to.have.property('code', 200);",
+									"            pm.expect(res).to.have.property('status', 'OK');",
+									"        });",
+									"    });",
+									"}",
+									"",
+									"",
+									"var item = pm.response.json();",
+									"var printTxt = [];",
+									"",
+									"printTxt.flag = item.name;",
+									"printTxt.staging = item.environments.dev.on.toString();",
+									"printTxt.smoke = item.environments.staging.on.toString();",
+									"printTxt.soter = item.environments.staging.on.toString();",
+									"printTxt.qa = item.environments.qa.on.toString();",
+									"printTxt.prod = item.environments.prod.on.toString();",
+									"",
+									"callSlackHook(printTxt);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{Kabul-LD-Key}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://app.launchdarkly.com/api/v2/flags/chrome-river/{{Feature-Flag-Name}}",
+							"protocol": "https",
+							"host": [
+								"app",
+								"launchdarkly",
+								"com"
+							],
+							"path": [
+								"api",
+								"v2",
+								"flags",
+								"chrome-river",
+								"{{Feature-Flag-Name}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "a42be7d0-d198-4367-a320-8044be726837",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "40557f88-530b-4ff7-8490-812ac505c5e8",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "a9656d12-ee46-49fa-95d4-f9a0da6cac01",
+			"key": "Kabul-LD-Key",
+			"value": "api-41404887-8a6d-426e-9e81-7b1f6dfcf20c",
+			"type": "string"
+		}
+	]
+}
