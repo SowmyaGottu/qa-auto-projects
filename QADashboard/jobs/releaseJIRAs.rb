@@ -234,7 +234,8 @@ def requestImage(d_url)
   username = JIRA_USER_CONFIG[:username]
   password = JIRA_USER_CONFIG[:password]
   query = CGI::parse(URI::parse(d_url).query)
-  url = query['d'][0]
+  #url = query['d'][0]
+  url = d_url
   url = URI.unescape(url)
   uri = URI.parse(url)
   http = Net::HTTP.new(uri.host, uri.port)
