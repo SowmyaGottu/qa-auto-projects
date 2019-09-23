@@ -3,7 +3,7 @@ Documentation  Resource file for basic settings.
 
 *** Variables ***
 ${BROWSER}              ie
-${ENV}                  STAG
+${ENV}                  C4-STAG
 
 # CFA
 ${CFA_Saml_PlatinumUserEmail}        saml_qa_pt@chromewallet.com
