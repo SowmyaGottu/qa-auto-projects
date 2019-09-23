@@ -25,10 +25,12 @@ Get Local File Path
 
 OneLogin App
     [Arguments]  ${UserName}  ${Password}
-    Wait Until Page Contains Element                    //*[@id="user_email"]                           25 Seconds
-    Input Text                                          //*[@id="user_email"]                           ${UserName}
-    Input Text                                          //*[@id="user_password"]                        ${Password}
-    Click Element                                       //*[@id="user_submit"]
+    Wait Until Page Contains Element                    //*[@id="username"]                           25 Seconds
+    Input Text                                          //*[@id="username"]                           ${UserName}
+    Click Element                                       //button[@type="submit"]
+    Wait Until Page Contains Element                    //*[@id="password"]                           25 Seconds
+    Input Text                                          //*[@id="password"]                           ${Password}
+    Click Element                                       //button[@type="submit"]
 
 Mercury App
     [Arguments]  ${UserName}  ${Password}  ${CompanyID}
