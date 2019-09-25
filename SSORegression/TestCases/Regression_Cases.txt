@@ -10,7 +10,7 @@ Deleted User Mercury
         ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  URL  ONELOGIN  MERCURY  EMAIL  C1
         Open New Browser  ${Path}  ${BROWSER}
         OneLogin App  chrome_saml_admin5@chromewallet.com  1river101
-        Verify Restricted Mercury Message
+        Verify Failed Mercury Message
 
 Non Existing User Mercury
     [Documentation]  User is not in CR application
@@ -18,4 +18,4 @@ Non Existing User Mercury
         ${Path}=  Intial Setup  ${ENV}  SAML  JAVA  GET  URL  ONELOGIN  MERCURY  EMAIL  C1
         Open New Browser  ${Path}  ${BROWSER}
         OneLogin App  nonexistentdb@chromewallet.com  1river101
-        Verify Restricted Mercury Message
+        Verify Failed Mercury Message

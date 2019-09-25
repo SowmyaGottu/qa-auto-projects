@@ -30,7 +30,7 @@
 							"basic": [
 								{
 									"key": "password",
-									"value": "r3dr8nger",
+									"value": "{{API-Key}}",
 									"type": "string"
 								},
 								{
@@ -100,7 +100,7 @@
 							"basic": [
 								{
 									"key": "password",
-									"value": "r3dr8nger",
+									"value": "{{API-Key}}",
 									"type": "string"
 								},
 								{
@@ -170,7 +170,7 @@
 							"basic": [
 								{
 									"key": "password",
-									"value": "r3dr8nger",
+									"value": "{{API-Key}}",
 									"type": "string"
 								},
 								{
@@ -240,7 +240,7 @@
 							"basic": [
 								{
 									"key": "password",
-									"value": "r3dr8nger",
+									"value": "{{API-Key}}",
 									"type": "string"
 								},
 								{
@@ -289,6 +289,36 @@
 					"response": []
 				}
 			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "52d597b2-c347-4900-a50e-90cfa1518017",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "641c9e43-744d-49a1-bfdc-437bfe245c31",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "1fd78f8b-dd62-42ed-975c-ff2997c9392e",
+			"key": "API-Key",
+			"value": "JWHk36SmjaGjKtEuTZ8x13CF",
+			"type": "string"
 		}
 	]
 }

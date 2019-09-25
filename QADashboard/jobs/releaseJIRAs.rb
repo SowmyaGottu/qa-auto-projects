@@ -15,7 +15,8 @@ else
   JIRA_USER_CONFIG = {
     jira_url: "https://chromeriver.atlassian.net",
     username: "qa.automation@chromewallet.com",
-    password: "r3dr8nger",
+    #password: "r3dr8nger",
+    password:"JWHk36SmjaGjKtEuTZ8x13CF",
     filterName: "43786", #ReleaseFilter
     filterName1: "43788", #ReleaseFilter1
     filterName2: "43789", #ReleaseFilter2

@@ -105,7 +105,7 @@ Verify Mercury Dashboard
     Sleep     2   Seconds
 
 Verify Failed OneLogin Message
-    Wait Until Page Contains Element                //*[@id="errors"]/div[contains(text(),"Invalid username or password")]        25 Seconds
+    Wait Until Page Contains Element                //div[contains(text(),"Invalid username or password")]        25 Seconds
     Sleep     2   Seconds
 
 Verify Failed Mercury Message
