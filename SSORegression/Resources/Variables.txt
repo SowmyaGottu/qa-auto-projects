@@ -74,7 +74,7 @@ ${ASAHQ_PassPt_UserName}            pass_user_pt
 ${ASAHQ_PassPt_Password}            1river101
 ${ASAHQ_Fail_UserName}              fail_user
 ${ASAHQ_Fail_Password}              Password
-${ASAHQ_CompanyID}                  www.asahq.org
+${ASAHQ_CompanyID}                  www.geh.com
 
 # Files
 ${STAG_SSO_File}                    CR_SSO_Staging_PHP.html

@@ -69,7 +69,7 @@ Verify Failed Platinum Page
     ...    ELSE IF    '${OVERRIDE}' == 'STAG'  Should Be Equal  ${CurrentUrl}  https://staging.chromeriver.com/expense/app.jsp?v=${Check}
     ...    ELSE IF    '${ENV}' == 'PROD'  Should Be Equal  ${CurrentUrl}  https://www.chromeriver.com/expense/app.jsp?v=${Check}
     ...    ELSE IF    '${ENV}' == 'QA'    Should Be Equal  ${CurrentUrl}  https://qa.chromeriver.com/expense/app.jsp?v=${Check}
-    ...    ELSE                           Should Be Equal  ${CurrentUrl}  https://staging.chromeriver.com/expense/app.jsp?v=${Check}
+    ...    ELSE                           Should Be Equal  ${CurrentUrl}  https://staging-pt.us1.chromeriver.com/expense/app.jsp?v=${Check}
     Sleep     60   Seconds
     ## Image Verification
     # Try 0
