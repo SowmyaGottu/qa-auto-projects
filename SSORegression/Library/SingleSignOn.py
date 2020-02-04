@@ -49,6 +49,8 @@ def SetPathName( TestType, Interface, Method, Override, CustomerId, AuthType):
             return "/cr-saml/index.php?CompanyID=" + CustomerId
         else:
             return "/cr-saml/index.php?CompanyID=" + CustomerId
+    elif TestType == 'OIDC':
+        return '/dispatch/oidc?companyId=' + CustomerId
     elif Interface == "JAVA" and TestType == "CR_SSO":
         return "/login"
     elif Interface == "PHP" and TestType == "CR_SSO":
@@ -80,6 +82,9 @@ def Intial_Setup( _env, _technology, _interface, _method, _override, _idpServer,
 
     if _auth == "UNIQUEID":
         CustomerId = "pbj.com"
+
+    if _technology == 'OIDC':
+        CustomerId = 'www.tab.com'
 
     fullPath = scheme + SetServerHost( _env, _interface) + SetPathName( _technology, _interface, _method, _override, CustomerId, _auth)
     return fullPath

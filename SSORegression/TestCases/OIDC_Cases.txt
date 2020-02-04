@@ -1,0 +1,13 @@
+*** Settings ***
+Documentation  Saml SSO Test Cases
+Test Teardown     Close Browser
+Resource  ../Resources/Resource.txt
+
+*** Test Cases ***
+OIDC OneLogin Mercury Username Pass Case
+    [Documentation]  Verify Login
+    [Tags]  OIDC  OneLogin
+        ${Path}=  Intial Setup  ${ENV}  OIDC  JAVA  GET  URL  ONELOGIN  PLATINUM  EMAIL  C1
+        Open New Browser  ${Path}  ${BROWSER}
+        OneLogin App  ${TAB_Oidc_MercuryUserEmail01}  ${TAB_Oidc_MercuryUserPassword01}
+        Verify Mercury Dashboard

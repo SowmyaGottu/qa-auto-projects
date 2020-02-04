@@ -67,6 +67,13 @@ ${BLT_Saml_MercuryUserEmail_Bad}     chrome_saml_qa_hg_bad@crblt.com
 ${BLT_Saml_MercuryPassword_Bad}      1river101_bad
 ${BLT_Saml_CompanyID}                blt.com
 
+#TAB
+${TAB_Oidc_MercuryUserEmail01}      saml_qa_hg_01@chromewalletauto.com
+${TAB_Oidc_MercuryUserPassword01}   1river101
+${TAB_Oidc_MercuryUserEmail02}      saml_qa_hg_02@chromewalletauto.com
+${TAB_Oidc_MercuryUserPassword01}   1river101
+${TAB_Oidc_CompanyID}               www.tab.com
+
 # ASAHQ
 ${ASAHQ_Pass_UserName}              pass_user
 ${ASAHQ_Pass_Password}              1river101

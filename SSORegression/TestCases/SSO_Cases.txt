@@ -4,10 +4,6 @@ Test Teardown     Close Browser
 Resource  ../Resources/Resource.txt
 
 *** Test Cases ***
-Test Image Case
-      [Tags]  Test
-      Test Image Test
-
 ChromeSso Java Url JennyEndpoint Platinum Pass Case
       [Documentation]  Verify Login
       [Tags]  SSO  Java
